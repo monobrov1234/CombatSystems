@@ -1,6 +1,5 @@
 --[[
     Normal Vehicle Controller (Client-Side Only)
-    @Monobrov1234
 
     This controller is designed for standard wheeled vehicles that steer using two
     front turnable wheels and support any number of non-steering rear wheels.

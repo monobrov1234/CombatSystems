@@ -6,7 +6,6 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
-local GunConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunConfig)
 local GunConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.GunConfigUtilModule)
 local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
 
@@ -41,19 +40,17 @@ function funcs.handleGunAdded(player: Player, gunTool: Tool)
 	local gunInfo = GunUtil.parseGunInfo(gunTool)
 
 	-- hook gun
-	local equippedTool: Tool
-	gunTool.AncestryChanged:Connect(function(child: Instance, newParent: Instance)
+	local equippedTool: Tool?
+	gunTool.AncestryChanged:Connect(function(child: Instance, newParent: Instance?)
 		if child ~= gunTool then return end
 		if newParent == player.Character then
 			-- gun was equipped
 			equippedTool = gunTool
 			funcs.handleGunEquipped(player, gunInfo)
-			log:debug("Server gun equipped: {}", gunTool.Name)
 		else
 			if equippedTool == gunTool then
 				equippedTool = nil
 				funcs.handleGunUnequipped(player, gunInfo)
-				log:debug("Server gun unequipped: {}", gunTool.Name)
 			end
 
 			if newParent ~= player.Backpack then
@@ -78,19 +75,23 @@ end
 function funcs.handleGunEquipped(player: Player, gunInfo: GunUtil.GunInfo)
 	local character = player.Character
 	if not character then return end
-	local humanoid: Humanoid = character:FindFirstChild("Humanoid")
+	local humanoid: Humanoid? = character:FindFirstChildOfClass("Humanoid")
 	if not humanoid then return end
-	local animator: Animator = humanoid:FindFirstChild("Animator")
+	local animator: Animator? = humanoid:FindFirstChildOfClass("Animator")
 	if not animator then return end
-	local torso = humanoid.RigType == Enum.HumanoidRigType.R6 and character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso")
+	local torso = (humanoid.RigType == Enum.HumanoidRigType.R6
+		and character:FindFirstChild("Torso")
+		or character:FindFirstChild("UpperTorso")) :: BasePart?
 	if not torso then return end
 
-	local animPart: Part = gunInfo.Tool:FindFirstChild("AnimPart")
+	local animPart = gunInfo.Tool:FindFirstChild("AnimPart") :: BasePart
 	local toolAnim = Instance.new("Motor6D")
 	toolAnim.Name = "toolAnim"
 	toolAnim.Part0 = torso
 	toolAnim.Part1 = animPart
 	toolAnim.Parent = torso
+
+	log:debug("Server gun equipped: {}", gunInfo.Tool.Name)
 end
 
 function funcs.handleGunUnequipped(player: Player, gunInfo: GunUtil.GunInfo)
@@ -104,6 +105,8 @@ function funcs.handleGunUnequipped(player: Player, gunInfo: GunUtil.GunInfo)
 	local toolAnim = torso:FindFirstChild("toolAnim")
 	if not toolAnim then return end
 	toolAnim:Destroy()
+
+	log:debug("Server gun unequipped: {}", gunInfo.Tool.Name)
 end
 
 -- called from munitionservice to handle and validate fire event from player
@@ -127,6 +130,7 @@ function module.handleGunFire(rayInfo: RayInfo, gunTool: Tool): RaycastParams
 
 	local raycastParams = RaycastParams.new()
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
+	assert(rayInfo.Player)
 	raycastParams.FilterDescendantsInstances = { rayInfo.Player.Character, gunTool, GunSystemConfig.ProjectileFolder }
 	return raycastParams
 end
@@ -171,13 +175,16 @@ function funcs.handleReplicateReload(player: Player, gunTool: Tool)
 end
 
 function funcs.hookPlayerBackpack(player: Player)
-	for _, tool: Tool in ipairs(player.Backpack:GetChildren()) do
+	for _, tool: Instance in ipairs(player.Backpack:GetChildren()) do
 		if not tool:IsA("Tool") then continue end
 		funcs.handleGunAdded(player, tool)
 	end
-	player.Backpack.ChildAdded:Connect(function(child: Tool)
+
+	player.Backpack.ChildAdded:Connect(function(child: Instance)
+		if not child:IsA("Tool") then return end
 		funcs.handleGunAdded(player, child)
 	end)
+
 	log:debug("Player backpack hooked: ", player.Name)
 end
 
@@ -186,6 +193,7 @@ function funcs.hookPlayer(player: Player)
 	player.CharacterAdded:Connect(function()
 		funcs.hookPlayerBackpack(player)
 	end)
+
 	log:debug("Player hooked: ", player.Name)
 end
 

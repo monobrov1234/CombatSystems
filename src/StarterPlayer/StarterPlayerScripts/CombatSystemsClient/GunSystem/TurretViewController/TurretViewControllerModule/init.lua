@@ -1,6 +1,5 @@
 --[[
     Turret View Controller (Client-Side)
-    @Monobrov1234
 
 	Turret view is the turret model that player currently controls, and have UI displayed for it.
 	Player can have only one turret view.

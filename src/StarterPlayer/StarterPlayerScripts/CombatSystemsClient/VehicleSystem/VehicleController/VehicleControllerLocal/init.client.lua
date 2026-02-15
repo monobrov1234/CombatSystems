@@ -1,6 +1,5 @@
 --[[
 	Abstract Vehicle Controller (Client-Side)
-	@Monobrov1234
 	
 	This script handles how every vehicle drives client-side.
 	It assigns the correct controller implementation based on the "VehicleType" attribute of vehicle seat part.

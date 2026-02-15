@@ -2,7 +2,6 @@
 
 --[[
     Vehicle Service (Server-Side)
-    @Monobrov1234
 ]]
 
 local module = {}

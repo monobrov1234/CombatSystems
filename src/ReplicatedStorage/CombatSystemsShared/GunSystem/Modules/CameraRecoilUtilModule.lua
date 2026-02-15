@@ -16,7 +16,7 @@ type KickJob = {
 	lastAlpha: number, -- previous interpolation value
 }
 
-export type CameraRecoil = typeof(setmetatable({}, CameraRecoil)) & {
+export type SelfObject = typeof(setmetatable({}, CameraRecoil)) & {
 	-- FINALS
 	bindName: string,
 	-- STATE
@@ -25,9 +25,8 @@ export type CameraRecoil = typeof(setmetatable({}, CameraRecoil)) & {
 	kicks: { KickJob },
 	running: boolean,
 }
-
-function CameraRecoil.new(): CameraRecoil
-	local self = setmetatable({}, CameraRecoil) :: CameraRecoil
+function CameraRecoil.new(): SelfObject
+	local self = setmetatable({}, CameraRecoil) :: SelfObject
 	self.bindName = "CameraRecoil_" .. HttpService:GenerateGUID(false)
 	self.running = false
 	self.offset = Vector3.new()
@@ -53,7 +52,7 @@ end
 -- pitchDeg = X, yawDeg = Y, rollDeg = Z (degrees)
 -- lerpTime = seconds to apply full delta (0/nil = instant)
 function CameraRecoil:Kick(pitchDeg: number?, yawDeg: number?, rollDeg: number?, strength: number?, lerpTime: number?)
-	local self = self :: CameraRecoil
+	local self = self :: SelfObject
 	strength = strength or 1
 
 	local delta = Vector3.new(math.rad(pitchDeg or 0), math.rad(yawDeg or 0), math.rad(rollDeg or 0)) * strength
@@ -73,7 +72,7 @@ function CameraRecoil:Kick(pitchDeg: number?, yawDeg: number?, rollDeg: number?,
 end
 
 function CameraRecoil:_step(dt: number)
-	local self = self :: CameraRecoil
+	local self = self :: SelfObject
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 
@@ -114,7 +113,7 @@ function CameraRecoil:_step(dt: number)
 end
 
 function CameraRecoil:Start()
-	local self = self :: CameraRecoil
+	local self = self :: SelfObject
 	if self.running then return end
 	self.running = true
 
@@ -124,14 +123,14 @@ function CameraRecoil:Start()
 end
 
 function CameraRecoil:Stop()
-	local self = self :: CameraRecoil
+	local self = self :: SelfObject
 	if not self.running then return end
 	self.running = false
 	RunService:UnbindFromRenderStep(self.bindName)
 end
 
 function CameraRecoil:Reset()
-	local self = self :: CameraRecoil
+	local self = self :: SelfObject
 	self.offset = Vector3.new()
 	self.applied = Vector3.new()
 	table.clear(self.kicks)
