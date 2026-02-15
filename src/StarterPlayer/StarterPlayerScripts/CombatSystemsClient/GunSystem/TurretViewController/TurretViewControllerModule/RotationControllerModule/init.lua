@@ -5,7 +5,6 @@ module.__index = module
 -- IMPORTS
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local UserInputService = game:GetService("UserInputService")
 local GuiService = game:GetService("GuiService")
 local TurretConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.TurretConfig)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
@@ -25,8 +24,8 @@ export type SelfObject = typeof(setmetatable({}, module)) & {
 	-- FINALS
 	turretInfo: TurretUtil.TurretInfo,
 	raycastParams: RaycastParams,
-	rotationUtil: typeof(RotationUtil),
-	traverseUtil: typeof(TraverseUtil),
+	rotationUtil: RotationUtil.SelfObject,
+	traverseUtil: TraverseUtil.SelfObject,
 
 	-- STATE
 	debugRayPart: Part?,
@@ -35,7 +34,7 @@ export type SelfObject = typeof(setmetatable({}, module)) & {
 	timeAccumulator: number,
 }
 function module.new(turretInfo: TurretUtil.TurretInfo, raycastParams: RaycastParams, traverseStart: Sound?, traverse: Sound?, traverseEnd: Sound?): SelfObject
-	local self: SelfObject = setmetatable({}, module)
+	local self = setmetatable({}, module) :: SelfObject
 
 	self.turretInfo = turretInfo
 	self.raycastParams = raycastParams

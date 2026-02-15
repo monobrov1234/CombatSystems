@@ -27,8 +27,6 @@ local TurretConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Con
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
 local RecoilUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.CameraRecoilUtilModule)
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
-local DestructibleObjectUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DObjectUtilModule)
-
 local MunitionController = require(PlayerScripts.CombatSystemsClient.GunSystem.MunitionController.MunitionControllerModule)
 local CursorController = require(PlayerScripts.CombatSystemsClient.GunSystem.ClientFX.CursorController.CursorControllerModule)
 
@@ -37,8 +35,6 @@ local RotationController = require(script.RotationControllerModule)
 local GuiController = require(script.GuiControllerModule)
 
 -- ROBLOX OBJECTS
-local mouse = player:GetMouse()
-
 -- S->C
 local setTurretStateRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ServerToClient.SetState
 local replicateFireRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ServerToClient.ReplicateFire
@@ -56,12 +52,11 @@ local SENSIVITY_DIVIDER = 2 -- will divide initial mouse sensivity by this value
 
 local turretInfo: TurretUtil.TurretInfo
 local raycastParams: RaycastParams
-local debugRayPart: Part?
 local initialFOV: number
 local initialSens: number
 local cleaner = ConnectionCleaner.new()
-local rotationController: typeof(RotationController)
-local guiController: typeof(GuiController)
+local rotationController: RotationController.SelfObject
+local guiController: GuiController.SelfObject
 local recoilUtil = RecoilUtil.new()
 recoilUtil:Start()
 
@@ -254,7 +249,7 @@ function funcs.switchGun(usingMainGun: boolean)
 	switchGunRemote:FireServer(usingMainGun)
 
 	-- sound
-	funcs.playSound("CoaxSelect", turretInfo.YawMotor.Part0)
+	funcs.playSound("CoaxSelect", turretInfo.YawMotor.Part0 :: BasePart)
 end
 
 function funcs.startAutoFire()
@@ -341,7 +336,7 @@ function funcs.reloadTurret()
 
 	-- sound
 	replicateReloadRemote:FireServer(false, turretState.UsingMainGun)
-	funcs.playSound(turretState.UsingMainGun and "Reload" or "ReloadCoax", turretInfo.PitchMotor.Part1)
+	funcs.playSound(turretState.UsingMainGun and "Reload" or "ReloadCoax", turretInfo.PitchMotor.Part1 :: BasePart)
 end
 
 function funcs.switchShells()
@@ -361,7 +356,7 @@ function funcs.switchShells()
 
 	-- sound
 	replicateReloadRemote:FireServer(true, turretState.UsingMainGun)
-	funcs.playSound("Switch", turretInfo.PitchMotor.Part1)
+	funcs.playSound("Switch", turretInfo.PitchMotor.Part1 :: BasePart)
 end
 
 function funcs.handleReplicateReload(part: BasePart, switch: boolean, usingMainGun: boolean)
@@ -432,7 +427,6 @@ function funcs.playSound(soundName: string, soundParent: Instance)
 end
 
 -- will set/return values for current selected gun (main/coax)
-
 function funcs.getSelectedMunition(): string
 	return turretState.UsingMainGun and turretState.SelectedMunition or turretInfo.TurretConfig.GunConfig.CoaxConfig.AmmoType
 end
