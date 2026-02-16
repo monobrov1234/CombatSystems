@@ -22,17 +22,14 @@ function Connection.new(callback: Callback, priority: number, disconnectCallback
 end
 
 function Connection:getCallback(): Callback
-	local self = self :: SelfObject
 	return self._connectCallback
 end
 
 function Connection:getPriority(): number
-	local self = self :: SelfObject
 	return self._priority
 end
 
 function Connection:disconnect()
-	local self = self :: SelfObject
 	if self._disconnected then return end
 	self._disconnectCallback()
 	self._disconnected = true

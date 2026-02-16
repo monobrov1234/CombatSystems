@@ -4,7 +4,6 @@ local module = {}
 local funcs = {}
 
 -- IMPORTS
-local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)

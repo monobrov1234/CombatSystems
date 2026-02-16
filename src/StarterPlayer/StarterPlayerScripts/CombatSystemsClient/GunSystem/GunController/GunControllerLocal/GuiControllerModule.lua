@@ -1,5 +1,4 @@
 local module = {}
-local funcs = {}
 module.__index = module
 
 -- IMPORTS
@@ -15,7 +14,7 @@ local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.
 local player = Players.LocalPlayer
 local playerGui = player.PlayerGui
 local mouse = player:GetMouse()
-local character = player.Character or player.CharacterAdded:Wait()
+local _character = player.Character or player.CharacterAdded:Wait()
 
 local guiRoot = playerGui:WaitForChild("CombatSystemsGui")
 local gunSystemGui = guiRoot:WaitForChild("GunSystemGui")
@@ -40,13 +39,11 @@ function module.new(gunInfo: GunUtil.GunInfo): SelfObject
 end
 
 function module:destroy()
-	local self = self :: SelfObject
 	self.cleaner:disconnectAll()
 	if self.reloadBarClone then self.reloadBarClone:Destroy() end
 end
 
 function module:enableGui()
-	local self = self :: SelfObject
 	hudGui.Frame.GunName.Text = self.gunInfo.Tool.Name
 	hudGui.Frame.GunDescription.Text = self.gunInfo.Config.Description
 	hudGui.Enabled = true
@@ -62,7 +59,6 @@ function module:updateHud(magSize: number, ammoSize: number)
 end
 
 function module:startReload()
-	local self = self :: SelfObject
 	self.reloadBarClone = cursorGui.ReloadBar:Clone()
 	local inset = GuiService:GetGuiInset()
 	self.reloadBarClone.Position = UDim2.new(0, mouse.X + inset.X, reloadBarMargin, mouse.Y + inset.Y)
@@ -85,7 +81,7 @@ function module:startReload()
 end
 
 player.CharacterAdded:Connect(function(newCharacter) -- if player respawns, those values will become invalid so we update them
-	character = newCharacter
+	_character = newCharacter
 	guiRoot = playerGui:WaitForChild("CombatSystemsGui")
 	gunSystemGui = guiRoot:WaitForChild("GunSystemGui")
 	cursorGui = gunSystemGui:WaitForChild("GunCursor")

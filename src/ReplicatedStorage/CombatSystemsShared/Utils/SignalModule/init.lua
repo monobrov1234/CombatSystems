@@ -29,12 +29,12 @@ function Signal.new(): SelfObject
 end
 
 function Signal:destroy()
-	local self = self :: SelfObject
+	self = self :: SelfObject
 	table.clear(self._connections)
 end
 
 function Signal:fire(...)
-	local self = self :: SelfObject
+	self = self :: SelfObject
 	funcs.checkSort(self)
 
 	local connections = self._connections
@@ -51,15 +51,12 @@ function Signal:fire(...)
 	end
 end
 
-function Signal:connect(callback: Connection.Callback): Connection.SelfObject
-	local self = self :: SelfObject
-	return self:connectPriority(callback, Signal.Priority.NORMAL)
-end
+function Signal:connect(callback: Connection.Callback, priority: number?): Connection.SelfObject
+	self = self :: SelfObject
+	priority = priority or Signal.Priority.NORMAL
 
-function Signal:connectPriority(callback: Connection.Callback, priority: number): Connection.SelfObject
-	local self = self :: SelfObject
 	local connection: Connection.SelfObject
-	connection = Connection.new(callback, priority, function()
+	connection = Connection.new(callback, priority :: number, function()
 		funcs.disconnect(self, connection)
 	end)
 
@@ -68,7 +65,8 @@ function Signal:connectPriority(callback: Connection.Callback, priority: number)
 	return connection
 end
 
-function funcs.disconnect(self: SelfObject, connection: Connection.SelfObject)
+function funcs:disconnect(connection: Connection.SelfObject)
+	self = self :: SelfObject
 	local index: number? = table.find(self._connections, connection)
 	if index then
 		table.remove(self._connections, index)
@@ -76,7 +74,8 @@ function funcs.disconnect(self: SelfObject, connection: Connection.SelfObject)
 	end
 end
 
-function funcs.checkSort(self: SelfObject)
+function funcs:checkSort()
+	self = self :: SelfObject
 	if not self._dirty then return end
 	self._dirty = false
 

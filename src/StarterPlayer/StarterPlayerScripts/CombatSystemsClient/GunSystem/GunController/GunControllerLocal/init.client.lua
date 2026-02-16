@@ -34,6 +34,7 @@ local CursorController = require(PlayerScripts.CombatSystemsClient.GunSystem.Cli
 -- IMPORTS INTERNAL
 local BackpackController = require(script.BackpackControllerModule)
 local GuiController = require(script.GuiControllerModule)
+require(script.HandlingControllerModule)
 
 -- ROBLOX OBJECTS
 local mouse = player:GetMouse()
@@ -57,95 +58,80 @@ local guiController: GuiController.SelfObject?
 local recoilUtil: RecoilUtil.SelfObject?
 local raycastParams: RaycastParams?
 
-local toolAnim: Motor6D?
 local autoFireConnection: RBXScriptConnection?
 local isFiring = false
 local reloading = false
 
--- Handles gun equipping: Sets up Motor6D for animation, raycast params, GUI, recoil, cursor.
+-- animations
+local idle = false
+local sprintHold = false
+local patrol = false
+
+-- Handles gun equipping: Sets up necessary objects for gui and gun logic to work
 function funcs.handleGunEquipped(gunInfo: GunUtil.GunInfo)
 	local character: Model? = player.Character
 	if not character then return end
 	local humanoid: Humanoid? = character:FindFirstChildOfClass("Humanoid")
 	if not humanoid then return end
 
-	local torso = (humanoid.RigType == Enum.HumanoidRigType.R6
-		and character:FindFirstChild("Torso")
-		or character:FindFirstChild("UpperTorso")) :: BasePart?
-	if torso then
-		toolAnim = Instance.new("Motor6D")
-		assert(toolAnim)
-		toolAnim.Name = "toolAnim"
-		toolAnim.Part0 = torso
-		toolAnim.Part1 = gunInfo.AnimPart
-		toolAnim.Parent = torso
-
-		-- i do not want gun model to be visible in unanimated position for a moment, hide the gun
-		toolAnim.C0 = CFrame.new(0, 500, 0)
-
-		local idleAnim = funcs.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder.Idle)
-		assert(idleAnim, "No idle animation for gun " .. gunInfo.Tool.Name)
-		idleAnim:Play()
-
-		RunService.Heartbeat:Once(function()
-			-- show the gun when animation is done
-			toolAnim.C0 = CFrame.new(0, 0, 0)
-		end)
-	else 
-		log:warn("Character torso not found!")
-	end
-
+	-- raycastparams to ignore own character and other projectiles while shooting
 	raycastParams = RaycastParams.new()
 	assert(raycastParams)
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 	raycastParams.FilterDescendantsInstances = { character, gunInfo.Tool, GunSystemConfig.ProjectileFolder }
 
+	-- initialize gui
+	guiController = GuiController.new(gunInfo)
+	assert(guiController)
+
 	-- retrieve server state to update gui text
 	local state: BackpackController.GunState? = BackpackController.getStateFor(gunInfo.Tool)
 	assert(state) -- should not happen
 
-	guiController = GuiController.new(gunInfo)
-	assert(guiController)
+	-- update hud and enable gui
 	guiController:updateHud(state.SharedState.MagSize, state.SharedState.AmmoSize)
 	guiController:enableGui()
 
+	-- initialize recoil util
 	recoilUtil = RecoilUtil.new()
 	assert(recoilUtil)
 	recoilUtil:Start()
 
 	CursorController.enableCursor()
 	log:debug("Client gun equipped: {}", gunInfo.Tool.Name)
+
+	-- if already running and sprinting - toggle sprint hold
+	if MovementController.isSprinting() and humanoid.MoveDirection.Magnitude ~= 0 then
+		funcs.setSprintHold(true, gunInfo)
+	else -- if not, toggle default idle anim
+		funcs.setIdle(true, gunInfo)
+	end
 end
 
--- Handles gun unequipping: Stops animations, cleans up connections, GUI, recoil, etc.
+-- Handles gun unequipping: Cleans up connections, GUI, recoil, etc.
 function funcs.handleGunUnequipped(gunInfo: GunUtil.GunInfo)
 	cleaner:disconnectAll()
 
-	-- stop ALL animations
-	local loadedAnims = BackpackController.getLoadedAnimsFor(gunInfo.Tool)
-	assert(loadedAnims) -- should not happen
-	for anim: Animation, track: AnimationTrack in pairs(loadedAnims) do
-		track:Stop()
-	end
-
-	-- remove grip motor6d
-	if toolAnim then toolAnim:Destroy() end
-
-	-- disable gui
+	-- disable and destroy gui
 	assert(guiController)
 	guiController:disableGui()
 	guiController:destroy()
 	guiController = nil
 	CursorController.disableCursor()
 
-	-- stop firing and destroy recoil util object
+	-- destroy recoil util
 	assert(recoilUtil)
 	recoilUtil:Destroy()
 	recoilUtil = nil
 
+	-- stop reloading and firing
 	funcs.stopAutoFire()
 	reloading = false
 	raycastParams = nil
+
+	idle = false
+	sprintHold = false
+	patrol = false
 
 	log:debug("Client gun unequipped: {}", gunInfo.Tool.Name)
 end
@@ -154,21 +140,36 @@ end
 function funcs.handleInput(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then return end
 
-	local equippedGun: Tool? = BackpackController.getEquippedGun()
+	if input.UserInputType ~= Enum.UserInputType.MouseButton1 
+			and input.KeyCode ~= GunConfig.KeyBindings.ReloadKey 
+			and input.KeyCode ~= GunConfig.KeyBindings.PatrolKey then return end -- some unknown key pressed, exit
+
+	local equippedGun: GunUtil.GunInfo? = BackpackController.getEquippedGun()
 	if not equippedGun then return end -- no gun equipped, exit
-	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.KeyCode ~= GunConfig.KeyBindings.ReloadKey then return end -- some unknown key pressed, exit
 	if humanoid:GetState() == Enum.HumanoidStateType.Dead then return end -- humanoid died, exit
 	if reloading then return end -- prohibit any action if the gun is reloading
 
-	local gunInfo = GunUtil.parseGunInfo(equippedGun)
-	local state: BackpackController.GunState? = BackpackController.getStateFor(equippedGun)
+	local state: BackpackController.GunState? = BackpackController.getStateFor(equippedGun.Tool)
 	assert(state)
+
+	-- patrol (G)
+	if input.KeyCode == GunConfig.KeyBindings.PatrolKey then
+		if MovementController.isSprinting() and humanoid.MoveDirection.Magnitude ~= 0 then return end -- no patrol when running while sprinting, but allow patrol when standing while sprinting
+		if isFiring then return end -- no patrol when firing
+		if reloading then return end -- no patrol when reloading
+		if patrol then
+			funcs.setPatrol(false, equippedGun)
+		else
+			funcs.setPatrol(true, equippedGun)
+		end
+		return
+	end
 
 	-- firing (LMB)
 	local needReload = false -- auto reload on empty mag
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		if state.SharedState.MagSize > 0 then
-			funcs.startAutoFire(gunInfo)
+			funcs.startAutoFire(equippedGun)
 		else
 			needReload = true
 		end
@@ -176,7 +177,9 @@ function funcs.handleInput(input: InputObject, gameProcessed: boolean)
 
 	-- reloading (R)
 	-- only allow reload if nothing is reloading
-	if input.KeyCode == GunConfig.KeyBindings.ReloadKey or needReload then funcs.reloadGun(gunInfo) end
+	if input.KeyCode == GunConfig.KeyBindings.ReloadKey or needReload then
+		funcs.reloadGun(equippedGun) 
+	end
 end
 
 -- Stops auto-fire when MouseButton1 is released.
@@ -214,16 +217,21 @@ function funcs.fireGun(gunInfo: GunUtil.GunInfo)
 	local clock = os.clock()
 	if clock - state.LastShootTime < 60 / gunInfo.Config.GunConfig.FirerateRPM then return end
 
+	-- fire
 	local spreadConfig = gunInfo.Config.GunConfig.SpreadConfig
 	local direction: Vector3 = mouse.Hit.Position - gunInfo.FiringPoint.CFrame.Position
 	MunitionController.fireMunition(gunInfo.Config.GunConfig.AmmoType, gunInfo.FiringPoint, direction, raycastParams, spreadConfig.Yaw, spreadConfig.Pitch)
 	state.SharedState.MagSize = math.max(0, state.SharedState.MagSize - 1)
 	state.LastShootTime = clock
 
+	-- update ammo and mag size in gui
 	assert(guiController)
 	guiController:updateHud(state.SharedState.MagSize, state.SharedState.AmmoSize)
 
-	local shootAnim = funcs.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder.Recoil)
+	-- reset patrol
+	funcs.setPatrol(false, gunInfo)
+
+	local shootAnim = BackpackController.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder:FindFirstChild("Recoil"))
 	assert(shootAnim, "No shoot animation for gun " .. gunInfo.Tool.Name)
 	shootAnim:Play()
 
@@ -234,11 +242,6 @@ function funcs.fireGun(gunInfo: GunUtil.GunInfo)
 
 	-- sound
 	funcs.playSound("Fire", gunInfo.FiringPoint)
-end
-
--- Handles replicated fire from other players (plays sound).
-function funcs.handleReplicateFire(part: BasePart)
-	funcs.playSound("Fire", part)
 end
 
 -- Initiates reload: Plays anim, delays, fires server remote, marks dirty.
@@ -252,7 +255,10 @@ function funcs.reloadGun(gunInfo: GunUtil.GunInfo)
 	if state.Dirty then return end -- already pending reload
 	reloading = true
 
-	local reloadAnim = funcs.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder.Reload)
+	-- reset patrol
+	funcs.setPatrol(false, gunInfo)
+
+	local reloadAnim = BackpackController.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder:FindFirstChild("Reload"))
 	assert(reloadAnim, "No reload anim for gun " .. gunInfo.Tool.Name)
 	reloadAnim:Play()
 
@@ -273,16 +279,75 @@ function funcs.reloadGun(gunInfo: GunUtil.GunInfo)
 	log:debug("Reloading gun...")
 end
 
--- Handles replicated reload from other players (plays sound).
-function funcs.handleReplicateReload(part: BasePart)
-	funcs.playSound("Reload", part)
+-- Sets idle animation
+function funcs.setIdle(value: boolean, gunInfo: GunUtil.GunInfo)
+	if idle == value then return end
+	local idleAnim: AnimationTrack? = BackpackController.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder:FindFirstChild("Idle"))
+	if not idleAnim then return end
+
+	idle = value
+	if value then idleAnim:Play()
+	else idleAnim:Stop() end
 end
 
--- Handles gun state updation event from the server (mag size, ammo count). Happens in BackpackController.
-function funcs.handleSetGunState(gunTool: Tool, newState: BackpackController.SharedGunState)
-	assert(guiController)
-	if gunTool == BackpackController.getEquippedGun() then 
-		guiController:updateHud(newState.MagSize, newState.AmmoSize) 
+-- Sets patrol state (G)
+function funcs.setPatrol(value: boolean, gunInfo: GunUtil.GunInfo)
+	if patrol == value then return end
+	local patrolAnim: AnimationTrack? = BackpackController.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder:FindFirstChild("Patrol"))
+	if not patrolAnim then return end
+
+	patrol = value
+	if value then patrolAnim:Play()
+	else patrolAnim:Stop() end
+end
+
+-- Sets sprint hold state
+function funcs.setSprintHold(value: boolean, gunInfo: GunUtil.GunInfo)
+	if sprintHold == value then return end
+	local sprintHoldAnim: AnimationTrack? = BackpackController.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder:FindFirstChild("SprintHold"))
+	if not sprintHoldAnim then return end
+
+	sprintHold = value
+	if sprintHold then sprintHoldAnim:Play()
+	else sprintHoldAnim:Stop() end
+end
+
+-- Ensures correct animation behavior on sprinting state change
+function funcs.handleSprintStateChange(oldState: boolean, newState: boolean)
+	local equippedGun: GunUtil.GunInfo? = BackpackController.getEquippedGun()
+	if not equippedGun then return end
+
+	-- reset patrol on any state change
+	funcs.setPatrol(false, equippedGun)
+
+	-- when sprinting ended, reset sprintHold and play idle animation
+	if not newState then
+		funcs.setSprintHold(false, equippedGun)
+		funcs.setIdle(true, equippedGun)
+	end
+end
+
+-- Ensures correct animation behavior when the player is moving/standing while having sprinting set to true
+function funcs.handleHumanoidMove()
+	local equippedGun = BackpackController.getEquippedGun()
+	if not equippedGun then return end
+	if not MovementController.isSprinting() then return end
+
+	if reloading then
+		funcs.setSprintHold(false, equippedGun)
+		funcs.setIdle(true, equippedGun)
+		return
+	end
+
+	if sprintHold and humanoid.MoveDirection.Magnitude == 0 then -- standing while sprinting
+		funcs.setSprintHold(false, equippedGun)
+		-- enable idle when standing
+		funcs.setIdle(true, equippedGun)
+	elseif not sprintHold and humanoid.MoveDirection.Magnitude ~= 0 then -- running while sprinting
+		funcs.setSprintHold(true, equippedGun)
+		funcs.setPatrol(false, equippedGun)
+		-- disable idle when running
+		funcs.setIdle(false, equippedGun)
 	end
 end
 
@@ -296,12 +361,26 @@ function funcs.playSound(soundName: string, soundParent: Instance)
 	end
 end
 
--- Resolves a preloaded animation track for the given gun tool and animation instance.
-function funcs.resolveAnim(gunTool: Tool, anim: Animation): AnimationTrack?
-	local anims = BackpackController.getLoadedAnimsFor(gunTool)
-	if anims then
-		return anims[anim]
-	else return nil end
+-- SERVER REPLICATION
+
+-- Handles replicated fire from other players (plays sound).
+function funcs.handleReplicateFire(part: BasePart)
+	funcs.playSound("Fire", part)
+end
+
+-- Handles replicated reload from other players (plays sound).
+function funcs.handleReplicateReload(part: BasePart)
+	funcs.playSound("Reload", part)
+end
+
+-- Handles gun state updation event from the server (mag size, ammo count). Happens in BackpackController.
+function funcs.handleSetGunState(gunTool: Tool, newState: BackpackController.SharedGunState)
+	local equippedGun: GunUtil.GunInfo? = BackpackController.getEquippedGun()
+	assert(equippedGun)
+	if gunTool == equippedGun.Tool then
+		assert(guiController)
+		guiController:updateHud(newState.MagSize, newState.AmmoSize)
+	end
 end
 
 -- HOOKS
@@ -318,8 +397,10 @@ UserInputService.InputBegan:Connect(funcs.handleInput)
 UserInputService.InputEnded:Connect(funcs.handleInputEnd)
 replicateReloadRemote.OnClientEvent:Connect(funcs.handleReplicateReload)
 replicateFireRemote.OnClientEvent:Connect(funcs.handleReplicateFire)
+RunService.Heartbeat:Connect(funcs.handleHumanoidMove)
 
 -- custom
+MovementController.SprintStateChanged:connect(funcs.handleSprintStateChange)
 BackpackController.GunEquipped:connect(funcs.handleGunEquipped)
 BackpackController.GunUnequipped:connect(funcs.handleGunUnequipped)
 BackpackController.SetGunState:connect(funcs.handleSetGunState)

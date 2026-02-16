@@ -5,5 +5,6 @@ return {
 	-- bindings
 	KeyBindings = {
 		ReloadKey = Enum.KeyCode.R,
+		PatrolKey = Enum.KeyCode.G,
 	},
 }

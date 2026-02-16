@@ -5,7 +5,6 @@ local funcs = {}
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
@@ -170,7 +169,6 @@ function funcs.handleBallisticRayHit(
 	segmentVelocity: Vector3,
 	cosmeticBulletObject: BasePart?
 )
-	local munitionConfig: MunitionConfigUtil.DefaultType = cast.UserData.RayInfo.MunitionConfig
 	local hitPos: Vector3 = raycastResult.Position
 	local hit = raycastResult.Instance :: BasePart?
 	cast.UserData.HitPos = hitPos
@@ -208,7 +206,6 @@ function funcs.newBehavior(rayInfo: RayInfo): FastCastReduxTypes.FastCastBehavio
 	return castBehavior
 end
 
-local caster = caster :: any
 caster.RayHit:Connect(funcs.handleBallisticRayHit)
 caster.CastTerminating:Connect(funcs.handleBallisticRayTerminated)
 caster.LengthChanged:Connect(funcs.handleBallisticRayUpdated)

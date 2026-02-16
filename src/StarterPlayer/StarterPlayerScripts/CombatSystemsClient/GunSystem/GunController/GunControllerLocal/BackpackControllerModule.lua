@@ -5,16 +5,9 @@
 	
 	This module manages client-side logic for handling guns in the player's inventory (Backpack).
 	It is responsible for:
-	- Detecting when gun tools are added to or removed from the Backpack
-	- Preloading all animations for each gun upon entry into inventory
-	- Tracking per-gun state (magazine size, reserve ammo, last shoot time, dirty flag)
-	- Detecting equip and unequip events via AncestryChanged
-	- Providing signals for other client modules (GunController, etc.)
-	- Receiving and applying state updates from the server after actions like reloading
-	
-	The module maintains local predicted state for smooth UI and gameplay feel,
-	while the server remains authoritative and synchronizes critical changes
-	via the SetGunState remote.
+	- Backpack actions such as: adding to backpack, removing from backpack
+	- Managing gun animations, initializing and destroying them on backpack add/remove
+	- Managing gun server state
 ]]
 
 local module = {}
@@ -54,7 +47,7 @@ local stateTable: { [Tool]: GunState } = {} -- each gun have its GunState to rem
 local loadedAnims: { [Tool]: { [Animation]: AnimationTrack } } = {} -- when new gun tool is added to backpack, its animations are loaded as tracks and put here
 
 -- STATE
-local equippedGun: Tool?
+local equippedGun: GunUtil.GunInfo?
 
 -- INTERNAL EVENTS
 module.GunEquipped = SignalModule.new() -- (gunInfo: GunUtil.GunInfo)
@@ -66,11 +59,19 @@ function module.getStateFor(gunTool: Tool): GunState?
 	return stateTable[gunTool]
 end
 
+-- Resolves a preloaded animation track for the given gun tool and animation instance.
+function module.resolveAnim(gunTool: Tool, anim: Animation): AnimationTrack?
+	local anims = module.getLoadedAnimsFor(gunTool)
+	if anims then
+		return anims[anim]
+	else return nil end
+end
+
 function module.getLoadedAnimsFor(gunTool: Tool): { [Animation]: AnimationTrack }?
 	return loadedAnims[gunTool]
 end
 
-function module.getEquippedGun(): Tool?
+function module.getEquippedGun(): GunUtil.GunInfo?
 	return equippedGun
 end
 
@@ -90,9 +91,9 @@ function funcs.handleGunAdded(gunTool: Tool)
 		if newParent == player.Character then
 			-- gun was equipped
 			module.GunEquipped:fire(gunInfo)
-			equippedGun = gunInfo.Tool
+			equippedGun = gunInfo
 		else
-			if equippedGun == gunTool then
+			if equippedGun and equippedGun.Tool == gunTool then
 				-- gun was unequipped
 				module.GunUnequipped:fire(gunInfo)
 				stateTable[gunTool].Dirty = false -- to prevent desync where dirty will be true forever

@@ -87,6 +87,6 @@ function funcs.handleHit(
 	return true
 end
 
-DestructibleObjectService.ObjectHit:connectPriority(funcs.handleHit, Signal.Priority.NORMAL - 5) -- execute before the default handler (LOW priority) so we can properly cancel the event
+DestructibleObjectService.ObjectHit:connect(funcs.handleHit, Signal.Priority.NORMAL - 5) -- execute before the default handler (LOW priority) so we can properly cancel the event
 
 return module

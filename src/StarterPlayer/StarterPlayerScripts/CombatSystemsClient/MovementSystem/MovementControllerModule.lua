@@ -7,12 +7,13 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local Config = require(ReplicatedStorage.CombatSystemsShared.MovementSystem.Configs.MovementSystemConfig)
+local SignalModule = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 
 -- ROBLOX OBJECTS
 local player = Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
-local humanoid: Humanoid = character:WaitForChild("Humanoid")
-local animator: Animator = humanoid:WaitForChild("Animator")
+local humanoid = character:WaitForChild("Humanoid") :: Humanoid
+local animator = humanoid:WaitForChild("Animator") :: Animator
 
 local sprintAnim = animator:LoadAnimation(Config.SprintAnimation)
 sprintAnim.Looped = true
@@ -22,8 +23,11 @@ local crouchAnim = animator:LoadAnimation(Config.CrouchAnimation)
 local sprinting = false
 local crouching = false
 
--- PUBLIC API
+-- PUBLIC EVENTS
+module.SprintStateChanged = SignalModule.new() -- (oldState: boolean, newState: boolean) -> ()
+module.CrouchingStateChanged = SignalModule.new() -- (oldState: boolean, newState: boolean) -> ()
 
+-- PUBLIC API
 function module.setSprinting(state: boolean)
 	if sprinting ~= state then funcs.toggleSprint() end
 end
@@ -41,7 +45,6 @@ function module.isCrouching()
 end
 
 -- PRIVATE FUNCTIONS
-
 function funcs.handleInput(input: InputObject, gameProcessed: boolean)
 	if gameProcessed or not Config.Enabled then return end
 	if input.KeyCode == Config.SprintKey then
@@ -55,6 +58,8 @@ end
 
 function funcs.toggleSprint()
 	if not Config.Enabled then return end
+	local oldState = sprinting
+
 	if sprinting then
 		sprinting = false
 		humanoid.WalkSpeed = Config.DefaultWalkSpeed
@@ -63,10 +68,14 @@ function funcs.toggleSprint()
 		sprinting = true
 		humanoid.WalkSpeed = Config.SprintWalkSpeed
 	end
+
+	module.SprintStateChanged:fire(oldState, sprinting)
 end
 
 function funcs.toggleCrouch()
 	if not Config.Enabled then return end
+	local oldState = crouching
+
 	if crouching then
 		crouching = false
 		humanoid.WalkSpeed = Config.DefaultWalkSpeed
@@ -78,6 +87,8 @@ function funcs.toggleCrouch()
 		humanoid.HipHeight = Config.CrouchHipHeight
 		if funcs.canPlayAnimations() then crouchAnim:Play() end
 	end
+
+	module.CrouchingStateChanged:fire(oldState, crouching)
 end
 
 function funcs.updateAnimations()

@@ -102,7 +102,7 @@ function funcs.calculateExplosionDamage(rayHitInfo: RayHitInfo, hit: MunitionSer
 	)
 end
 
-module.ObjectHit:connectPriority(funcs.handleDefaultHit, Signal.Priority.LOW) -- lower priority, execute after every custom handler
+module.ObjectHit:connect(funcs.handleDefaultHit, Signal.Priority.LOW) -- lower priority, execute after every custom handler
 MunitionService.DirectHit:connect(funcs.handleDirectHit)
 MunitionService.ExplosionHit:connect(funcs.handleExplosionHit)
 
