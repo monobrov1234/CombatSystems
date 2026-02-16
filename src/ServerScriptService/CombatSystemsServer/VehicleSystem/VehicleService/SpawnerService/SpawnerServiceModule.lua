@@ -60,7 +60,7 @@ function module.spawnVehicle(vehicleModel: Model, cframe: CFrame)
 	end
 end
 
--- PRIVATE FUNCTIONS
+-- INTERNAL FUNCTIONS
 -- spawner core functionality
 function funcs.handleSpawnerTriggered(player: Player, spawner: BasePart, config: VehicleSpawnerConfigUtil.DefaultType)
 	if config.GroupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, config.GroupWhitelist) then return end

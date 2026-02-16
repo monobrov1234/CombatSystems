@@ -1,3 +1,5 @@
+--!strict
+
 local module = {}
 
 function module.weld(part0: BasePart, part1: BasePart)

@@ -4,14 +4,11 @@ local module = {}
 local funcs = {}
 
 -- IMPORTS
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.DropoffUtilModule)
 local HumanoidDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageCalculation.HumanoidDamageServiceModule)
-local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
-local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
 
 type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
@@ -67,11 +64,8 @@ function funcs.handleExplosionHit(rayHitInfo: RayHitInfo, hitParts: { MunitionSe
 end
 
 function funcs.damageHumanoid(character: Model, rayHitInfo: RayHitInfo, damage: number): boolean
-	local rayInfo = rayHitInfo.RayInfo
-	local config = rayInfo.MunitionConfig
-
 	local humanoid = character:FindFirstChild("Humanoid") :: Humanoid -- should never error
-	if not HumanoidDamageService.canDamageHumanoid(character, humanoid, rayInfo) then return false end
+	if not HumanoidDamageService.canDamageHumanoid(character, humanoid, rayHitInfo.RayInfo) then return false end
 
 	humanoid:TakeDamage(damage)
 	-- TODO: hit indicator event for the target player

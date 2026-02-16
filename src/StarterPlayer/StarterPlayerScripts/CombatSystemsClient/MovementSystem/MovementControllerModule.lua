@@ -44,7 +44,7 @@ function module.isCrouching()
 	return crouching
 end
 
--- PRIVATE FUNCTIONS
+-- INTERNAL FUNCTIONS
 function funcs.handleInput(input: InputObject, gameProcessed: boolean)
 	if gameProcessed or not Config.Enabled then return end
 	if input.KeyCode == Config.SprintKey then

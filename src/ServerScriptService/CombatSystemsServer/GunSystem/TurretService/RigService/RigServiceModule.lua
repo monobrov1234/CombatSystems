@@ -1,21 +1,21 @@
 --!strict
 
 local module = {}
-local funcs = {}
 
 -- IMPORTS
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local TurretConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.TurretConfig)
 local TurretConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.TurretConfigUtilModule)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
+local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtilModule)
 
--- INTERNAL API (called in module.promptTurret, used by TurretServiceModule)
-module.SeatPromptTriggered = function() end :: (player: Player, turretInfo: TurretUtil.TurretInfo, prompt: ProximityPrompt) -> ()
+-- INTERNAL API
+module.SeatPromptTriggered = Signal.new() -- (player: Player, turretInfo: TurretUtil.TurretInfo, prompt: ProximityPrompt)
 
 -- PUBLIC API
+
 -- every turret should be prompted using one of those methods
 -- will create proximity prompt for each turret seat that's not a vehicle seat
 function module.promptTurrets(instance: Instance)
@@ -38,7 +38,7 @@ function module.promptTurret(turretModel: Model)
 	prompt.MaxActivationDistance = turretInfo.TurretConfig.SeatConfig.PromptDistance
 	prompt.RequiresLineOfSight = false
 	prompt.Triggered:Connect(function(player: Player)
-		module.SeatPromptTriggered(player, turretInfo, prompt)
+		module.SeatPromptTriggered:fire(player, turretInfo, prompt)
 	end)
 	prompt.Parent = seat
 end
@@ -106,6 +106,7 @@ function module.rigTurret(turret: Model)
 	local turretViewFolder: Folder? = turret:FindFirstChild("TurretView") :: Folder?
 	if not turretViewFolder then
 		turretViewFolder = Instance.new("Folder")
+		assert(turretViewFolder)
 		turretViewFolder.Name = "TurretView"
 		turretViewFolder.Parent = turret
 	else

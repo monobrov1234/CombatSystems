@@ -38,7 +38,6 @@ local GuiController = require(script.GuiControllerModule)
 local setTurretStateRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ServerToClient.SetState
 local replicateFireRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ServerToClient.ReplicateFire
 -- C->S
-local setTurretViewRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.SetTurretView
 local reloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.ReloadTurret
 local switchShellsRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.SwitchShells
 local switchGunRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.SwitchGun
@@ -137,8 +136,6 @@ function module.setTurretView(turretModel: Model?, customRayFilters: { Instance 
 		CursorController.enableCursor()
 	end))
 
-	-- notify server about new view, server will verify it and auto clear when turret view will be cleared
-	setTurretViewRemote:FireServer(turretInfo.TurretModel)
 	log:debug("Local turret view set")
 end
 
@@ -146,7 +143,7 @@ function module.getCurrentTurretInfo(): TurretUtil.TurretInfo?
 	return turretInfo
 end
 
--- PRIVATE FUNCTIONS
+-- INTERNAL FUNCTIONS
 function funcs.clearTurretView()
 	cleaner:disconnectAll()
 

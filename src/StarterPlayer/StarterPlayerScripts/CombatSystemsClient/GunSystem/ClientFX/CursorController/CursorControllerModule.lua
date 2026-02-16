@@ -45,7 +45,7 @@ function module.setCursor(cursorId: number)
 	cursorImage.Image = "rbxassetid://" .. tostring(currentCursorId)
 end
 
--- PRIVATE FUNCTIONS
+-- INTERNAL FUNCTIONS
 function funcs.handleInput(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then return end
 	if not enabled then return end

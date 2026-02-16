@@ -6,15 +6,15 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
-local TurretService = require(ServerScriptService.CombatSystemsServer.GunSystem.TurretService.TurretServiceModule)
+local TurretStateService = require(ServerScriptService.CombatSystemsServer.GunSystem.TurretService.TurretStateServiceModule)
 
 function funcs.handleHumanoidSeated(player: Player, seat: BasePart)
 	if not seat then
-		TurretService._setPlayerTurretView(player, nil, nil)
+		TurretStateService.setPlayerTurretView(player, nil, nil)
 		return
 	end
 
-	if TurretService.getPlayerCurrentTurret(player) then return end
+	if TurretStateService.getPlayerCurrentTurret(player) then return end
 
 	-- find player current vehicle
 	local vehicleInfo: VehicleUtil.VehicleInfo? = VehicleUtil.findPlayerCurrentVehicle(player)
@@ -43,7 +43,7 @@ function funcs.handleHumanoidSeated(player: Player, seat: BasePart)
 	assert(turretModel) -- should not happen
 
 	local turretInfo: TurretUtil.TurretInfo = TurretUtil.parseTurretInfo(turretModel)
-	TurretService._setPlayerTurretView(player, turretInfo, { vehicleInfo.VehicleModel })
+	TurretStateService.setPlayerTurretView(player, turretInfo, { vehicleInfo.VehicleModel })
 end
 
 local function hookSeated(player: Player)
@@ -57,9 +57,11 @@ local function hookSeated(player: Player)
 	if player.Character then hookCharacter(player.Character) end
 	player.CharacterAdded:Connect(hookCharacter)
 end
+
 for _, player: Player in ipairs(Players:GetPlayers()) do
 	hookSeated(player)
 end
+
 Players.PlayerAdded:Connect(function(player: Player)
 	hookSeated(player)
 end)

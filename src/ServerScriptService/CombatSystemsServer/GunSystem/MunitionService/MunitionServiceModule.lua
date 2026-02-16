@@ -4,8 +4,6 @@ local funcs = {}
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CollectionService = game:GetService("CollectionService")
-local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
@@ -32,14 +30,18 @@ type RayCacheInfo = {
 local rayCache: { [string]: RayCacheInfo } = {}
 local rayCacheLivingTime = 10 -- max ray living time in rayCache table
 
--- PUBLIC API
--- fire handler api
-export type FireHandlerContext = {
-	ResultRaycastParams: RaycastParams?,
-}
-module.ValidateFire = Signal.new()
+-- validator pipeline, these functions should validate shooting if it is performed from their services weapons
+-- if one validator fails, then fire will not be registered
+-- validators should throw an exception if they fail
+type ValidatorCallback = (rayInfo: RayInfo) -> (RaycastParams?)
+local validatorPipeline = {} :: { ValidatorCallback }
 
--- hit handler api
+-- PUBLIC EVENTS
+
+-- called when player bullet is validated and fully permitted, used by other services for example to update mag size and ammo
+module.FireMunition = Signal.new() -- (rayInfo: RayInfo)
+
+-- hit handler
 export type ExplosionHitInfo = {
 	Part: BasePart,
 	ClosestBoundsDistance: number,
@@ -47,17 +49,27 @@ export type ExplosionHitInfo = {
 module.DirectHit = Signal.new()
 module.ExplosionHit = Signal.new()
 
+-- PUBLIC API
+function module.registerFireValidator(validator: ValidatorCallback)
+	table.insert(validatorPipeline, validator)
+end
+
 -- INTERNAL FUNCTIONS
-function funcs.handleFire(rayInfo: RayInfo): RaycastParams?
-	local context: FireHandlerContext = { ResultRaycastParams = nil }
-	module.ValidateFire:fire(rayInfo, context)
-	return context.ResultRaycastParams
+function funcs.validateFire(rayInfo: RayInfo): RaycastParams
+	local raycastParams: RaycastParams?
+	for _, callback: ValidatorCallback in ipairs(validatorPipeline) do
+		raycastParams = callback(rayInfo)
+		if raycastParams then break end
+	end
+
+	-- if every validator not failed but returned nil it probably means that player isn't holding anything but tried to call shooting event
+	-- it also could be programmer error if there is no validator registered for their service
+	assert(raycastParams, "Player is not using any weapon")
+	return raycastParams
 end
 
 function funcs.handleHit(rayHitInfo: RayHitInfo)
-	if not rayHitInfo.Hit:IsA("BasePart") then return end
-
-	debug.profilebegin("munitionHit")
+	if not rayHitInfo.Hit or not rayHitInfo.Hit:IsA("BasePart") then return end
 	local rayInfo = rayHitInfo.RayInfo
 	local config = rayHitInfo.RayInfo.MunitionConfig
 
@@ -89,7 +101,6 @@ function funcs.handleHit(rayHitInfo: RayHitInfo)
 	end
 
 	module.DirectHit:fire(rayHitInfo)
-	debug.profileend()
 end
 
 -- raycast munition handler
@@ -99,11 +110,8 @@ function funcs.handleFireMunition(player: Player, rayHitInfo: RayHitInfo)
 	local config: MunitionConfigUtil.DefaultType = rayInfo.MunitionConfig
 	assert(not config.EnableBallistics)
 
-	-- validate that player is in correct state to fire this munition, and returns raycast params
-	local raycastParams = funcs.handleFire(rayInfo)
-	-- if all handlers failed to validate, player is bugged or is exploiting
-	assert(raycastParams)
-	rayInfo.RaycastParams = raycastParams
+	rayInfo.RaycastParams = funcs.validateFire(rayInfo)
+	module.FireMunition:fire(rayInfo)
 
 	for _, pl in ipairs(Players:GetPlayers()) do
 		if pl == player then continue end
@@ -121,9 +129,8 @@ function funcs.handleFireMunitionBallistic(player: Player, rayInfo: RayInfo)
 	local config: MunitionConfigUtil.DefaultType = rayInfo.MunitionConfig
 	assert(config.EnableBallistics)
 
-	local raycastParams = funcs.handleFire(rayInfo)
-	assert(raycastParams)
-	rayInfo.RaycastParams = raycastParams
+	rayInfo.RaycastParams = funcs.validateFire(rayInfo)
+	module.FireMunition:fire(rayInfo)
 
 	rayCache[rayInfo.RayId] = {
 		RayInfo = rayInfo,

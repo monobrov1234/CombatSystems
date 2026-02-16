@@ -4,12 +4,16 @@ local funcs = {}
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local ServerScriptService = game:GetService("ServerScriptService")
+local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
 local GunConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.GunConfigUtilModule)
 local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
 
 type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
+
+-- IMPORTS INTERNAL
+local GunStateService = require(script.Parent.GunStateServiceModule)
 
 -- ROBLOX OBJECTS
 -- S->C
@@ -22,55 +26,6 @@ local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Ev
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("GunService")
-
-type SharedGunState = {
-	MagSize: number,
-	AmmoSize: number,
-}
-type GunState = {
-	SharedState: SharedGunState,
-	LastShootTime: number,
-}
-local stateTable: { [Tool]: GunState } = {}
-
-function funcs.handleGunAdded(player: Player, gunTool: Tool)
-	if not gunTool:IsA("Tool") or not GunUtil.validateGun(gunTool) then return end -- this is not a gun
-	if stateTable[gunTool] then return end -- gun already registered
-
-	local gunInfo = GunUtil.parseGunInfo(gunTool)
-
-	-- hook gun
-	local equippedTool: Tool?
-	gunTool.AncestryChanged:Connect(function(child: Instance, newParent: Instance?)
-		if child ~= gunTool then return end
-		if newParent == player.Character then
-			-- gun was equipped
-			equippedTool = gunTool
-			funcs.handleGunEquipped(player, gunInfo)
-		else
-			if equippedTool == gunTool then
-				equippedTool = nil
-				funcs.handleGunUnequipped(player, gunInfo)
-			end
-
-			if newParent ~= player.Backpack then
-				-- gun was removed from inventory
-				stateTable[gunTool] = nil
-				log:debug("Server gun removed: {}", gunTool.Name)
-			end
-		end
-	end)
-
-	stateTable[gunTool] = {
-		SharedState = {
-			MagSize = gunInfo.Config.GunConfig.MagSize,
-			AmmoSize = gunInfo.Config.GunConfig.AmmoSize,
-		},
-		LastShootTime = 0,
-	}
-
-	log:debug("Server gun added: {}", gunTool.Name)
-end
 
 function funcs.handleGunEquipped(player: Player, gunInfo: GunUtil.GunInfo)
 	local character = player.Character
@@ -109,16 +64,21 @@ function funcs.handleGunUnequipped(player: Player, gunInfo: GunUtil.GunInfo)
 	log:debug("Server gun unequipped: {}", gunInfo.Tool.Name)
 end
 
--- called from munitionservice to handle and validate fire event from player
-function module.handleGunFire(rayInfo: RayInfo, gunTool: Tool): RaycastParams
-	local state = stateTable[gunTool]
+-- handles gun fire after validation
+function funcs.handleGunFire(rayInfo: RayInfo)
+	local player: Player? = rayInfo.Player
+	if not player then return end
+	local character: Model? = player.Character
+	if not character then return end
+
+	local tool: Tool? = character:FindFirstChildOfClass("Tool")
+	if not tool or not GunUtil.validateGun(tool) then return end
+	
+	local state = GunStateService.getGunState(tool)
 	assert(state)
-	assert(state.SharedState.MagSize > 0)
+	local gunInfo = GunUtil.parseGunInfo(tool)
 
-	local gunInfo = GunUtil.parseGunInfo(gunTool)
-	assert(gunInfo.Config.GunConfig.AmmoType == rayInfo.MunitionConfig.MunitionName)
-
-	-- player in correct state, fire gun
+	-- fire
 	state.SharedState.MagSize = math.max(0, state.SharedState.MagSize - 1)
 	state.LastShootTime = os.clock()
 
@@ -127,12 +87,6 @@ function module.handleGunFire(rayInfo: RayInfo, gunTool: Tool): RaycastParams
 		if pl == rayInfo.Player then continue end
 		replicateFireRemote:FireClient(pl, gunInfo.FiringPoint)
 	end
-
-	local raycastParams = RaycastParams.new()
-	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-	assert(rayInfo.Player)
-	raycastParams.FilterDescendantsInstances = { rayInfo.Player.Character, gunTool, GunSystemConfig.ProjectileFolder }
-	return raycastParams
 end
 
 -- TODO: validate last shoot time
@@ -144,7 +98,7 @@ function funcs.handleGunReload(player: Player, gunTool: Tool)
 
 	local config = GunConfigUtil.getConfig(gunTool.Name)
 	assert(config)
-	local state = stateTable[gunTool]
+	local state = GunStateService.getGunState(gunTool)
 	assert(state)
 
 	local ammoSize = state.SharedState.AmmoSize
@@ -174,35 +128,12 @@ function funcs.handleReplicateReload(player: Player, gunTool: Tool)
 	end
 end
 
-function funcs.hookPlayerBackpack(player: Player)
-	for _, tool: Instance in ipairs(player.Backpack:GetChildren()) do
-		if not tool:IsA("Tool") then continue end
-		funcs.handleGunAdded(player, tool)
-	end
-
-	player.Backpack.ChildAdded:Connect(function(child: Instance)
-		if not child:IsA("Tool") then return end
-		funcs.handleGunAdded(player, child)
-	end)
-
-	log:debug("Player backpack hooked: ", player.Name)
-end
-
-function funcs.hookPlayer(player: Player)
-	funcs.hookPlayerBackpack(player)
-	player.CharacterAdded:Connect(function()
-		funcs.hookPlayerBackpack(player)
-	end)
-
-	log:debug("Player hooked: ", player.Name)
-end
-
-for _, player in ipairs(Players:GetPlayers()) do
-	funcs.hookPlayer(player)
-end
-Players.PlayerAdded:Connect(funcs.hookPlayer)
-
 reloadRemote.OnServerEvent:Connect(funcs.handleGunReload)
 replicateReloadRemote.OnServerEvent:Connect(funcs.handleReplicateReload)
+
+-- custom
+GunStateService.GunEquipped:connect(funcs.handleGunEquipped)
+GunStateService.GunUnequipped:connect(funcs.handleGunUnequipped)
+MunitionService.FireMunition:connect(funcs.handleGunFire)
 
 return module
