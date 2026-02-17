@@ -35,19 +35,19 @@ module.ObjectHit = Signal.new()
 
 -- INTERNAL FUNCTIONS
 -- default hit handler, custom hit handlers need to cancel the event (return true) in order to stop this from executing
-function funcs.handleDefaultHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: RayHitInfo)
+function funcs.handleDefaultHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: MunitionRayHitInfo.Type)
 	if not object:isDestroyed() then return end
 	object.object:Destroy()
 end
 
-function funcs.handleDirectHit(rayHitInfo: RayHitInfo)
+function funcs.handleDirectHit(rayHitInfo: MunitionRayHitInfo.Type)
 	local dObject = DestructibleObject.fromInstanceChild(rayHitInfo.Hit)
 	if not dObject then return end
 	local damage = DObjectDamageService.calculateDirectDamage(rayHitInfo, rayHitInfo.Hit)
 	funcs.damageObject(dObject, rayHitInfo, rayHitInfo.Hit, damage)
 end
 
-function funcs.handleExplosionHit(rayHitInfo: RayHitInfo, hitParts: { MunitionService.ExplosionHitInfo })
+function funcs.handleExplosionHit(rayHitInfo: MunitionRayHitInfo.Type, hitParts: { MunitionService.ExplosionHitInfo })
 	local totalDamage = 0
 	local foundObjects = {} :: { DestructibleObject.SelfObject }
 	for _, hit: MunitionService.ExplosionHitInfo in ipairs(hitParts) do
@@ -79,7 +79,7 @@ function funcs.handleExplosionHit(rayHitInfo: RayHitInfo, hitParts: { MunitionSe
 	if rayHitInfo.RayInfo.Player and totalDamage > 0 then explosionHitmark:FireClient(rayHitInfo.RayInfo.Player, totalDamage, true) end
 end
 
-function funcs.damageObject(dObject: DestructibleObject.SelfObject, rayHitInfo: RayHitInfo, hitPart: BasePart, damage: number): boolean
+function funcs.damageObject(dObject: DestructibleObject.SelfObject, rayHitInfo: MunitionRayHitInfo.Type, hitPart: BasePart, damage: number): boolean
 	local rayInfo = rayHitInfo.RayInfo
 	if not DObjectDamageService.canDamageObject(dObject, rayHitInfo.RayInfo) then return false end
 
@@ -89,7 +89,7 @@ function funcs.damageObject(dObject: DestructibleObject.SelfObject, rayHitInfo: 
 	return true
 end
 
-function funcs.calculateExplosionDamage(rayHitInfo: RayHitInfo, hit: MunitionService.ExplosionHitInfo): number
+function funcs.calculateExplosionDamage(rayHitInfo: MunitionRayHitInfo.Type, hit: MunitionService.ExplosionHitInfo): number
 	local rayInfo = rayHitInfo.RayInfo
 	local config = rayInfo.MunitionConfig
 	local totalDamage: number = DestructibleObjectUtil.getDamageForPart(config, hit.Part)

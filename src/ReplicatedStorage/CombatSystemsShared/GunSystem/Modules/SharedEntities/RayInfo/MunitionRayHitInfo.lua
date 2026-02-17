@@ -1,12 +1,12 @@
 --!strict
 
 -- IMPORTS
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MunitionRayInfo = require(script.Parent.MunitionRayInfo)
 
-type RayInfo = typeof(require(script.Parent.RayInfo.MunitionRayInfo))
-
-return {} :: {
-	RayInfo: RayInfo,
+export type ClientType = {
+	RayInfo: MunitionRayInfo.ClientType,
 	HitPos: Vector3,
-	Hit: BasePart?,
+	Hit: BasePart?
 }
+
+return {}

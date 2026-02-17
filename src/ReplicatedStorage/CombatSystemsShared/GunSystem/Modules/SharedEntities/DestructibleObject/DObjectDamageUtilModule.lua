@@ -14,7 +14,7 @@ type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem
 	Hit: BasePart,
 }
 
-function module.canDamageObject(dObject: DestructibleObject.SelfObject, rayInfo: RayInfo)
+function module.canDamageObject(dObject: DestructibleObject.SelfObject, rayInfo: MunitionRayInfo.Type)
 	local config = rayInfo.MunitionConfig
 
 	-- TODO: move this, make shared service
@@ -37,7 +37,7 @@ function module.canDamageObject(dObject: DestructibleObject.SelfObject, rayInfo:
 	return true
 end
 
-function module.calculateDirectDamage(rayHitInfo: RayHitInfo, hitPart: BasePart): number
+function module.calculateDirectDamage(rayHitInfo: MunitionRayHitInfo.Type, hitPart: BasePart): number
 	local rayInfo = rayHitInfo.RayInfo
 	local config = rayInfo.MunitionConfig
 

@@ -50,7 +50,7 @@ local tween = function(object: Instance, goal, tt: number?, es: string, ed: stri
 	return TweenService:Create(object, TweenInfo.new(tt, Enum.EasingStyle[es], Enum.EasingDirection[ed], 0, false, 0), goal)
 end
 
-function funcs.handleHit(rayHitInfo: RayHitInfo)
+function funcs.handleHit(rayHitInfo: MunitionRayHitInfo.Type)
 	local dObject = DestructibleObject.fromInstanceChild(rayHitInfo.Hit)
 	if dObject and DObjectDamageService.canDamageObject(dObject, rayHitInfo.RayInfo) then
 		local damage = DObjectDamageService.calculateDirectDamage(rayHitInfo, rayHitInfo.Hit)

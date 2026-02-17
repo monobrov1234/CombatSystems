@@ -19,7 +19,7 @@ export type Config = {
 	Color: ColorSequence,
 }
 
-MunitionController.RayEnded:connect(function(rayHitInfo: RayHitInfo)
+MunitionController.RayEnded:connect(function(rayHitInfo: MunitionRayHitInfo.Type)
 	local rayInfo = rayHitInfo.RayInfo
 	local handler = rayInfo.MunitionConfig.FXConfig.ImpactFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end

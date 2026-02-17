@@ -20,7 +20,7 @@ export type Config = {
 	CosmeticBullet: BasePart,
 }
 
-MunitionController.RayFired:connect(function(rayInfo: RayInfo)
+MunitionController.RayFired:connect(function(rayInfo: MunitionRayInfo.Type)
 	local handler = rayInfo.MunitionConfig.FXConfig.TrailFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end
 	local config = handler.HandlerConfig :: Config
@@ -31,7 +31,7 @@ MunitionController.RayFired:connect(function(rayInfo: RayInfo)
 	cosmeticBulletsCache[rayInfo.RayId] = cosmeticBulletClone
 end)
 
-MunitionController.RaySegmentReached:connect(function(rayInfo: RayInfo, segmentOrigin: Vector3, direction: Vector3, length: number)
+MunitionController.RaySegmentReached:connect(function(rayInfo: MunitionRayInfo.Type, segmentOrigin: Vector3, direction: Vector3, length: number)
 	local handler = rayInfo.MunitionConfig.FXConfig.TrailFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end
 
@@ -41,7 +41,7 @@ MunitionController.RaySegmentReached:connect(function(rayInfo: RayInfo, segmentO
 	cosmeticBullet.CFrame = baseCFrame * CFrame.new(0, 0, -(length - bulletLength))
 end)
 
-MunitionController.RayEnded:connect(function(rayHitInfo: RayHitInfo)
+MunitionController.RayEnded:connect(function(rayHitInfo: MunitionRayHitInfo.Type)
 	local rayInfo = rayHitInfo.RayInfo
 	local handler = rayInfo.MunitionConfig.FXConfig.TrailFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end

@@ -16,7 +16,7 @@ type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem
 -- FINALS
 local muzzleFlashRays = {} :: { [BasePart]: boolean }
 
-MunitionController.RayFired:connect(function(rayInfo: RayInfo)
+MunitionController.RayFired:connect(function(rayInfo: MunitionRayInfo.Type)
 	local origin = rayInfo.Origin
 	print(origin.Name)
 	local handler = rayInfo.MunitionConfig.FXConfig.ShootFXHandler

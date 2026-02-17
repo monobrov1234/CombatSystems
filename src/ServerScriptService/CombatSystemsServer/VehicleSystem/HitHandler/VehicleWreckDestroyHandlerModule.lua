@@ -28,7 +28,7 @@ function funcs.handleHit(
 	object: DestructibleObject.SelfObject,
 	foundArmorInfo: DestructibleObjectUtil.ArmorInfo,
 	damage: number,
-	rayHitInfo: RayHitInfo
+	rayHitInfo: MunitionRayHitInfo.Type
 ): boolean
 	if damage == 0 then return false end
 	if object:getHealth() > 0 then return false end

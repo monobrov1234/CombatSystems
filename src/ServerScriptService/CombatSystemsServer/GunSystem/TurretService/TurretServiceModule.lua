@@ -42,7 +42,7 @@ function funcs.handleReplicateTurretState(player: Player, yawRotationC0: Vector3
 end
 
 -- handles turret munition fire after validation
-function funcs.handleTurretFire(rayInfo: RayInfo)
+function funcs.handleTurretFire(rayInfo: MunitionRayInfo.Type)
 	local player: Player? = rayInfo.Player
 	if not player then return end
 	local character: Model? = player.Character

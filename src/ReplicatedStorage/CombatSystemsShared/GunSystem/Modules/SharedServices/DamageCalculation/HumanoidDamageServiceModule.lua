@@ -14,7 +14,7 @@ type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem
 }
 
 -- PUBLIC API
-function module.canDamageHumanoid(character: Model, humanoid: Humanoid, rayInfo: RayInfo)
+function module.canDamageHumanoid(character: Model, humanoid: Humanoid, rayInfo: MunitionRayInfo.Type)
 	local config = rayInfo.MunitionConfig
 
 	if humanoid.Health == 0 then return false end
@@ -48,7 +48,7 @@ function module.canDamageHumanoid(character: Model, humanoid: Humanoid, rayInfo:
 	return true
 end
 
-function module.calculateDirectDamage(rayHitInfo: RayHitInfo): number
+function module.calculateDirectDamage(rayHitInfo: MunitionRayHitInfo.Type): number
 	local rayInfo = rayHitInfo.RayInfo
 	local config = rayInfo.MunitionConfig
 

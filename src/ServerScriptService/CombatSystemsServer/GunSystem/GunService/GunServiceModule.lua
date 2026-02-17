@@ -65,7 +65,7 @@ function funcs.handleGunUnequipped(player: Player, gunInfo: GunUtil.GunInfo)
 end
 
 -- handles gun fire after validation
-function funcs.handleGunFire(rayInfo: RayInfo)
+function funcs.handleGunFire(rayInfo: MunitionRayInfo.Type)
 	local player: Player? = rayInfo.Player
 	if not player then return end
 	local character: Model? = player.Character

@@ -17,7 +17,7 @@ type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem
 -- FINALS
 local log: Logger.SelfObject = Logger.new("VehicleHitHandler")
 
-function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: RayHitInfo)
+function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: MunitionRayHitInfo.Type)
 	-- if its some weak bullet hit the vehicle, do not show the direction indicator
 	if damage == 0 and (foundArmorInfo.ArmorType == "NoArmor" or "BulletProofArmor") then return end
 

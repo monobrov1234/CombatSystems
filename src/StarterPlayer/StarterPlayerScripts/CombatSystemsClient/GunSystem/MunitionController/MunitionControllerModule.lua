@@ -33,7 +33,7 @@ local caster = FastCastRedux.new()
 module.RayFired = Signal.new()
 module.RaySegmentReached = Signal.new()
 module.RayEnded = Signal.new()
-module.Hit = Signal.new() -- (rayHitInfo: RayHitInfo) -> ()
+module.Hit = Signal.new() -- (rayHitInfo: MunitionRayHitInfo.Type) -> ()
 
 -- PUBLIC API
 function module.fireMunition(
@@ -58,7 +58,7 @@ function module.fireMunition(
 		directionVec = cf.LookVector
 	end
 
-	local rayInfo: RayInfo = {
+	local rayInfo: MunitionRayInfo.Type = {
 		Player = player,
 		Team = player.Team,
 		RayId = HttpService:GenerateGUID(),
@@ -78,7 +78,7 @@ end
 
 -- INTERNAL FUNCS
 -- raycast firing
-function funcs.fireMunitionRaycast(rayInfo: RayInfo)
+function funcs.fireMunitionRaycast(rayInfo: MunitionRayInfo.Type)
 	log:debug("Raycast-Firing munition {} with rayId {}", rayInfo.MunitionConfig.MunitionName, rayInfo.RayId)
 
 	local config = rayInfo.MunitionConfig
@@ -88,7 +88,7 @@ function funcs.fireMunitionRaycast(rayInfo: RayInfo)
 	local result: RaycastResult? = workspace:Raycast(initOrigin, initDir * config.MaxDistance, rayInfo.RaycastParams)
 	local hitPos: Vector3 = result and result.Position or initOrigin + initDir * config.MaxDistance
 	local hit = result and result.Instance :: BasePart?
-	local rayHitInfo: RayHitInfo = {
+	local rayHitInfo: MunitionRayHitInfo.Type = {
 		RayInfo = rayInfo,
 		HitPos = hitPos,
 		Hit = hit,
@@ -103,7 +103,7 @@ function funcs.fireMunitionRaycast(rayInfo: RayInfo)
 	module.RayEnded:fire(rayHitInfo)
 end
 
-function funcs.handleReplicationRaycast(rayHitInfo: RayHitInfo)
+function funcs.handleReplicationRaycast(rayHitInfo: MunitionRayHitInfo.Type)
 	local rayInfo = rayHitInfo.RayInfo
 	if rayInfo.Player then log:debug("Handling replication raycast event from player {}", rayInfo.Player.Name) end
 
@@ -118,7 +118,7 @@ function funcs.handleReplicationRaycast(rayHitInfo: RayHitInfo)
 end
 
 -- ballistic firing
-function funcs.fireMunitionBallistic(rayInfo: RayInfo)
+function funcs.fireMunitionBallistic(rayInfo: MunitionRayInfo.Type)
 	log:debug("Ballistic-Firing munition {} with rayId {}", rayInfo.MunitionConfig.MunitionName, rayInfo.RayId)
 
 	local config = rayInfo.MunitionConfig
@@ -133,7 +133,7 @@ function funcs.fireMunitionBallistic(rayInfo: RayInfo)
 	module.RayFired:fire(rayInfo)
 end
 
-function funcs.handleReplicationBallistic(rayInfo: RayInfo)
+function funcs.handleReplicationBallistic(rayInfo: MunitionRayInfo.Type)
 	if rayInfo.Player then log:debug("Handling replication ballistic event from player {}", rayInfo.Player.Name) end
 
 	-- same as in handleReplicationRaycast
@@ -176,11 +176,11 @@ function funcs.handleBallisticRayHit(
 end
 
 function funcs.handleBallisticRayTerminated(cast: FastCastReduxTypes.ActiveCast)
-	local rayInfo = cast.UserData.RayInfo :: RayInfo
+	local rayInfo = cast.UserData.RayInfo :: MunitionRayInfo.Type
 	local hitPos: Vector3 = cast.UserData.HitPos or rayInfo.InitOriginPos + (rayInfo.InitDirection * rayInfo.MunitionConfig.MaxDistance)
 	local hit = cast.UserData.Hit :: BasePart?
 
-	local rayHitInfo: RayHitInfo = {
+	local rayHitInfo: MunitionRayHitInfo.Type = {
 		RayInfo = rayInfo,
 		HitPos = hitPos,
 		Hit = hit,
@@ -196,7 +196,7 @@ function funcs.handleBallisticRayTerminated(cast: FastCastReduxTypes.ActiveCast)
 	module.RayEnded:fire(rayHitInfo)
 end
 
-function funcs.newBehavior(rayInfo: RayInfo): FastCastReduxTypes.FastCastBehavior
+function funcs.newBehavior(rayInfo: MunitionRayInfo.Type): FastCastReduxTypes.FastCastBehavior
 	local config = rayInfo.MunitionConfig
 	local castBehavior = FastCastRedux.newBehavior()
 	castBehavior.MaxDistance = config.MaxDistance

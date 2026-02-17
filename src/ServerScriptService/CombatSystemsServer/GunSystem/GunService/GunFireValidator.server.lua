@@ -12,7 +12,7 @@ local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSyste
 
 type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
 
-function funcs.validateGunFire(rayInfo: RayInfo): RaycastParams?
+function funcs.validateGunFire(rayInfo: MunitionRayInfo.Type): RaycastParams?
     if not rayInfo.Player then return end
     local character = rayInfo.Player.Character
 	if not character then return end

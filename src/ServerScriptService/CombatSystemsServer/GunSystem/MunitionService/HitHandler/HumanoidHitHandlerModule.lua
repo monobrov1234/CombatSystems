@@ -6,10 +6,11 @@ local funcs = {}
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ServerScriptService = game:GetService("ServerScriptService")
+local MunitionHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionHitServiceModule)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.DropoffUtilModule)
 local HumanoidDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageCalculation.HumanoidDamageServiceModule)
-local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 
 type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
 type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)) & {
@@ -22,7 +23,8 @@ local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.GunS
 -- FINALS
 local log: Logger.SelfObject = Logger.new("HumanoidHitHandler")
 
-function funcs.handleDirectHit(rayHitInfo: RayHitInfo)
+function funcs.handleDirectHit(rayHitInfo: MunitionRayHitInfo.ServerType)
+	assert(rayHitInfo.Hit)
 	local character: Model? = rayHitInfo.Hit:FindFirstAncestorOfClass("Model")
 	if not character then return end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -32,10 +34,10 @@ function funcs.handleDirectHit(rayHitInfo: RayHitInfo)
 	funcs.damageHumanoid(character, rayHitInfo, damage)
 end
 
-function funcs.handleExplosionHit(rayHitInfo: RayHitInfo, hitParts: { MunitionService.ExplosionHitInfo })
+function funcs.handleExplosionHit(rayHitInfo: MunitionRayHitInfo.ServerType, hitParts: MunitionHitService.ExplosionHits)
 	local totalDamage = 0
 	local foundCharacters = {} :: { Model }
-	for _, hit: MunitionService.ExplosionHitInfo in ipairs(hitParts) do
+	for _, hit: MunitionHitService.ExplosionHitInfo in ipairs(hitParts) do
 		-- check that this part is not a descendant of any previously found character
 		local isDescendant = false
 		for _, object: Model in ipairs(foundCharacters) do
@@ -63,7 +65,7 @@ function funcs.handleExplosionHit(rayHitInfo: RayHitInfo, hitParts: { MunitionSe
 	if rayHitInfo.RayInfo.Player and totalDamage > 0 then explosionHitmark:FireClient(rayHitInfo.RayInfo.Player, totalDamage, false) end
 end
 
-function funcs.damageHumanoid(character: Model, rayHitInfo: RayHitInfo, damage: number): boolean
+function funcs.damageHumanoid(character: Model, rayHitInfo: MunitionRayHitInfo.ServerType, damage: number): boolean
 	local humanoid = character:FindFirstChild("Humanoid") :: Humanoid -- should never error
 	if not HumanoidDamageService.canDamageHumanoid(character, humanoid, rayHitInfo.RayInfo) then return false end
 
@@ -72,7 +74,7 @@ function funcs.damageHumanoid(character: Model, rayHitInfo: RayHitInfo, damage: 
 	return true
 end
 
-function funcs.calculateExplosionDamage(rayHitInfo: RayHitInfo, hit: MunitionService.ExplosionHitInfo): number
+function funcs.calculateExplosionDamage(rayHitInfo: MunitionRayHitInfo.ServerType, hit: MunitionHitService.ExplosionHitInfo): number
 	local rayInfo = rayHitInfo.RayInfo
 	local config = rayInfo.MunitionConfig
 	return DropoffUtil.calculateExplosionDropoff(
@@ -83,7 +85,7 @@ function funcs.calculateExplosionDamage(rayHitInfo: RayHitInfo, hit: MunitionSer
 	)
 end
 
-MunitionService.DirectHit:connect(funcs.handleDirectHit)
-MunitionService.ExplosionHit:connect(funcs.handleExplosionHit)
+MunitionHitService.DirectHit:connect(funcs.handleDirectHit)
+MunitionHitService.ExplosionHit:connect(funcs.handleExplosionHit)
 
 return module

@@ -22,7 +22,7 @@ export type Config = {
 	CosmeticBullet: BasePart,
 }
 
-MunitionController.RayEnded:connect(function(rayHitInfo: RayHitInfo)
+MunitionController.RayEnded:connect(function(rayHitInfo: MunitionRayHitInfo.Type)
 	local rayInfo = rayHitInfo.RayInfo
 	local handler = rayInfo.MunitionConfig.FXConfig.TrailFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end

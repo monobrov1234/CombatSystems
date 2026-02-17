@@ -1,5 +1,6 @@
-local module = {}
+--!strict
 
+local module = {}
 local funcs = {}
 
 -- IMPORTS
@@ -7,11 +8,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
-local BoundsUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.BoundsUtilModule)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
-
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo))
+local RayTypeService = require(script.Parent.RayTypeServiceModule)
 
 -- ROBLOX OBJECTS
 local fireMunitionRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ClientToServer.FireMunition
@@ -21,33 +21,30 @@ local verifyHitBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSystem
 local replicationBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ServerToClient.ReplicateFireMunitionBallistic
 
 -- FINALS
+
 local log: Logger.SelfObject = Logger.new("MunitionService")
 
 type RayCacheInfo = {
-	RayInfo: RayInfo,
+	RayInfo: RayTypeService.RayInfoValid,
 	CreationTime: number,
 }
+-- fastcast ray cache, used to track existing flying munitions
 local rayCache: { [string]: RayCacheInfo } = {}
 local rayCacheLivingTime = 10 -- max ray living time in rayCache table
 
 -- validator pipeline, these functions should validate shooting if it is performed from their services weapons
 -- if one validator fails, then fire will not be registered
 -- validators should throw an exception if they fail
-type ValidatorCallback = (rayInfo: RayInfo) -> (RaycastParams?)
+type ValidatorCallback = (rayInfo: RayTypeService.RayInfoNonValid) -> (RaycastParams?)
 local validatorPipeline = {} :: { ValidatorCallback }
 
 -- PUBLIC EVENTS
 
--- called when player bullet is validated and fully permitted, used by other services for example to update mag size and ammo
-module.FireMunition = Signal.new() -- (rayInfo: RayInfo)
-
--- hit handler
-export type ExplosionHitInfo = {
-	Part: BasePart,
-	ClosestBoundsDistance: number,
-}
-module.DirectHit = Signal.new()
-module.ExplosionHit = Signal.new()
+-- called when player munition is validated and fully permitted, used by other services for example to update mag size and ammo
+module.FireMunition = Signal.new() -- (rayInfo: MunitionRayInfo.Type)
+-- called before determining hit type and calculating specifics (e.g explosion hit list)
+-- mainly for use in MunitionHitService
+module.PreHit = Signal.new() -- (rayHitInfo: MunitionRayHitInfo.Type)
 
 -- PUBLIC API
 function module.registerFireValidator(validator: ValidatorCallback)
@@ -55,7 +52,26 @@ function module.registerFireValidator(validator: ValidatorCallback)
 end
 
 -- INTERNAL FUNCTIONS
-function funcs.validateFire(rayInfo: RayInfo): RaycastParams
+
+-- garbage collector for fastcast ray table
+function funcs.rayCacheGC()
+	while true do
+		local toDelete: { string } = {}
+		for rayID, rayInfo in pairs(rayCache) do
+			if os.clock() - rayInfo.CreationTime > rayCacheLivingTime then
+				table.insert(toDelete, rayID)
+			end
+		end
+
+		for _, rayID in ipairs(toDelete) do
+			rayCache[rayID] = nil
+		end
+
+		task.wait(0.5)
+	end
+end
+
+function funcs.validateFire(rayInfo: RayTypeService.RayInfoNonValid): RaycastParams
 	local raycastParams: RaycastParams?
 	for _, callback: ValidatorCallback in ipairs(validatorPipeline) do
 		raycastParams = callback(rayInfo)
@@ -68,75 +84,56 @@ function funcs.validateFire(rayInfo: RayInfo): RaycastParams
 	return raycastParams
 end
 
-function funcs.handleHit(rayHitInfo: RayHitInfo)
-	if not rayHitInfo.Hit or not rayHitInfo.Hit:IsA("BasePart") then return end
-	local rayInfo = rayHitInfo.RayInfo
-	local config = rayHitInfo.RayInfo.MunitionConfig
-
-	local explosionConfig = config.ExplosionConfig
-	if explosionConfig.CanExplode then
-		local totalRadius = explosionConfig.Radius * 2
-		local size = Vector3.new(totalRadius, totalRadius, totalRadius)
-		local overlapParams = OverlapParams.new()
-		overlapParams.FilterDescendantsInstances = rayInfo.RaycastParams.FilterDescendantsInstances
-		local boxParts: { BasePart } = workspace:GetPartBoundsInBox(CFrame.new(rayHitInfo.HitPos), size, overlapParams)
-
-		local hits: { ExplosionHitInfo } = {}
-		for _, part: BasePart in ipairs(boxParts) do
-			table.insert(
-				hits,
-				{
-					Part = part,
-					ClosestBoundsDistance = BoundsUtil.distanceToPartBounds(rayHitInfo.HitPos, part),
-				} :: ExplosionHitInfo
-			)
-		end
-
-		-- sort by distance, closest first, farthest last
-		table.sort(hits, function(a: ExplosionHitInfo, b: ExplosionHitInfo)
-			return a.ClosestBoundsDistance < b.ClosestBoundsDistance
-		end)
-
-		module.ExplosionHit:fire(rayHitInfo, hits)
-	end
-
-	module.DirectHit:fire(rayHitInfo)
-end
-
 -- raycast munition handler
-function funcs.handleFireMunition(player: Player, rayHitInfo: RayHitInfo)
-	funcs.validateLoadRayHitInfo(player, rayHitInfo)
-	local rayInfo: RayInfo = rayHitInfo.RayInfo
-	local config: MunitionConfigUtil.DefaultType = rayInfo.MunitionConfig
-	assert(not config.EnableBallistics)
+function funcs.handleFireMunitionRaycast(player: Player, rayHitInfo: MunitionRayHitInfo.ClientType)
+	-- initial validation
+	RayTypeService.validateClientRayHitInfo(player, rayHitInfo)
+	local rayHitInfoNonValid: RayTypeService.RayHitInfoNonValid = RayTypeService.convertClientRayHitInfoToNonValid(player, rayHitInfo)
+	local rayInfoNonValid: RayTypeService.RayInfoNonValid = rayHitInfoNonValid.RayInfo
+	assert(not rayInfoNonValid.MunitionConfig.EnableBallistics) -- smoke check: raycast munitions must have ballistics disabled
 
-	rayInfo.RaycastParams = funcs.validateFire(rayInfo)
-	module.FireMunition:fire(rayInfo)
+	-- validate fire
+	local raycastParams: RaycastParams = funcs.validateFire(rayInfoNonValid)
 
+	-- process fire
+	local rayHitInfoServer: RayTypeService.RayHitInfoValid = RayTypeService.convertNonValidRayHitInfoToServer(rayHitInfoNonValid, raycastParams)
+	module.FireMunition:fire(rayHitInfoServer)
+
+	-- replicate fire
 	for _, pl in ipairs(Players:GetPlayers()) do
 		if pl == player then continue end
 		replicationRemote:FireClient(pl, rayHitInfo)
 	end
 
+	-- process hit
 	-- TODO: additional hitreg anticheat
-	if rayHitInfo.Hit then funcs.handleHit(rayHitInfo) end
+	if rayHitInfo.Hit then
+		module.PreHit:fire(rayHitInfoServer.RayInfo)
+	end
 end
 
 -- fastcast munition handler
-function funcs.handleFireMunitionBallistic(player: Player, rayInfo: RayInfo)
-	funcs.validateLoadRayInfo(player, rayInfo)
-	assert(not rayCache[rayInfo.RayId])
-	local config: MunitionConfigUtil.DefaultType = rayInfo.MunitionConfig
-	assert(config.EnableBallistics)
+function funcs.handleFireMunitionBallistic(player: Player, rayInfo: MunitionRayInfo.ClientType)
+	-- initial validation
+	RayTypeService.validateClientRayInfo(player, rayInfo)
+	assert(not rayCache[rayInfo.RayId]) -- check if that ray id already exists
+	local rayInfoNonValid: RayTypeService.RayInfoNonValid = RayTypeService.convertClientRayInfoToNonValid(player, rayInfo)
+	local config: MunitionConfigUtil.DefaultType = rayInfoNonValid.MunitionConfig
+	assert(config.EnableBallistics) -- smoke check: ballistic munitions must have ballistics enabled
 
-	rayInfo.RaycastParams = funcs.validateFire(rayInfo)
-	module.FireMunition:fire(rayInfo)
+	-- validate fire
+	local raycastParams: RaycastParams = funcs.validateFire(rayInfoNonValid)
+
+	-- process fire and save RayId
+	local rayInfoValid: RayTypeService.RayInfoValid = RayTypeService.convertNonValidRayInfoToServer(rayInfoNonValid, raycastParams)
+	module.FireMunition:fire(rayInfoValid)
 
 	rayCache[rayInfo.RayId] = {
-		RayInfo = rayInfo,
+		RayInfo = rayInfoValid,
 		CreationTime = os.clock(),
 	}
 
+	-- replicate fire
 	for _, pl in ipairs(Players:GetPlayers()) do
 		if pl == player then continue end
 		replicationBallisticRemote:FireClient(pl, rayInfo)
@@ -147,67 +144,36 @@ end
 
 -- no anticheat for verifying ballistic munitions for now; too complex to implement
 -- server-side tracing will cause issues for players with high latency
-function funcs.handleVerifyHitBallistic(player: Player, rayHitInfo: RayHitInfo)
-	funcs.validateLoadRayHitInfo(player, rayHitInfo)
-	local rayId = rayHitInfo.RayInfo.RayId
-	local rayInfo: RayCacheInfo = rayCache[rayId]
-	assert(rayInfo and rayInfo.RayInfo.Player == player)
-
-	log:debug("Verify hit called for munition {} rayId {}", rayInfo.RayInfo.MunitionConfig.MunitionName, rayId)
-
-	rayCache[rayId] = nil
-	rayHitInfo.RayInfo = rayInfo.RayInfo
-
-	if rayHitInfo.Hit then funcs.handleHit(rayHitInfo) end
-end
-
-function funcs.validateLoadRayHitInfo(player: Player, rayHitInfo: RayHitInfo)
-	assert(typeof(rayHitInfo) == "table")
-	assert(typeof(rayHitInfo.RayInfo) == "table" and typeof(rayHitInfo.HitPos) == "Vector3")
-	if rayHitInfo.Hit then assert(typeof(rayHitInfo.Hit) == "Instance" and rayHitInfo.Hit:IsA("BasePart")) end
-	funcs.validateLoadRayInfo(player, rayHitInfo.RayInfo)
-end
-
-function funcs.validateLoadRayInfo(player: Player, rayInfo: RayInfo)
-	assert(typeof(rayInfo) == "table")
-	assert(
-		typeof(rayInfo.RayId) == "string"
-			and typeof(rayInfo.MunitionConfig) == "table"
-			and typeof(rayInfo.Origin) == "Instance"
-			and typeof(rayInfo.InitOriginPos) == "Vector3"
-			and typeof(rayInfo.InitDirection) == "Vector3"
-	)
-	assert(typeof(rayInfo.MunitionConfig.MunitionName) == "string")
-	assert(rayInfo.Origin:IsA("BasePart"))
-
-	if rayInfo.RaycastParams then assert(typeof(rayInfo.RaycastParams) == "RaycastParams") end
-
-	local resolvedConfig = MunitionConfigUtil.getConfig(rayInfo.MunitionConfig.MunitionName)
-	assert(resolvedConfig)
-	rayInfo.MunitionConfig = resolvedConfig
-	rayInfo.Player = player
-	rayInfo.Team = player.Team
-end
-
--- garbage collector for fastcast ray table
-function funcs.rayCacheGC()
-	while true do
-		local toDelete: { string } = {}
-		for rayID, rayInfo in pairs(rayCache) do
-			if os.clock() - rayInfo.CreationTime > rayCacheLivingTime then table.insert(toDelete, rayID) end
-		end
-
-		for _, rayID in ipairs(toDelete) do
-			rayCache[rayID] = nil
-		end
-
-		task.wait(0.5)
+function funcs.handleVerifyHitBallistic(player: Player, rayId: string, hitPos: Vector3, hit: BasePart?)
+	-- initial validation
+	assert(typeof(rayId) == "string"
+			and typeof(hitPos) == "Vector3")
+	if hit then
+		assert(typeof(hit) == "Instance" 
+			and hit:IsA("BasePart"))
 	end
+
+	-- validate ray exists
+	local rayCacheInfo: RayCacheInfo = rayCache[rayId]
+	assert(rayCacheInfo and rayCacheInfo.RayInfo.Player == player)
+	rayCache[rayId] = nil
+
+	-- process hit
+	if hit then
+		local rayHitInfoValid: RayTypeService.RayHitInfoValid = {
+			RayInfo = rayCacheInfo.RayInfo,
+			HitPos = hitPos,
+			Hit = hit
+		}
+		module.PreHit:fire(rayHitInfoValid) 
+	end
+
+	log:debug("Verify hit called for munition {} rayId {}", rayCacheInfo.RayInfo.MunitionConfig.MunitionName, rayId)
 end
 
-task.spawn(funcs.rayCacheGC)
-fireMunitionRemote.OnServerEvent:Connect(funcs.handleFireMunition)
+fireMunitionRemote.OnServerEvent:Connect(funcs.handleFireMunitionRaycast)
 fireMunitionBallisticRemote.OnServerEvent:Connect(funcs.handleFireMunitionBallistic)
 verifyHitBallisticRemote.OnServerEvent:Connect(funcs.handleVerifyHitBallistic)
+task.spawn(funcs.rayCacheGC)
 
 return module

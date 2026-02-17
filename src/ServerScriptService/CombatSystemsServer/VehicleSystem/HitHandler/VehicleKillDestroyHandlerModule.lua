@@ -17,7 +17,7 @@ type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem
 -- FINALS
 local log: Logger.SelfObject = Logger.new("VehicleDestroyHandler")
 
-function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: RayHitInfo)
+function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: MunitionRayHitInfo.Type)
 	if damage == 0 then return end
 	if object:getHealth() > 0 then return end
 

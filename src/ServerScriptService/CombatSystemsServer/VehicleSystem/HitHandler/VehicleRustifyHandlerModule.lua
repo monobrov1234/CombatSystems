@@ -28,7 +28,7 @@ type CacheData = {
 }
 local cacheMap = {} :: { [Model]: CacheData }
 
-function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: RayHitInfo)
+function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: MunitionRayHitInfo.Type)
 	if damage == 0 then return end
 
 	-- verify that this object is a vehicle
