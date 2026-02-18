@@ -13,7 +13,7 @@ local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSyst
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("VehicleDestroyHandler")
+local log: Logger.SelfObject = Logger.new("VehicleRustifyHandler")
 
 local STEP_PERCENT = 20
 local RUST_ATTRIBUTE = "Rusty"
@@ -35,7 +35,6 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 	if not VehicleUtil.validateVehicle(vehicle) then return end
 
 	local currentTime = os.clock()
-	debug.profilebegin("rustVehicle")
 
 	local cacheData: CacheData? = cacheMap[vehicle]
 	if not cacheData then
@@ -46,23 +45,25 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 		}
 		cacheMap[vehicle] = cacheData
 
-		-- remove from cache when it's destroyed
-		vehicle.Destroying:Connect(function()
-			log:trace("Removed vehicle from rust cache: {}", vehicle.Name)
-			cacheMap[vehicle] = nil
+		-- remove from the cache when vehicle will be destroyed
+		vehicle.AncestryChanged:Connect(function(oldParent: Instance, newParent: Instance?)
+			if not newParent then
+				cacheMap[vehicle] = nil
+				log:debug("Removed vehicle from rust cache: {}", vehicle.Name)
+			end
 		end)
 
-		log:trace("Cached vehicle in rust cache: {}", vehicle.Name)
+		log:debug("Cached vehicle in rust cache: {}", vehicle.Name)
 	end
 
-	local cacheData = cacheData :: CacheData
+	assert(cacheData)
 
-	-- calculate health lost percent
+	-- calculate the health lost percent
 	local maxHealth = objectHit.Object:getMaxHealth()
 	local lostHealthPercent = funcs.getLostHealthPercent(objectHit.Object:getHealth(), maxHealth)
 	local prevHealthPercent = funcs.getLostHealthPercent(cacheData.PrevHealth, maxHealth)
 
-	-- do not render rust if lost health percent isn't enough
+	-- do not render rust if the lost health percent isn't enough
 	if lostHealthPercent - prevHealthPercent >= STEP_PERCENT then
 		cacheData.PrevHealth = objectHit.Object:getHealth()
 
@@ -74,10 +75,8 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 			funcs.rustifyPart(part)
 		end
 
-		log:trace("Time taken rustifying: {:.1f}ms", (os.clock() - currentTime) * 1000)
+		log:debug("Time taken rustifying: {:.1f}ms", (os.clock() - currentTime) * 1000)
 	end
-
-	debug.profileend()
 end
 
 function funcs.getLostHealthPercent(health: number, maxHealth: number): number

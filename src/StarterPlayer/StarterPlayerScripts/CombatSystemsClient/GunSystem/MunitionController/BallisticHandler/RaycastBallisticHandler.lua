@@ -19,14 +19,14 @@ local fireMunitionRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Event
 local replicationRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ServerToClient.ReplicateFireMunition
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("RaycastBallisticHandler")
+local log: Logger.SelfObject = Logger.new("RaycastBallisticHandlerClient")
 
 function funcs.fireMunitionRaycast(ray: MunitionController.RayInfo)
 	local config = ray.MunitionConfig
 	if config.EnableBallistics then return end
 
 	assert(ray.Origin)
-	log:debug("Raycast-Firing munition {} with rayId {}", ray.MunitionConfig.MunitionName, ray.RayId)
+	log:trace("Raycast-Firing munition {} with rayId {}", ray.MunitionConfig.MunitionName, ray.RayId)
 
 	local initOrigin: Vector3 = ray.Body.InitOriginPos
 	local initDir: Vector3 = ray.Body.InitDirection
@@ -56,7 +56,7 @@ end
 
 function funcs.handleReplicationRaycast(ray: MunitionRayInfo.ServerReplication, hit: MunitionRayHitInfo.Common)
 	if ray.Player then
-		log:debug("Handling replication raycast event from player {}", ray.Player.Name) 
+		log:trace("Handling replication raycast event from player {}", ray.Player.Name) 
 	end
 
 	local resolvedConfig: MunitionConfigUtil.DefaultType? = MunitionConfigUtil.getConfig(ray.MunitionName)

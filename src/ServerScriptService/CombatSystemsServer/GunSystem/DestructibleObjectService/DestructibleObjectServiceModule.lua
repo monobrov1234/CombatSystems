@@ -38,15 +38,14 @@ function funcs.handleDefaultHit(ray: RayTypeService.RayInfo, rayHit: MunitionRay
 	objectHit.Object.object:Destroy()
 end
 
-function funcs.handleDirectHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
-	assert(hit.Hit)
+function funcs.handleDirectHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull)
 	local dObject: DestructibleObject.SelfObject? = DestructibleObject.fromInstanceChild(hit.Hit)
 	if not dObject then return end
 	local damage = DObjectDamageService.calculateDirectDamage(ray.MunitionConfig, ray.Body, hit)
 	funcs.damageObject(ray, hit, dObject, damage)
 end
 
-function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common, hits: MunitionHitService.ExplosionHits)
+function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull, hits: MunitionHitService.ExplosionHits)
 	assert(hit.Hit)
 	local totalDamage = 0
 	local foundObjects = {} :: { DestructibleObject.SelfObject }
@@ -81,8 +80,7 @@ function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayH
 	end
 end
 
-function funcs.damageObject(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common, object: DestructibleObject.SelfObject, damage: number): boolean
-	assert(hit.Hit)
+function funcs.damageObject(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull, object: DestructibleObject.SelfObject, damage: number): boolean
 	if not DObjectDamageService.canDamageObject(object, ray.MunitionConfig, ray.Team) then return false end
 
 	object:takeDamage(damage)

@@ -19,7 +19,7 @@ local verifyHitBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSystem
 local replicationBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ServerToClient.ReplicateFireMunitionBallistic
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("FastcastBallisticHandler")
+local log: Logger.SelfObject = Logger.new("FastcastBallisticHandlerServer")
 
 type RayCacheInfo = {
 	Ray: RayTypeService.RayInfo,
@@ -64,7 +64,7 @@ function funcs.handleFireMunitionBallistic(player: Player, rayRequest: MunitionR
 		replicationBallisticRemote:FireClient(pl, replicatedRay)
 	end
 
-	log:debug("Saved & Replicated munition {} rayId {}", config.MunitionName, rayRequest.RayId)
+	log:trace("Saved & Replicated munition {} rayId {}", config.MunitionName, rayRequest.RayId)
 end
 
 -- TODO: server-side validation of ballistic munitions trajectories and hits
@@ -86,7 +86,7 @@ function funcs.handleVerifyHitBallistic(player: Player, rayId: string, hit: Muni
 	-- process hit
 	MunitionService.processMunitionHit(cached.Ray, hit)
 
-	log:debug("Verify hit called for munition {} rayId {}", cached.Ray.MunitionConfig.MunitionName, rayId)
+	log:trace("Verify hit called for munition {} rayId {}", cached.Ray.MunitionConfig.MunitionName, rayId)
 end
 
 -- garbage collector for the ray cache table

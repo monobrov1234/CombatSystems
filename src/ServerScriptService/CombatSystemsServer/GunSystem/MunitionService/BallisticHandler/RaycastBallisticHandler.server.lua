@@ -17,7 +17,7 @@ local fireMunitionRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Event
 local replicationRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ServerToClient.ReplicateFireMunition
 
 -- FINALS
-local _log: Logger.SelfObject = Logger.new("RaycastBallisticHandler")
+local _log: Logger.SelfObject = Logger.new("RaycastBallisticHandlerServer")
 
 -- raycast munition handler
 function funcs.handleFireMunitionRaycast(player: Player, rayRequest: MunitionRayInfo.ClientRequest, hit: MunitionRayHitInfo.Common)	

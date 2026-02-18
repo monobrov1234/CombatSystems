@@ -11,7 +11,7 @@ local DestructibleObjectService = require(ServerScriptService.CombatSystemsServe
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("VehicleHitHandler")
+local log: Logger.SelfObject = Logger.new("VehicleHitmarkHandler")
 
 function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DestructibleObjectService.ObjectHitInfo)
 	-- if its some weak bullet hit the vehicle, do not show the direction indicator

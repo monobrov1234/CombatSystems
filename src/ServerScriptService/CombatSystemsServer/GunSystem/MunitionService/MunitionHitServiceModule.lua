@@ -24,10 +24,10 @@ export type ExplosionHitInfo = {
 export type ExplosionHits = { ExplosionHitInfo }
 
 -- PUBLIC EVENTS
-module.DirectHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
-module.ExplosionHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common, hits: { ExplosionHitInfo })
+module.DirectHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull)
+module.ExplosionHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull, hits: { ExplosionHitInfo })
 
-function funcs.handleHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
+function funcs.handleHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull)
 	if not hit.Hit then return end
 	if ray.MunitionConfig.ExplosionConfig.CanExplode then
 		module.ExplosionHit:fire(ray, hit, funcs.calculateExplosionHits(ray, hit))
@@ -36,7 +36,7 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Co
 	module.DirectHit:fire(ray, hit)
 end
 
-function funcs.calculateExplosionHits(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common): ExplosionHits
+function funcs.calculateExplosionHits(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull): ExplosionHits
 	local config = ray.MunitionConfig
 	local explosionConfig = config.ExplosionConfig
 
@@ -58,7 +58,7 @@ function funcs.calculateExplosionHits(ray: RayTypeService.RayInfo, hit: Munition
         )
     end
 
-    -- sort by distance, closest first, farthest last
+    -- sort by distance; closest first, farthest last
     table.sort(hits, function(a: ExplosionHitInfo, b: ExplosionHitInfo)
         return a.ClosestBoundsDistance < b.ClosestBoundsDistance
     end)

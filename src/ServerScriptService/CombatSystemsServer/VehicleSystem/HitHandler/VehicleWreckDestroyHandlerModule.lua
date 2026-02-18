@@ -17,7 +17,7 @@ local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 
 -- FINALS
-local _log: Logger.SelfObject = Logger.new("VehicleDestroyHandler")
+local _log: Logger.SelfObject = Logger.new("VehicleWreckDestroyHandler")
 
 local RUST_COLOR = Color3.fromRGB(0, 0, 0)
 local RUST_MATERIAL = Enum.Material.CorrodedMetal

@@ -24,7 +24,7 @@ local verifyHitBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSystem
 local replicationBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ServerToClient.ReplicateFireMunitionBallistic
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("FastcastBallisticHandler")
+local log: Logger.SelfObject = Logger.new("FastcastBallisticHandlerClient")
 local caster = FastCastRedux.new()
 
 function funcs.fireMunitionBallistic(ray: MunitionController.RayInfo)
@@ -32,7 +32,7 @@ function funcs.fireMunitionBallistic(ray: MunitionController.RayInfo)
 	if not config.EnableBallistics then return end
 
 	assert(ray.Origin)
-	log:debug("Fastcast-Firing munition {} with rayId {}", ray.MunitionConfig.MunitionName, ray.RayId)
+	log:trace("Fastcast-Firing munition {} with rayId {}", ray.MunitionConfig.MunitionName, ray.RayId)
 
 	local initOrigin: Vector3 = ray.Body.InitOriginPos
 	local initDir: Vector3 = ray.Body.InitDirection
@@ -53,7 +53,9 @@ function funcs.fireMunitionBallistic(ray: MunitionController.RayInfo)
 end
 
 function funcs.handleReplicationBallistic(ray: MunitionRayInfo.ServerReplication)
-	if ray.Player then log:debug("Handling replication ballistic event from player {}", ray.Player.Name) end
+	if ray.Player then 
+		log:trace("Handling replication ballistic event from player {}", ray.Player.Name)
+	end
 
 	local resolvedConfig: MunitionConfigUtil.DefaultType? = MunitionConfigUtil.getConfig(ray.MunitionName)
 	assert(resolvedConfig)
@@ -100,7 +102,7 @@ function funcs.handleBallisticRayTerminated(cast: FastCastReduxTypes.ActiveCast)
 	-- only show the hitmark and acknowledge the server if it's our ray
 	if ray.Player == player then
 		verifyHitBallisticRemote:FireServer(ray.RayId, rayHit)
-		log:debug("Acknowledged server about ballistic ray hit {} rayId {}", ray.MunitionConfig.MunitionName, ray.RayId)
+		log:trace("Acknowledged server about ballistic ray hit {} rayId {}", ray.MunitionConfig.MunitionName, ray.RayId)
 	end
 
 	MunitionController.processRayEnd(ray, rayHit)

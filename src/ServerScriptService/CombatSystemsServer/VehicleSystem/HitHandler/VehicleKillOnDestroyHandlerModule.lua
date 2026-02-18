@@ -13,7 +13,7 @@ local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSyst
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("VehicleDestroyHandler")
+local log: Logger.SelfObject = Logger.new("VehicleKillOnDestroyHandler")
 
 function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DestructibleObjectService.ObjectHitInfo)
 	if objectHit.Damage == 0 then return end

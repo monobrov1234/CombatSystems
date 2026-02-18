@@ -24,22 +24,9 @@ local validatorPipeline = {} :: { ValidatorCallback }
 module.FireMunition = Signal.new() -- (ray: RayTypeService.RayInfo)
 -- called before determining hit type and calculating specifics (e.g explosion hit list)
 -- mainly for use in MunitionHitService
-module.PreHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
+module.PreHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull)
 
 -- PUBLIC API
-function module.processMunitionFire(ray: RayTypeService.RayInfo)
-	module.FireMunition:fire(ray)
-end
-
-function module.processMunitionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
-	if not hit.Hit then return end
-	module.PreHit:fire(ray, hit)
-end
-
-function module.registerFireValidator(validator: ValidatorCallback)
-	table.insert(validatorPipeline, validator)
-end
-
 function module.validateRayFire(ray: RayTypeService.RayInfoNonValid): RayTypeService.RayInfo
 	assert(ray.Player, "Ambiguous validateRay call on a ray without player field")
 
@@ -59,6 +46,19 @@ end
 -- WIP function
 function module.validateRayHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
 	-- TODO: hit validation
+end
+
+function module.registerFireValidator(validator: ValidatorCallback)
+	table.insert(validatorPipeline, validator)
+end
+
+function module.processMunitionFire(ray: RayTypeService.RayInfo)
+	module.FireMunition:fire(ray)
+end
+
+function module.processMunitionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
+	if not hit.Hit then return end
+	module.PreHit:fire(ray, hit)
 end
 
 return module
