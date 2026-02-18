@@ -7,22 +7,13 @@ local funcs = {}
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
 local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObjectModule)
-local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.DestructibleObjectConfig)
 local DestructibleObjectUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DObjectUtilModule)
 local DObjectDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageCalculation.DObjectDamageServiceModule)
-local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.DropoffUtilModule)
-local BoundsUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.BoundsUtilModule)
-local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
+local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
-
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)) & {
-	Hit: BasePart,
-}
+local MunitionHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionHitServiceModule)
 
 -- ROBLOX OBJECTS
 local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
@@ -35,22 +26,22 @@ module.ObjectHit = Signal.new()
 
 -- INTERNAL FUNCTIONS
 -- default hit handler, custom hit handlers need to cancel the event (return true) in order to stop this from executing
-function funcs.handleDefaultHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: MunitionRayHitInfo.Type)
+function funcs.handleDefaultHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: RayTypeService.RayHitInfo)
 	if not object:isDestroyed() then return end
 	object.object:Destroy()
 end
 
-function funcs.handleDirectHit(rayHitInfo: MunitionRayHitInfo.Type)
+function funcs.handleDirectHit(rayHitInfo: RayTypeService.RayHitInfo)
 	local dObject = DestructibleObject.fromInstanceChild(rayHitInfo.Hit)
 	if not dObject then return end
 	local damage = DObjectDamageService.calculateDirectDamage(rayHitInfo, rayHitInfo.Hit)
 	funcs.damageObject(dObject, rayHitInfo, rayHitInfo.Hit, damage)
 end
 
-function funcs.handleExplosionHit(rayHitInfo: MunitionRayHitInfo.Type, hitParts: { MunitionService.ExplosionHitInfo })
+function funcs.handleExplosionHit(rayHitInfo: RayTypeService.RayHitInfo, hitParts: MunitionHitService.ExplosionHits)
 	local totalDamage = 0
 	local foundObjects = {} :: { DestructibleObject.SelfObject }
-	for _, hit: MunitionService.ExplosionHitInfo in ipairs(hitParts) do
+	for _, hit: MunitionHitService.ExplosionHitInfo in ipairs(hitParts) do
 		-- skip if out of radius
 		if hit.ClosestBoundsDistance > rayHitInfo.RayInfo.MunitionConfig.ExplosionConfig.Radius then continue end
 
@@ -79,8 +70,7 @@ function funcs.handleExplosionHit(rayHitInfo: MunitionRayHitInfo.Type, hitParts:
 	if rayHitInfo.RayInfo.Player and totalDamage > 0 then explosionHitmark:FireClient(rayHitInfo.RayInfo.Player, totalDamage, true) end
 end
 
-function funcs.damageObject(dObject: DestructibleObject.SelfObject, rayHitInfo: MunitionRayHitInfo.Type, hitPart: BasePart, damage: number): boolean
-	local rayInfo = rayHitInfo.RayInfo
+function funcs.damageObject(dObject: DestructibleObject.SelfObject, rayHitInfo: RayTypeService.RayHitInfo, hitPart: BasePart, damage: number): boolean
 	if not DObjectDamageService.canDamageObject(dObject, rayHitInfo.RayInfo) then return false end
 
 	dObject:takeDamage(damage)
@@ -89,7 +79,7 @@ function funcs.damageObject(dObject: DestructibleObject.SelfObject, rayHitInfo: 
 	return true
 end
 
-function funcs.calculateExplosionDamage(rayHitInfo: MunitionRayHitInfo.Type, hit: MunitionService.ExplosionHitInfo): number
+function funcs.calculateExplosionDamage(rayHitInfo: RayTypeService.RayHitInfo, hit: MunitionHitService.ExplosionHitInfo): number
 	local rayInfo = rayHitInfo.RayInfo
 	local config = rayInfo.MunitionConfig
 	local totalDamage: number = DestructibleObjectUtil.getDamageForPart(config, hit.Part)
@@ -103,7 +93,7 @@ function funcs.calculateExplosionDamage(rayHitInfo: MunitionRayHitInfo.Type, hit
 end
 
 module.ObjectHit:connect(funcs.handleDefaultHit, Signal.Priority.LOW) -- lower priority, execute after every custom handler
-MunitionService.DirectHit:connect(funcs.handleDirectHit)
-MunitionService.ExplosionHit:connect(funcs.handleExplosionHit)
+MunitionHitService.DirectHit:connect(funcs.handleDirectHit)
+MunitionHitService.ExplosionHit:connect(funcs.handleExplosionHit)
 
 return module

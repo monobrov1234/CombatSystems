@@ -5,18 +5,12 @@ local module = {}
 -- IMPORTS
 local Players = game:GetService("Players")
 local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(game.StarterPlayer.StarterPlayerScripts)
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
-local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.GunSystem.MunitionController.MunitionControllerModule)
-
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo))
 
 -- FINALS
 local muzzleFlashRays = {} :: { [BasePart]: boolean }
 
-MunitionController.RayFired:connect(function(rayInfo: MunitionRayInfo.Type)
+MunitionController.RayFired:connect(function(rayInfo: MunitionController.RayInfo)
 	local origin = rayInfo.Origin
 	print(origin.Name)
 	local handler = rayInfo.MunitionConfig.FXConfig.ShootFXHandler

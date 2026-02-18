@@ -14,7 +14,7 @@ local CursorConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Con
 -- ROBLOX OBJECTS
 local player = Players.LocalPlayer :: Player
 local mouse = player:GetMouse()
-local character = player.Character or player.CharacterAdded:Wait()
+local _character = player.Character or player.CharacterAdded:Wait()
 local playerGui = player:WaitForChild("PlayerGui") :: typeof(game:GetService("StarterGui"))
 local combatCursorGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("CombatCursorGui")
 local cursorChangeGui = combatCursorGui:WaitForChild("CursorChange")
@@ -121,7 +121,7 @@ function funcs.closeCursorChangeGui()
 end
 
 player.CharacterAdded:Connect(function(newCharacter: Model)
-	character = newCharacter
+	_character = newCharacter
 	playerGui = player:WaitForChild("PlayerGui") :: typeof(game:GetService("StarterGui"))
 	combatCursorGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("CombatCursorGui")
 	cursorChangeGui = combatCursorGui:WaitForChild("CursorChange")

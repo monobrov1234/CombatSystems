@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
+local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local GunConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.GunConfigUtilModule)
 local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
@@ -65,7 +66,7 @@ function funcs.handleGunUnequipped(player: Player, gunInfo: GunUtil.GunInfo)
 end
 
 -- handles gun fire after validation
-function funcs.handleGunFire(rayInfo: MunitionRayInfo.Type)
+function funcs.handleGunFire(rayInfo: RayTypeService.RayInfo)
 	local player: Player? = rayInfo.Player
 	if not player then return end
 	local character: Model? = player.Character

@@ -10,10 +10,9 @@ local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.
 local TurretConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.TurretConfigUtilModule)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
 local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
+local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-
-function funcs.validateTurretFire(rayInfo: MunitionRayInfo.Type): RaycastParams?
+function funcs.validateTurretFire(rayInfo: RayTypeService.RayInfoNonValid): RaycastParams?
     if not rayInfo.Player then return nil end -- should have player to get a turret he is manning
     
 	local turretInfo: TurretUtil.TurretInfo? = TurretStateService.getPlayerCurrentTurret(rayInfo.Player)

@@ -12,7 +12,7 @@ local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.
 type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
 type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo))
 
-MunitionController.RayEnded:connect(function(rayHitInfo: MunitionRayHitInfo.Type)
+MunitionController.RayEnded:connect(function(rayHitInfo: RayTypeService.RayHitInfo)
 	local rayInfo = rayHitInfo.RayInfo
 	if rayInfo.MunitionConfig.MunitionName ~= script.Parent.Name then return end
 	if not rayHitInfo.Hit then return end

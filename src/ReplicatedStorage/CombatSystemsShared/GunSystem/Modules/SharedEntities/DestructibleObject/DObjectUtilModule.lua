@@ -67,7 +67,7 @@ end
 
 -- INTERNAL FUNCTIONS
 function funcs.getPartResistance(part: Instance): number
-	return part:GetAttribute(DestructibleObjectConfig.ArmorResistanceAttribute) or 0
+	return (part:GetAttribute(DestructibleObjectConfig.ArmorResistanceAttribute) :: number?) or 0
 end
 
 return module

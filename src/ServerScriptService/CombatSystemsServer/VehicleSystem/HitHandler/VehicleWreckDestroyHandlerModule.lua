@@ -15,11 +15,10 @@ local DestructibleObjectUtil = require(ReplicatedStorage.CombatSystemsShared.Gun
 local DestructibleObjectService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DestructibleObjectServiceModule)
 local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.DestructibleObjectConfig)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
-
-type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo))
+local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("VehicleDestroyHandler")
+local _log: Logger.SelfObject = Logger.new("VehicleDestroyHandler")
 
 local RUST_COLOR = Color3.fromRGB(0, 0, 0)
 local RUST_MATERIAL = Enum.Material.CorrodedMetal
@@ -28,7 +27,7 @@ function funcs.handleHit(
 	object: DestructibleObject.SelfObject,
 	foundArmorInfo: DestructibleObjectUtil.ArmorInfo,
 	damage: number,
-	rayHitInfo: MunitionRayHitInfo.Type
+	rayHitInfo: RayTypeService.RayHitInfo
 ): boolean
 	if damage == 0 then return false end
 	if object:getHealth() > 0 then return false end

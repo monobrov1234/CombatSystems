@@ -3,7 +3,6 @@
 local module = {}
 
 -- IMPORTS
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CameraShaker = require(ReplicatedStorage.CombatSystemsShared.Libs.CameraShaker)
@@ -12,7 +11,7 @@ local CameraShakeInstance = require(ReplicatedStorage.CombatSystemsShared.Libs.C
 -- ROBLOX OBJECTS
 local player = Players.LocalPlayer :: Player
 local playerGui = player.PlayerGui
-local character = player.Character or player.CharacterAdded:Wait()
+local _character = player.Character or player.CharacterAdded:Wait()
 local suppressionHud = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("SuppressionHud")
 
 local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf: CFrame)
@@ -72,7 +71,7 @@ function module.shakeCamera(distance: number, maxDistance: number, shakeConfig: 
 end
 
 player.CharacterAdded:Connect(function(newCharacter: Model)
-	character = newCharacter
+	_character = newCharacter
 	suppressionHud = playerGui:WaitForChild("CombatSystemsGui").GunSystemGui.SuppressionHud
 end)
 

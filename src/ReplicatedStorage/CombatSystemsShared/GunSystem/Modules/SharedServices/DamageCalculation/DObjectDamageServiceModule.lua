@@ -15,7 +15,7 @@ type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem
 }
 
 -- PUBLIC API
-function module.canDamageObject(dObject: DestructibleObject.SelfObject, rayInfo: MunitionRayInfo.Type)
+function module.canDamageObject(dObject: DestructibleObject.SelfObject, rayInfo: MunitionController.RayInfo)
 	local config = rayInfo.MunitionConfig
 
 	-- teammate check
@@ -37,7 +37,7 @@ function module.canDamageObject(dObject: DestructibleObject.SelfObject, rayInfo:
 	return true
 end
 
-function module.calculateDirectDamage(rayHitInfo: MunitionRayHitInfo.Type, hitPart: BasePart): number
+function module.calculateDirectDamage(rayHitInfo: RayTypeService.RayHitInfo, hitPart: BasePart): number
 	local rayInfo = rayHitInfo.RayInfo
 	local config = rayInfo.MunitionConfig
 

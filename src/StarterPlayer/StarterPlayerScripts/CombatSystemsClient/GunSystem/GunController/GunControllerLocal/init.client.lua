@@ -220,7 +220,16 @@ function funcs.fireGun(gunInfo: GunUtil.GunInfo)
 	-- fire
 	local spreadConfig = gunInfo.Config.GunConfig.SpreadConfig
 	local direction: Vector3 = mouse.Hit.Position - gunInfo.FiringPoint.CFrame.Position
-	MunitionController.fireMunition(gunInfo.Config.GunConfig.AmmoType, gunInfo.FiringPoint, direction, raycastParams, spreadConfig.Yaw, spreadConfig.Pitch)
+
+	MunitionController.fireMunition({
+		MunitionName = gunInfo.Config.GunConfig.AmmoType,
+		Origin = gunInfo.FiringPoint,
+		DirectionVec = direction,
+		RaycastParams = raycastParams,
+		SpreadYawDeg = spreadConfig.Yaw,
+		SpreadPitchDeg = spreadConfig.Pitch
+	})
+	
 	state.SharedState.MagSize = math.max(0, state.SharedState.MagSize - 1)
 	state.LastShootTime = clock
 

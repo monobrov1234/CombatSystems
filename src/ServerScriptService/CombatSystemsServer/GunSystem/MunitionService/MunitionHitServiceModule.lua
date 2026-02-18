@@ -23,10 +23,10 @@ export type ExplosionHitInfo = {
 export type ExplosionHits = { ExplosionHitInfo }
 
 -- PUBLIC EVENTS
-module.DirectHit = Signal.new() -- (rayHitInfo: MunitionRayHitInfo.Type)
-module.ExplosionHit = Signal.new() -- (rayHitInfo: MunitionRayHitInfo.Type, hits: { ExplosionHitInfo })
+module.DirectHit = Signal.new() -- (rayHitInfo: RayTypeService.RayHitInfo)
+module.ExplosionHit = Signal.new() -- (rayHitInfo: RayTypeService.RayHitInfo, hits: { ExplosionHitInfo })
 
-function funcs.handleHit(rayHitInfo: RayTypeService.RayHitInfoValid)
+function funcs.handleHit(rayHitInfo: RayTypeService.RayHitInfo)
 	if not rayHitInfo.Hit or not rayHitInfo.Hit:IsA("BasePart") then return end
 	local config = rayHitInfo.RayInfo.MunitionConfig
 	local explosionConfig = config.ExplosionConfig
@@ -37,7 +37,7 @@ function funcs.handleHit(rayHitInfo: RayTypeService.RayHitInfoValid)
 	module.DirectHit:fire(rayHitInfo)
 end
 
-function funcs.calculateExplosionHits(rayHitInfo: RayTypeService.RayHitInfoValid): ExplosionHits
+function funcs.calculateExplosionHits(rayHitInfo: RayTypeService.RayHitInfo): ExplosionHits
 	local config = rayHitInfo.RayInfo.MunitionConfig
 	local explosionConfig = config.ExplosionConfig
 

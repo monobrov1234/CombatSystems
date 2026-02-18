@@ -272,7 +272,16 @@ function funcs.fireTurret()
 
 	local pitchTarget = turretInfo.PitchMotor.Part1
 	local direction = pitchTarget.CFrame.LookVector
-	MunitionController.fireMunition(funcs.getSelectedMunition(), firingPart, direction, raycastParams, spreadConfig.Yaw, spreadConfig.Pitch)
+
+	MunitionController.fireMunition({
+		MunitionName = funcs.getSelectedMunition(),
+		Origin = firingPart,
+		DirectionVec = direction,
+		RaycastParams = raycastParams,
+		SpreadYawDeg = spreadConfig.Yaw,
+		SpreadPitchDeg = spreadConfig.Pitch
+	})
+
 	funcs.setClipSize(funcs.getClipSize() - 1)
 	funcs.setLastShootTime(os.clock())
 
@@ -393,7 +402,6 @@ function funcs.zoomInFirstPerson()
 end
 
 function funcs.zoomOutFirstPerson()
-	local steps = turretInfo.TurretConfig.ZoomConfig.ZoomSteps
 	if firstPersonStep > 1 then
 		firstPersonStep -= 1
 	end

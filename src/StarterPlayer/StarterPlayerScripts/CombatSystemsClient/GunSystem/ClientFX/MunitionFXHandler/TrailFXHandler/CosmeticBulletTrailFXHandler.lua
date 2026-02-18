@@ -7,11 +7,7 @@ local Players = game:GetService("Players")
 local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(game.StarterPlayer.StarterPlayerScripts)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
-local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.GunSystem.MunitionController.MunitionControllerModule)
-
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo))
 
 -- FINALS
 local cosmeticBulletsCache = {} :: { [string]: BasePart }
@@ -20,7 +16,7 @@ export type Config = {
 	CosmeticBullet: BasePart,
 }
 
-MunitionController.RayFired:connect(function(rayInfo: MunitionRayInfo.Type)
+MunitionController.RayFired:connect(function(rayInfo: MunitionController.RayInfo)
 	local handler = rayInfo.MunitionConfig.FXConfig.TrailFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end
 	local config = handler.HandlerConfig :: Config
@@ -31,7 +27,7 @@ MunitionController.RayFired:connect(function(rayInfo: MunitionRayInfo.Type)
 	cosmeticBulletsCache[rayInfo.RayId] = cosmeticBulletClone
 end)
 
-MunitionController.RaySegmentReached:connect(function(rayInfo: MunitionRayInfo.Type, segmentOrigin: Vector3, direction: Vector3, length: number)
+MunitionController.RaySegmentReached:connect(function(rayInfo: MunitionController.RayInfo, segmentOrigin: Vector3, direction: Vector3, length: number)
 	local handler = rayInfo.MunitionConfig.FXConfig.TrailFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end
 
@@ -41,7 +37,7 @@ MunitionController.RaySegmentReached:connect(function(rayInfo: MunitionRayInfo.T
 	cosmeticBullet.CFrame = baseCFrame * CFrame.new(0, 0, -(length - bulletLength))
 end)
 
-MunitionController.RayEnded:connect(function(rayHitInfo: MunitionRayHitInfo.Type)
+MunitionController.RayEnded:connect(function(rayHitInfo: MunitionController.RayHitInfo)
 	local rayInfo = rayHitInfo.RayInfo
 	local handler = rayInfo.MunitionConfig.FXConfig.TrailFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end

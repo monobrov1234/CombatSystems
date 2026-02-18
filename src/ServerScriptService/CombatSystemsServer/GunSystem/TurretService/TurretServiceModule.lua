@@ -8,6 +8,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
+local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
 
@@ -42,7 +43,7 @@ function funcs.handleReplicateTurretState(player: Player, yawRotationC0: Vector3
 end
 
 -- handles turret munition fire after validation
-function funcs.handleTurretFire(rayInfo: MunitionRayInfo.Type)
+function funcs.handleTurretFire(rayInfo: RayTypeService.RayInfo)
 	local player: Player? = rayInfo.Player
 	if not player then return end
 	local character: Model? = player.Character

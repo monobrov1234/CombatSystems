@@ -8,7 +8,7 @@ local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSyst
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
 
--- FINALS
+-- TYPES
 export type RayInfoNonValid = {
 	Player: Player?,
 	Team: Team?,
@@ -19,34 +19,18 @@ export type RayInfoNonValid = {
 	InitDirection: Vector3,
 }
 
-export type RayInfoValid = RayInfoNonValid & {
+export type RayInfo = RayInfoNonValid & {
 	RaycastParams: RaycastParams,
 }
 
-type RayHitInfoBase = {
+export type RayHitInfo = {
+	RayInfo: RayInfo,
 	HitPos: Vector3,
-	Hit: BasePart?,
+	Hit: BasePart,
 }
 
-export type RayHitInfoNonValid = {
-	RayInfo: RayInfoNonValid,
-} & RayHitInfoBase
-
-export type RayHitInfoValid = {
-	RayInfo: RayInfoValid,
-} & RayHitInfoBase
-
 -- PUBLIC API
-function module.convertNonValidRayHitInfoToServer(rayHitInfo: RayHitInfoNonValid, raycastParams: RaycastParams): RayHitInfoValid
-	local rayInfoValidated: RayInfoValid = module.convertNonValidRayInfoToServer(rayHitInfo.RayInfo, raycastParams)
-	return {
-		RayInfo = rayInfoValidated,
-		Hit = rayHitInfo.Hit,
-		HitPos = rayHitInfo.HitPos
-	}
-end
-
-function module.convertNonValidRayInfoToServer(rayInfo: RayInfoNonValid, raycastParams: RaycastParams): RayInfoValid
+function module.convertNonValidRayInfoToServer(rayInfo: RayInfoNonValid, raycastParams: RaycastParams): RayInfo
 	return { 
 		Player = rayInfo.Player,
 		Team = rayInfo.Team,
@@ -59,16 +43,7 @@ function module.convertNonValidRayInfoToServer(rayInfo: RayInfoNonValid, raycast
 	}
 end
 
-function module.convertClientRayHitInfoToNonValid(player: Player, rayHitInfo: MunitionRayHitInfo.ClientType): RayHitInfoNonValid
-	local convertedRayInfo: RayInfoNonValid = module.convertClientRayInfoToNonValid(player, rayHitInfo.RayInfo)
-	return {
-		RayInfo = convertedRayInfo,
-		Hit = rayHitInfo.Hit,
-		HitPos = rayHitInfo.HitPos
-	}
-end
-
-function module.convertClientRayInfoToNonValid(player: Player, rayInfo: MunitionRayInfo.ClientType): RayInfoNonValid
+function module.convertClientRayInfoToNonValid(player: Player, rayInfo: MunitionRayInfo.ClientRequest): RayInfoNonValid
 	local resolvedConfig: MunitionConfigUtil.DefaultType? = MunitionConfigUtil.getConfig(rayInfo.MunitionName)
 	assert(resolvedConfig)
 
@@ -83,7 +58,7 @@ function module.convertClientRayInfoToNonValid(player: Player, rayInfo: Munition
 	}
 end
 
-function module.validateClientRayHitInfo(player: Player, rayHitInfo: MunitionRayHitInfo.ClientType)
+function module.validateClientRayHitInfo(player: Player, rayHitInfo: MunitionRayHitInfo.ClientRequest)
 	assert(typeof(rayHitInfo) == "table")
 	assert(typeof(rayHitInfo.RayInfo) == "table" and typeof(rayHitInfo.HitPos) == "Vector3")
 	if rayHitInfo.Hit then 
@@ -91,7 +66,7 @@ function module.validateClientRayHitInfo(player: Player, rayHitInfo: MunitionRay
 	end
 end
 
-function module.validateClientRayInfo(player: Player, rayInfo: MunitionRayInfo.ClientType)
+function module.validateClientRayInfo(player: Player, rayInfo: MunitionRayInfo.ClientRequest)
 	assert(typeof(rayInfo) == "table")
 	assert(typeof(rayInfo.RayId) == "string"
 			and typeof(rayInfo.MunitionName) == "string"

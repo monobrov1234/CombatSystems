@@ -25,14 +25,16 @@ local rootPart = character:WaitForChild("HumanoidRootPart") :: BasePart
 local MAX_DISTANCE = 24
 local rayIdMap = {} :: { string }
 
-MunitionController.RaySegmentReached:connect(function(rayInfo: MunitionRayInfo.Type, segmentOrigin: Vector3, segmentDirection: Vector3, length: number)
+function funcs.handleRaySegmentReached(segment: MunitionController.RaySegmentInfo)
+	local rayInfo = segment.RayInfo
 	if rayInfo.Player == player then return end
 	if not rayInfo.MunitionConfig.CanSuppress then return end
-	local distance = funcs.distanceFromRay(rootPart.Position, rayInfo.InitOriginPos, rayInfo.InitDirection, length)
-	funcs.suppress(rayInfo.Team, rayInfo.MunitionConfig, distance, true)
-end)
 
-MunitionController.RayEnded:connect(function(rayHitInfo: MunitionRayHitInfo.Type)
+	local distance = funcs.distanceFromRay(rootPart.Position, rayInfo.InitOriginPos, rayInfo.InitDirection, segment.Length)
+	funcs.suppress(rayInfo.Team, rayInfo.MunitionConfig, distance, true)
+end
+
+function funcs.handleRayEnded(rayHitInfo: MunitionController.RayHitInfo) 
 	local rayInfo = rayHitInfo.RayInfo
 	if rayInfo.Player == player then return end
 	if not rayInfo.MunitionConfig.CanSuppressImpact then return end
@@ -46,7 +48,7 @@ MunitionController.RayEnded:connect(function(rayHitInfo: MunitionRayHitInfo.Type
 	-- clean up
 	local rayIdIndex = table.find(rayIdMap, rayInfo.RayId)
 	if rayIdIndex then table.remove(rayIdMap, rayIdIndex) end
-end)
+end
 
 function funcs.suppress(shooterTeam: Team?, munitionConfig: MunitionConfigUtil.DefaultType, distance: number, trailEvent: boolean)
 	if shooterTeam and shooterTeam == player.Team then return end -- TEAMMATE CHECK
@@ -94,3 +96,6 @@ player.CharacterAdded:Connect(function(newCharacter: Model)
 	humanoid = character:WaitForChild("Humanoid") :: Humanoid
 	rootPart = character:WaitForChild("HumanoidRootPart") :: BasePart
 end)
+
+MunitionController.RaySegmentReached:connect(funcs.handleRaySegmentReached)
+MunitionController.RayEnded:connect(funcs.handleRayEnded)

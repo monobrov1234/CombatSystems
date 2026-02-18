@@ -6,29 +6,19 @@ local funcs = {}
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer :: Player
 local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPlayer").StarterPlayerScripts)
-local RunService = game:GetService("RunService")
 local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObjectModule)
-local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.DestructibleObjectConfig)
-local DestructibleObjectUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DObjectUtilModule)
 local DObjectDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageCalculation.DObjectDamageServiceModule)
 local HumanoidDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageCalculation.HumanoidDamageServiceModule)
-local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.GunSystem.MunitionController.MunitionControllerModule)
-local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.DropoffUtilModule)
-
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)) & {
-	Hit: BasePart,
-}
 
 -- ROBLOX OBJECTS
 local playerGui = player.PlayerGui
 local mouse = player:GetMouse()
-local character: Model = player.Character or player.CharacterAdded:Wait()
+local _character: Model = player.Character or player.CharacterAdded:Wait()
 local hitmarkGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("HitmarkGui"):WaitForChild("Hitmark")
 local damageContainer = hitmarkGui:WaitForChild("DamageContainer")
 
@@ -50,7 +40,8 @@ local tween = function(object: Instance, goal, tt: number?, es: string, ed: stri
 	return TweenService:Create(object, TweenInfo.new(tt, Enum.EasingStyle[es], Enum.EasingDirection[ed], 0, false, 0), goal)
 end
 
-function funcs.handleHit(rayHitInfo: MunitionRayHitInfo.Type)
+function funcs.handleRayEnded(rayHitInfo: MunitionController.RayHitInfo)
+	if not rayHitInfo.Hit then return end
 	local dObject = DestructibleObject.fromInstanceChild(rayHitInfo.Hit)
 	if dObject and DObjectDamageService.canDamageObject(dObject, rayHitInfo.RayInfo) then
 		local damage = DObjectDamageService.calculateDirectDamage(rayHitInfo, rayHitInfo.Hit)
@@ -125,11 +116,11 @@ function funcs.handleMouseMove()
 end
 
 mouse.Move:Connect(funcs.handleMouseMove)
-MunitionController.Hit:connect(funcs.handleHit)
+MunitionController.RayEnded:connect(funcs.handleRayEnded)
 explosionHitmark.OnClientEvent:Connect(funcs.handleExplosionHitmark)
 
 player.CharacterAdded:Connect(function(newCharacter: Model)
-	character = newCharacter
+	_character = newCharacter
 	hitmarkGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("HitmarkGui"):WaitForChild("Hitmark")
 	damageContainer = hitmarkGui:WaitForChild("DamageContainer")
 end)

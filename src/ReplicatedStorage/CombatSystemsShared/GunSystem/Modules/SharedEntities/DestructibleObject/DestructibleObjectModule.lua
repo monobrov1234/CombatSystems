@@ -15,7 +15,7 @@ export type SelfObject = typeof(setmetatable({}, DestructibleObject)) & {
 
 -- search up until first ancestor with destructible object tag is found, if nothing found - return nil
 function DestructibleObject.fromInstanceChild(instance: Instance): SelfObject?
-	local objectAncestor = instance
+	local objectAncestor: Instance? = instance
 	while objectAncestor do
 		if objectAncestor:HasTag(DestructibleObjectConfig.Tag) then break end
 		objectAncestor = objectAncestor.Parent
@@ -49,12 +49,12 @@ end
 
 function DestructibleObject:getMaxHealth(): number
 	local self = self :: SelfObject
-	return self.object:GetAttribute(DestructibleObjectConfig.MaxHealthAttribute)
+	return self.object:GetAttribute(DestructibleObjectConfig.MaxHealthAttribute) :: number
 end
 
 function DestructibleObject:getHealth(): number
 	local self = self :: SelfObject
-	return self.object:GetAttribute(DestructibleObjectConfig.HealthAttribute)
+	return self.object:GetAttribute(DestructibleObjectConfig.HealthAttribute) :: number
 end
 
 function DestructibleObject:setMaxHealth(maxHealth: number)

@@ -9,11 +9,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
 local RunService = game:GetService("RunService")
 local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
-local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.GunSystem.MunitionController.MunitionControllerModule)
-
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo))
 
 -- FINALS
 local speed = 3500
@@ -22,7 +18,7 @@ export type Config = {
 	CosmeticBullet: BasePart,
 }
 
-MunitionController.RayEnded:connect(function(rayHitInfo: MunitionRayHitInfo.Type)
+MunitionController.RayEnded:connect(function(rayHitInfo: MunitionController.RayHitInfo)
 	local rayInfo = rayHitInfo.RayInfo
 	local handler = rayInfo.MunitionConfig.FXConfig.TrailFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end
