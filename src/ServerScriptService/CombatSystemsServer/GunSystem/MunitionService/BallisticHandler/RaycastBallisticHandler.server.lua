@@ -9,6 +9,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
 local RayTypeService = require(script.Parent.Parent.RayTypeServiceModule)
 
 -- ROBLOX OBJECTS
@@ -19,28 +20,30 @@ local replicationRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events
 local _log: Logger.SelfObject = Logger.new("RaycastBallisticHandler")
 
 -- raycast munition handler
-function funcs.handleFireMunitionRaycast(player: Player, rayHitInfo: MunitionRayHitInfo.ClientRequest)	
+function funcs.handleFireMunitionRaycast(player: Player, rayRequest: MunitionRayInfo.ClientRequest, hit: MunitionRayHitInfo.Common)	
 	-- initial validation
-	RayTypeService.validateClientRayHitInfo(player, rayHitInfo)
-	local fireRayNonValid: RayTypeService.RayInfoNonValid = RayTypeService.convertClientRayInfoToNonValid(player, rayHitInfo.RayInfo)
-	assert(not fireRayNonValid.MunitionConfig.EnableBallistics) -- smoke check: raycast munitions must have ballistics disabled
+	RayTypeService.validatePlayerRayRequest(player, rayRequest)
+	RayTypeService.validatePlayerRayHit(player, hit)
+
+	local rayNonValid: RayTypeService.RayInfoNonValid = RayTypeService.convertPlayerRayInfoToNonValid(player, rayRequest)
+	assert(not rayNonValid.MunitionConfig.EnableBallistics) -- smoke check: raycast munitions must have ballistics disabled
 
 	-- validate fire
-	local fireRay: RayTypeService.RayInfo = MunitionService.validateRayFire(fireRayNonValid)
+	local serverRay: RayTypeService.RayInfo = MunitionService.validateRayFire(rayNonValid)
 	-- process fire
-	MunitionService.processMunitionFire(fireRay)
+	MunitionService.processMunitionFire(serverRay)
 
-	if rayHitInfo.Hit then
+	if hit.Hit then
 		-- validate hit
-		local hitRay: RayTypeService.RayHitInfo = MunitionService.validateRayHit(fireRay, rayHitInfo.HitPos, rayHitInfo.Hit)
+		MunitionService.validateRayHit(serverRay, hit)
 		-- process hit
-		MunitionService.processMunitionHit(hitRay)
+		MunitionService.processMunitionHit(serverRay, hit)
 	end
 
 	-- replicate fire
 	for _, pl in ipairs(Players:GetPlayers()) do
 		if pl == player then continue end
-		replicationRemote:FireClient(pl, rayHitInfo)
+		replicationRemote:FireClient(pl, hit)
 	end
 end
 

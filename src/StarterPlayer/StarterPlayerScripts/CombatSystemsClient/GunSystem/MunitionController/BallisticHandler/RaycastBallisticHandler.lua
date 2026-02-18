@@ -21,78 +21,63 @@ local replicationRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events
 -- FINALS
 local log: Logger.SelfObject = Logger.new("RaycastBallisticHandler")
 
-function funcs.fireMunitionRaycast(rayInfo: MunitionController.RayInfo)
-	log:debug("Raycast-Firing munition {} with rayId {}", rayInfo.MunitionConfig.MunitionName, rayInfo.RayId)
+function funcs.fireMunitionRaycast(ray: MunitionController.RayInfo)
+	local config = ray.MunitionConfig
+	if config.EnableBallistics then return end
 
-	local config = rayInfo.MunitionConfig
-	local initOrigin: Vector3 = rayInfo.InitOriginPos
-	local initDir: Vector3 = rayInfo.InitDirection
+	assert(ray.Origin)
+	log:debug("Raycast-Firing munition {} with rayId {}", ray.MunitionConfig.MunitionName, ray.RayId)
 
-	local result: RaycastResult? = workspace:Raycast(initOrigin, initDir * config.MaxDistance, rayInfo.RaycastParams)
-	local hitPos: Vector3 = result and result.Position or initOrigin + initDir * config.MaxDistance
-	local hit = result and result.Instance :: BasePart?
+	local initOrigin: Vector3 = ray.Body.InitOriginPos
+	local initDir: Vector3 = ray.Body.InitDirection
+	local result: RaycastResult? = workspace:Raycast(initOrigin, initDir * config.MaxDistance, ray.RaycastParams)
 
-	local rayClientRequest: MunitionRayInfo.ClientRequest = {
-		RayId = rayInfo.RayId,
-		MunitionName = rayInfo.MunitionConfig.MunitionName,
-		Origin = rayInfo.Origin,
-		InitOriginPos = rayInfo.InitOriginPos,
-		InitDirection = rayInfo.InitDirection
+	local rayRequest: MunitionRayInfo.ClientRequest = {
+		RayId = ray.RayId,
+		MunitionName = ray.MunitionConfig.MunitionName,
+		Origin = ray.Origin,
+		Body = ray.Body
 	}
-	local rayHitClientRequest: MunitionRayHitInfo.ClientRequest = {
-		RayInfo = rayClientRequest,
-		HitPos = hitPos,
-		Hit = hit
+	local rayHit: MunitionRayHitInfo.Common = {
+		HitPos = result and result.Position or initOrigin + initDir * config.MaxDistance,
+		Hit = result and result.Instance :: BasePart?
 	}
 
-	fireMunitionRemote:FireServer(rayHitClientRequest)
-
-	local rayHitInfo: MunitionController.RayHitInfo = {
-		RayInfo = rayInfo,
-		HitPos = hitPos,
-		Hit = hit,
-	}
+	fireMunitionRemote:FireServer(rayRequest, rayHit)
     
-    MunitionController.processFireMunition(rayInfo)
-    MunitionController.processRaySegment({
-        RayInfo = rayInfo,
+    MunitionController.processFireMunition(ray)
+    MunitionController.processRaySegment(ray, {
         OriginPos = initOrigin,
         DirectionVec = initDir,
         Length = config.MaxDistance
     })
-    MunitionController.processRayEnd(rayHitInfo)
+    MunitionController.processRayEnd(ray, rayHit)
 end
 
-function funcs.handleReplicationRaycast(rayHitInfo: MunitionRayHitInfo.ServerReplication)
-	local rayInfo: MunitionRayInfo.ServerReplication = rayHitInfo.RayInfo
-	if rayInfo.Player then log:debug("Handling replication raycast event from player {}", rayInfo.Player.Name) end
+function funcs.handleReplicationRaycast(ray: MunitionRayInfo.ServerReplication, hit: MunitionRayHitInfo.Common)
+	if ray.Player then
+		log:debug("Handling replication raycast event from player {}", ray.Player.Name) 
+	end
 
-	local resolvedConfig: MunitionConfigUtil.DefaultType? = MunitionConfigUtil.getConfig(rayInfo.MunitionName)
+	local resolvedConfig: MunitionConfigUtil.DefaultType? = MunitionConfigUtil.getConfig(ray.MunitionName)
 	assert(resolvedConfig)
 
-	local resolvedRayInfo: MunitionController.RayInfo = {
-        Player = rayInfo.Player,
-        Team = rayInfo.Team,
-		RayId = rayInfo.RayId,
+	local transformedClientRay: MunitionController.RayInfo = {
+        Player = ray.Player,
+        Team = ray.Team,
+		RayId = ray.RayId,
 		MunitionConfig = resolvedConfig,
-		Origin = rayInfo.Origin,
-		InitOriginPos = rayInfo.InitOriginPos,
-		InitDirection = rayInfo.InitDirection
+		Origin = ray.Origin,
+		Body = ray.Body
 	}
-    local resolvedRayHitInfo: MunitionController.RayHitInfo = {
-        RayInfo = resolvedRayInfo,
-        HitPos = rayHitInfo.HitPos,
-        Hit = rayHitInfo.Hit
-    }
 
-    MunitionController.processFireMunition(resolvedRayInfo)
-    MunitionController.processRaySegment({
-        RayInfo = resolvedRayInfo,
-        OriginPos = rayInfo.InitOriginPos,
-        DirectionVec = rayInfo.InitDirection,
-        Length = (rayHitInfo.HitPos - rayInfo.InitOriginPos).Magnitude
+    MunitionController.processFireMunition(transformedClientRay)
+    MunitionController.processRaySegment(transformedClientRay, {
+        OriginPos = ray.Body.InitOriginPos,
+        DirectionVec = ray.Body.InitDirection,
+        Length = (hit.HitPos - ray.Body.InitOriginPos).Magnitude
     })
-    MunitionController.processRayEnd(resolvedRayHitInfo)
+    MunitionController.processRayEnd(transformedClientRay, hit)
 end
 
 replicationRemote.OnClientEvent:Connect(funcs.handleReplicationRaycast)

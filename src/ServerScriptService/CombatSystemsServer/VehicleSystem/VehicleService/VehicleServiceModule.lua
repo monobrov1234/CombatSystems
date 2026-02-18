@@ -12,8 +12,6 @@ local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PhysicsService = game:GetService("PhysicsService")
-local CollectionService = game:GetService("CollectionService")
-local RunService = game:GetService("RunService")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
@@ -182,7 +180,8 @@ function funcs.handleSetOwnership(player: Player)
 	assert(vehicleModel and vehicleModel:IsA("Model") and VehicleUtil.validateVehicle(vehicleModel))
 	local primaryPart: BasePart? = vehicleModel.PrimaryPart
 	assert(primaryPart)
-	local vehicleInfo: VehicleUtil.VehicleInfo = VehicleUtil.parseVehicleInfo(vehicleModel)
+	VehicleUtil.parseVehicleInfo(vehicleModel) -- validate vehicle
+
 	primaryPart:SetNetworkOwner(player)
 	log:debug("Successfully set player as a network owner for vehicle {}", vehicleModel.Name)
 

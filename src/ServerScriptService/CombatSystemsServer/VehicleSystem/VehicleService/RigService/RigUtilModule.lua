@@ -21,7 +21,7 @@ end
 function module.constraintWheel(vehicleConfig: VehicleConfigUtil.DefaultType, chassis: BasePart, totalMass: number, wheelCount: number, wheel: BasePart)
 	-- weld wheel children together and set collision group
 	for _, descendant: Instance in ipairs(wheel:GetDescendants()) do
-		if not descendant:isA("BasePart") then continue end
+		if not descendant:IsA("BasePart") then continue end
 		RigUtil.weld(descendant, wheel)
 		descendant.CollisionGroup = "Wheel"
 	end

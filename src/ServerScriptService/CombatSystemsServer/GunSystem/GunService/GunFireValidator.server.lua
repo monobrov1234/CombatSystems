@@ -13,9 +13,9 @@ local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem
 
 type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
 
-function funcs.validateGunFire(rayInfo: RayTypeService.RayInfoNonValid): RaycastParams?
-    if not rayInfo.Player then return end
-    local character = rayInfo.Player.Character
+function funcs.validateGunFire(ray: RayTypeService.RayInfoNonValid): RaycastParams?
+    if not ray.Player then return end
+    local character = ray.Player.Character
 	if not character then return end
 
     -- check that the player is holding a gun
@@ -23,7 +23,7 @@ function funcs.validateGunFire(rayInfo: RayTypeService.RayInfoNonValid): Raycast
 	if not tool or not GunUtil.validateGun(tool) then return end
 
     -- origin must be part of that gun
-	assert(rayInfo.Origin:IsDescendantOf(tool))
+	assert(ray.Origin:IsDescendantOf(tool))
 
     local state = GunStateService.getGunState(tool)
 	assert(state)
@@ -31,7 +31,7 @@ function funcs.validateGunFire(rayInfo: RayTypeService.RayInfoNonValid): Raycast
 
 	local gunInfo = GunUtil.parseGunInfo(tool)
     -- verify that the munition we are firing is the config munition
-	assert(gunInfo.Config.GunConfig.AmmoType == rayInfo.MunitionConfig.MunitionName)
+	assert(gunInfo.Config.GunConfig.AmmoType == ray.MunitionConfig.MunitionName)
 
 	local raycastParams = RaycastParams.new()
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude

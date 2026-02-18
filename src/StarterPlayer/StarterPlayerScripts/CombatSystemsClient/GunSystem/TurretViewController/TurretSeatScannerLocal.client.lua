@@ -3,11 +3,9 @@
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
-local StarterGui = game:GetService("StarterGui")
 local ProximityPromptService = game:GetService("ProximityPromptService")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
-local TurretConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.TurretConfig)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
 local TurretViewController = require(script.Parent.TurretViewControllerModule)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
@@ -59,6 +57,6 @@ hookSeated()
 player.CharacterAdded:Connect(function(newCharacter)
 	cleaner:disconnectAll()
 	character = newCharacter
-	humanoid = character:WaitForChild("Humanoid")
+	humanoid = character:WaitForChild("Humanoid") :: Humanoid
 	hookSeated()
 end)

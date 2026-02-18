@@ -15,18 +15,11 @@ export type RayInfoNonValid = {
 	RayId: string,
 	MunitionConfig: MunitionConfigUtil.DefaultType,
 	Origin: BasePart,
-	InitOriginPos: Vector3,
-	InitDirection: Vector3,
+	Body: MunitionRayInfo.Common
 }
 
 export type RayInfo = RayInfoNonValid & {
 	RaycastParams: RaycastParams,
-}
-
-export type RayHitInfo = {
-	RayInfo: RayInfo,
-	HitPos: Vector3,
-	Hit: BasePart,
 }
 
 -- PUBLIC API
@@ -37,13 +30,12 @@ function module.convertNonValidRayInfoToServer(rayInfo: RayInfoNonValid, raycast
 		RayId = rayInfo.RayId,
 		MunitionConfig = rayInfo.MunitionConfig,
 		Origin = rayInfo.Origin,
-		InitOriginPos = rayInfo.InitOriginPos,
-		InitDirection = rayInfo.InitDirection,
+		Body = rayInfo.Body,
 		RaycastParams = raycastParams
 	}
 end
 
-function module.convertClientRayInfoToNonValid(player: Player, rayInfo: MunitionRayInfo.ClientRequest): RayInfoNonValid
+function module.convertPlayerRayInfoToNonValid(player: Player, rayInfo: MunitionRayInfo.ClientRequest): RayInfoNonValid
 	local resolvedConfig: MunitionConfigUtil.DefaultType? = MunitionConfigUtil.getConfig(rayInfo.MunitionName)
 	assert(resolvedConfig)
 
@@ -53,26 +45,26 @@ function module.convertClientRayInfoToNonValid(player: Player, rayInfo: Munition
 		RayId = rayInfo.RayId,
 		MunitionConfig = resolvedConfig,
 		Origin = rayInfo.Origin,
-		InitOriginPos = rayInfo.InitOriginPos,
-		InitDirection = rayInfo.InitDirection,
+		Body = rayInfo.Body
 	}
 end
 
-function module.validateClientRayHitInfo(player: Player, rayHitInfo: MunitionRayHitInfo.ClientRequest)
-	assert(typeof(rayHitInfo) == "table")
-	assert(typeof(rayHitInfo.RayInfo) == "table" and typeof(rayHitInfo.HitPos) == "Vector3")
-	if rayHitInfo.Hit then 
-		assert(typeof(rayHitInfo.Hit) == "Instance" and rayHitInfo.Hit:IsA("BasePart")) 
+function module.validatePlayerRayHit(player: Player, hit: MunitionRayHitInfo.Common)
+	assert(typeof(hit) == "table")
+	assert(typeof(hit.HitPos) == "Vector3")
+	if hit.Hit then 
+		assert(typeof(hit.Hit) == "Instance" and hit.Hit:IsA("BasePart")) 
 	end
 end
 
-function module.validateClientRayInfo(player: Player, rayInfo: MunitionRayInfo.ClientRequest)
+function module.validatePlayerRayRequest(player: Player, rayInfo: MunitionRayInfo.ClientRequest)
 	assert(typeof(rayInfo) == "table")
 	assert(typeof(rayInfo.RayId) == "string"
 			and typeof(rayInfo.MunitionName) == "string"
 			and typeof(rayInfo.Origin) == "Instance"
-			and typeof(rayInfo.InitOriginPos) == "Vector3"
-			and typeof(rayInfo.InitDirection) == "Vector3")
+			and typeof(rayInfo.Body) == "table"
+			and typeof(rayInfo.Body.InitOriginPos) == "Vector3"
+			and typeof(rayInfo.Body.InitDirection) == "Vector3")
 	assert(rayInfo.Origin:IsA("BasePart"))
 end
 

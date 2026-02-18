@@ -9,6 +9,7 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
 local RayTypeService = require(script.Parent.Parent.RayTypeServiceModule)
 
@@ -21,7 +22,7 @@ local replicationBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSyst
 local log: Logger.SelfObject = Logger.new("FastcastBallisticHandler")
 
 type RayCacheInfo = {
-	FireRayInfo: RayTypeService.RayInfo,
+	Ray: RayTypeService.RayInfo,
 	CreationTime: number,
 }
 local rayCache: { [string]: RayCacheInfo } = {} -- ray cache, used to track existing flying munitions
@@ -30,56 +31,62 @@ local rayCacheLivingTime = 10 -- max ray living time in rayCache table
 -- INTERNAL FUNCTIONS
 
 -- fastcast munition handler
-function funcs.handleFireMunitionBallistic(player: Player, rayInfo: MunitionRayInfo.ClientRequest)
+function funcs.handleFireMunitionBallistic(player: Player, rayRequest: MunitionRayInfo.ClientRequest)
 	-- initial validation
-	RayTypeService.validateClientRayInfo(player, rayInfo)
-	local rayInfoNonValid: RayTypeService.RayInfoNonValid = RayTypeService.convertClientRayInfoToNonValid(player, rayInfo)
+	RayTypeService.validatePlayerRayRequest(player, rayRequest)
+	local rayInfoNonValid: RayTypeService.RayInfoNonValid = RayTypeService.convertPlayerRayInfoToNonValid(player, rayRequest)
 
 	local config: MunitionConfigUtil.DefaultType = rayInfoNonValid.MunitionConfig
 	assert(config.EnableBallistics) -- smoke check: ballistic munitions must have ballistics enabled
-	assert(not rayCache[rayInfo.RayId]) -- check if that ray id already exists
+	assert(not rayCache[rayRequest.RayId]) -- check if that ray id already exists
 
 	-- validate fire
-    local fireRay: RayTypeService.RayInfo = MunitionService.validateRayFire(rayInfoNonValid)
+    local serverRay: RayTypeService.RayInfo = MunitionService.validateRayFire(rayInfoNonValid)
 
 	-- process fire and save RayId
-	MunitionService.processMunitionFire(fireRay)
-	rayCache[rayInfo.RayId] = {
-		FireRayInfo = fireRay,
+	MunitionService.processMunitionFire(serverRay)
+	rayCache[rayRequest.RayId] = {
+		Ray = serverRay,
 		CreationTime = os.clock(),
 	}
 
 	-- replicate fire
+	local replicatedRay: MunitionRayInfo.ServerReplication = {
+		Player = player,
+		Team = player.Team,
+		RayId = rayRequest.RayId,
+		MunitionName = config.MunitionName,
+		Origin = rayRequest.Origin,
+		Body = rayRequest.Body
+	}
 	for _, pl in ipairs(Players:GetPlayers()) do
 		if pl == player then continue end
-		replicationBallisticRemote:FireClient(pl, rayInfo)
+		replicationBallisticRemote:FireClient(pl, replicatedRay)
 	end
 
-	log:debug("Saved & Replicated munition {} rayId {}", config.MunitionName, rayInfo.RayId)
+	log:debug("Saved & Replicated munition {} rayId {}", config.MunitionName, rayRequest.RayId)
 end
 
 -- TODO: server-side validation of ballistic munitions trajectories and hits
-function funcs.handleVerifyHitBallistic(player: Player, rayId: string, hitPos: Vector3, hit: BasePart?)
-	if not hit then return end -- TODO
+function funcs.handleVerifyHitBallistic(player: Player, rayId: string, hit: MunitionRayHitInfo.Common)
+	if not hit.Hit then return end -- TODO
 
 	-- initial validation
-	assert(typeof(rayId) == "string" and typeof(hitPos) == "Vector3")
-	if hit then
-		assert(typeof(hit) == "Instance" and hit:IsA("BasePart"))
-	end
+	assert(typeof(rayId) == "string")
+	RayTypeService.validatePlayerRayHit(player, hit)
 
-	-- validate that rayId exists
-	local rayCacheInfo: RayCacheInfo = rayCache[rayId]
-	assert(rayCacheInfo and rayCacheInfo.FireRayInfo.Player == player)
+	-- validate that the rayId is present
+	local cached: RayCacheInfo = rayCache[rayId]
+	assert(cached and cached.Ray.Player == player)
 	rayCache[rayId] = nil
 
 	-- validate hit
-	local hitRayValid: RayTypeService.RayHitInfo = MunitionService.validateRayHit(rayCacheInfo.FireRayInfo, hitPos, hit)
+	MunitionService.validateRayHit(cached.Ray, hit)
 
 	-- process hit
-	MunitionService.processMunitionHit(hitRayValid)
+	MunitionService.processMunitionHit(cached.Ray, hit)
 
-	log:debug("Verify hit called for munition {} rayId {}", rayCacheInfo.FireRayInfo.MunitionConfig.MunitionName, rayId)
+	log:debug("Verify hit called for munition {} rayId {}", cached.Ray.MunitionConfig.MunitionName, rayId)
 end
 
 -- garbage collector for the ray cache table

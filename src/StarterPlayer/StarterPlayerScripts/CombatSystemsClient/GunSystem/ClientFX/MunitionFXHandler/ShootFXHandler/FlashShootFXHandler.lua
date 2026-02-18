@@ -10,10 +10,11 @@ local MunitionController = require(PlayerScripts.CombatSystemsClient.GunSystem.M
 -- FINALS
 local muzzleFlashRays = {} :: { [BasePart]: boolean }
 
-MunitionController.RayFired:connect(function(rayInfo: MunitionController.RayInfo)
-	local origin = rayInfo.Origin
-	print(origin.Name)
-	local handler = rayInfo.MunitionConfig.FXConfig.ShootFXHandler
+MunitionController.RayFired:connect(function(ray: MunitionController.RayInfo)
+	if not ray.Origin then return end
+	
+	local origin = ray.Origin
+	local handler = ray.MunitionConfig.FXConfig.ShootFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end
 
 	for i, v: Instance in pairs(origin:GetDescendants()) do

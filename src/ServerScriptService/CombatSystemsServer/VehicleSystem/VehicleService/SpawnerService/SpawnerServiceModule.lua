@@ -27,7 +27,7 @@ local spawnerDelayMap = {} :: { [BasePart]: number }
 
 -- PUBLIC API
 function module.spawnVehicle(vehicleModel: Model, cframe: CFrame)
-	local vehicleInfo: VehicleUtil.VehicleInfoNotRigged = VehicleUtil.parseVehicleInfoNonRig(vehicleModel)
+	VehicleUtil.parseVehicleInfoNonRig(vehicleModel) -- validate vehicle
 	local vehicleClone: Model = vehicleModel:Clone()
 	vehicleClone:PivotTo(cframe)
 
@@ -40,7 +40,6 @@ function module.spawnVehicle(vehicleModel: Model, cframe: CFrame)
 	for _, wheel: BasePart in ipairs(wheels) do
 		for _, descendant: Instance in ipairs(wheel:GetDescendants()) do
 			if descendant:IsA("BasePart") then
-				local descendant = descendant :: BasePart
 				descendant.Anchored = false
 			end
 		end
@@ -54,7 +53,6 @@ function module.spawnVehicle(vehicleModel: Model, cframe: CFrame)
 
 	for _, descendant: Instance in ipairs(vehicleClone:GetDescendants()) do
 		if descendant:IsA("BasePart") then
-			local descendant = descendant :: BasePart
 			descendant.Anchored = false
 		end
 	end
@@ -96,14 +94,6 @@ function funcs.handleUseSpawner(player: Player, spawner: BasePart, vehicleName: 
 	local spawnCFrame = spawner.CFrame * offset
 
 	-- check for obstructions
-	local function getRootAncestor(instance: Instance)
-		local current: Instance = instance
-		while current.Parent do
-			current = current.Parent
-		end
-		return current
-	end
-
 	local parts: { BasePart } = workspace:GetPartBoundsInBox(spawnCFrame, volume)
 	for _, part: BasePart in ipairs(parts) do
 		local currentAncestor: Instance = part

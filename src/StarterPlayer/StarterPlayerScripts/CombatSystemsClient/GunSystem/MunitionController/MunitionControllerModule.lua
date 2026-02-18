@@ -9,6 +9,8 @@ local Players = game:GetService("Players")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
 
 -- ROBLOX OBJECTS
 local player = Players.LocalPlayer :: Player
@@ -30,23 +32,15 @@ export type RayInfo = {
 	Team: Team?,
 	RayId: string,
 	MunitionConfig: MunitionConfigUtil.DefaultType,
-	Origin: BasePart,
-	InitOriginPos: Vector3,
-	InitDirection: Vector3,
+	Origin: BasePart?,
+	Body: MunitionRayInfo.Common,
 	RaycastParams: RaycastParams?
 }
 
 export type RaySegmentInfo = {
-	RayInfo: RayInfo,
 	OriginPos: Vector3,
 	DirectionVec: Vector3,
 	Length: number
-}
-
-export type RayHitInfo = {
-	RayInfo: RayInfo,
-	HitPos: Vector3,
-	Hit: BasePart?
 }
 
 -- PUBLIC EVENTS
@@ -71,29 +65,31 @@ function module.fireMunition(info: FireMunitionInfo)
 		info.DirectionVec = cf.LookVector
 	end
 
-	local rayInfo: RayInfo = {
+	local ray: RayInfo = {
 		Player = player,
 		Team = player.Team,
 		RayId = HttpService:GenerateGUID(),
 		MunitionConfig = config,
 		Origin = info.Origin,
-		InitOriginPos = info.Origin.Position,
-		InitDirection = info.DirectionVec,
+		Body = {
+			InitOriginPos = info.Origin.Position,
+			InitDirection = info.DirectionVec,
+		},
 		RaycastParams = info.RaycastParams,
 	}
-	module.PreFire:fire(rayInfo)
+	module.PreFire:fire(ray)
 end
 
-function module.processFireMunition(rayInfo: RayInfo) 
-	module.RayFired:fire(rayInfo)
+function module.processFireMunition(ray: RayInfo) 
+	module.RayFired:fire(ray)
 end
 
-function module.processRaySegment(segmentInfo: RaySegmentInfo) 
-	module.RaySegmentReached:fire(segmentInfo)
+function module.processRaySegment(ray: RayInfo, segment: RaySegmentInfo) 
+	module.RaySegmentReached:fire(segment)
 end
 
-function module.processRayEnd(rayHitInfo: RayHitInfo)
-	module.RayEnded:fire(rayHitInfo)
+function module.processRayEnd(ray: RayInfo, hit: MunitionRayHitInfo.Common)
+	module.RayEnded:fire(ray, hit)
 end
 
 return module

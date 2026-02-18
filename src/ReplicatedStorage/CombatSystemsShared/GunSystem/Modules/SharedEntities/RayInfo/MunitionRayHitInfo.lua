@@ -1,18 +1,13 @@
 --!strict
 
--- IMPORTS
-local MunitionRayInfo = require(script.Parent.MunitionRayInfo)
-
-export type ClientRequest = {
-	RayInfo: MunitionRayInfo.ClientRequest,
+export type Common = {
 	HitPos: Vector3,
 	Hit: BasePart?
 }
 
-export type ServerReplication = {
-	RayInfo: MunitionRayInfo.ServerReplication,
+export type CommonFull = {
 	HitPos: Vector3,
-	Hit: BasePart?
+	Hit: BasePart
 }
 
 return {}

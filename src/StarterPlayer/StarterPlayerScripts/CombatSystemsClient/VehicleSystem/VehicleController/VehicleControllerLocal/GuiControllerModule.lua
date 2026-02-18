@@ -10,7 +10,7 @@ local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.
 -- ROBLOX OBJECTS
 local player = Players.LocalPlayer
 local playerGui = player.PlayerGui
-local character = player.Character or player.CharacterAdded:Wait()
+local _character = player.Character or player.CharacterAdded:Wait()
 
 local guiRoot = playerGui:WaitForChild("CombatSystemsGui")
 local vehicleSystemGui = guiRoot:WaitForChild("VehicleSystemGui")
@@ -18,9 +18,6 @@ local hudGui = vehicleSystemGui:WaitForChild("VehicleHud")
 
 -- FINALS
 local cleaner = ConnectionCleaner.new()
-
--- STATE
-local healthUpdateConnection: RBXScriptConnection
 
 function module.enableGui(vehicleInfo: VehicleUtil.VehicleInfo)
 	local main = hudGui.DriversHud.Main
@@ -45,7 +42,7 @@ function module.disableGui()
 end
 
 player.CharacterAdded:Connect(function(newCharacter)
-	character = newCharacter
+	_character = newCharacter
 	guiRoot = playerGui:WaitForChild("CombatSystemsGui")
 	vehicleSystemGui = guiRoot:WaitForChild("VehicleSystemGui")
 	hudGui = vehicleSystemGui:WaitForChild("VehicleHud")

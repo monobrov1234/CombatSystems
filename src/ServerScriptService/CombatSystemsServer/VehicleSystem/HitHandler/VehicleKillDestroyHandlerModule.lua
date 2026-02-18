@@ -8,20 +8,19 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
-local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObjectModule)
-local DestructibleObjectUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DObjectUtilModule)
 local DestructibleObjectService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DestructibleObjectServiceModule)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("VehicleDestroyHandler")
 
-function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: RayTypeService.RayHitInfo)
-	if damage == 0 then return end
-	if object:getHealth() > 0 then return end
+function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DestructibleObjectService.ObjectHitInfo)
+	if objectHit.Damage == 0 then return end
+	if objectHit.Object:getHealth() > 0 then return end
 
 	-- verify that this object is a vehicle
-	local vehicle = object.object :: Instance
+	local vehicle = objectHit.Object.object :: Instance
 	if not vehicle:IsA("Model") then return end
 	if not VehicleUtil.validateVehicle(vehicle) then return end
 

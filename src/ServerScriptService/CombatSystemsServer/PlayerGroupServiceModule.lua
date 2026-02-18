@@ -25,7 +25,7 @@ function module.getPlayerGroupIds(player: Player): { number }
 			return GroupService:GetGroupsAsync(player.UserId)
 		end)
 		if not success then
-			-- should not happen, if it ever happens, nothing will break except player will be unable to use grouplocked vehicles
+			-- should not happen, if it ever happens - nothing will break except player will be unable to use grouplocked vehicles
 			warn("failed to get player groups")
 			return {}
 		end
@@ -51,13 +51,13 @@ function module.isInAnyWhitelistedGroup(player: Player, groupWhitelist: { number
 end
 
 Players.PlayerAdded:Connect(function(player: Player)
-	local groups: { number } = module.getPlayerGroupIds(player) -- cache his groups
+	local groups: { number } = module.getPlayerGroupIds(player) -- cache groups
 	log:info("Cached player {} groups, size {}", player.Name, #groups)
 end)
 
 Players.PlayerRemoving:Connect(function(player: Player)
 	if groupCache[player.UserId] then
-		groupCache[player.UserId] = nil -- remove his group cache
+		groupCache[player.UserId] = nil -- remove from group cache
 		log:info("Removed player {} from group cache", player.Name)
 	end
 end)

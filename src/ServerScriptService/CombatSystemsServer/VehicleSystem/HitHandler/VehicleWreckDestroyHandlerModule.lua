@@ -10,12 +10,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObjectModule)
-local DestructibleObjectUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DObjectUtilModule)
 local DestructibleObjectService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DestructibleObjectServiceModule)
 local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.DestructibleObjectConfig)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 
 -- FINALS
 local _log: Logger.SelfObject = Logger.new("VehicleDestroyHandler")
@@ -23,27 +22,22 @@ local _log: Logger.SelfObject = Logger.new("VehicleDestroyHandler")
 local RUST_COLOR = Color3.fromRGB(0, 0, 0)
 local RUST_MATERIAL = Enum.Material.CorrodedMetal
 
-function funcs.handleHit(
-	object: DestructibleObject.SelfObject,
-	foundArmorInfo: DestructibleObjectUtil.ArmorInfo,
-	damage: number,
-	rayHitInfo: RayTypeService.RayHitInfo
-): boolean
-	if damage == 0 then return false end
-	if object:getHealth() > 0 then return false end
+function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DestructibleObjectService.ObjectHitInfo): boolean
+	if objectHit.Damage == 0 then return false end
+	if objectHit.Object:getHealth() > 0 then return false end
 
 	-- verify that this object is a vehicle
-	local vehicle = object.object :: Instance
+	local vehicle = objectHit.Object.object :: Instance
 	if not vehicle:IsA("Model") then return false end
 	if not VehicleUtil.validateVehicle(vehicle) then return false end
 
 	local vehicleInfo = VehicleUtil.parseVehicleInfo(vehicle)
 
-	-- remove the destructible object and vehicle tag so it will be treated as a normal part
+	-- remove the destructible object marker and vehicle tag so the vehicle will be treated as a normal part
 	vehicle:RemoveTag(VehicleSystemConfig.Tag)
 	vehicle:RemoveTag(DestructibleObjectConfig.Tag)
 
-	-- transform vehicle into a wreck
+	-- transform the vehicle into a wreck
 	for _, part: Instance in ipairs(vehicle:GetDescendants() :: { Instance }) do
 		if part:IsA("BasePart") then
 			part.Color = RUST_COLOR

@@ -8,6 +8,7 @@ local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(ga
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
 local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.GunSystem.MunitionController.MunitionControllerModule)
 
 -- FINALS
@@ -15,15 +16,14 @@ export type Config = {
 	Color: ColorSequence,
 }
 
-MunitionController.RayEnded:connect(function(rayHitInfo: MunitionController.RayHitInfo)
-	local rayInfo = rayHitInfo.RayInfo
-	local handler = rayInfo.MunitionConfig.FXConfig.ImpactFXHandler
+MunitionController.RayEnded:connect(function(ray: MunitionController.RayInfo, hit: MunitionRayHitInfo.Common)
+	local handler = ray.MunitionConfig.FXConfig.ImpactFXHandler
 	if not handler or handler.HandlerModuleName ~= script.Name then return end
 
 	-- this is from trek
 	local config = handler.HandlerConfig :: Config
 	local particle = script.Particle:Clone()
-	particle.Position = rayHitInfo.HitPos
+	particle.Position = hit.HitPos
 	particle.Parent = GunSystemConfig.ProjectileFolder
 
 	local random = math.random(1, 2)

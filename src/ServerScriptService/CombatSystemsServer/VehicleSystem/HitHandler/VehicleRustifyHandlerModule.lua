@@ -8,9 +8,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
-local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObjectModule)
-local DestructibleObjectUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DObjectUtilModule)
 local DestructibleObjectService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DestructibleObjectServiceModule)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 
 -- FINALS
@@ -27,11 +26,11 @@ type CacheData = {
 }
 local cacheMap = {} :: { [Model]: CacheData }
 
-function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: DestructibleObjectUtil.ArmorInfo, damage: number, rayHitInfo: RayTypeService.RayHitInfo)
-	if damage == 0 then return end
+function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DestructibleObjectService.ObjectHitInfo)
+	if objectHit.Damage == 0 then return end
 
 	-- verify that this object is a vehicle
-	local vehicle = object.object :: Instance
+	local vehicle = objectHit.Object.object :: Instance
 	if not vehicle:IsA("Model") then return end
 	if not VehicleUtil.validateVehicle(vehicle) then return end
 
@@ -43,7 +42,7 @@ function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: 
 		-- cache the vehicle
 		cacheData = {
 			Parts = funcs.getVehicleParts(vehicle),
-			PrevHealth = object:getMaxHealth(),
+			PrevHealth = objectHit.Object:getMaxHealth(),
 		}
 		cacheMap[vehicle] = cacheData
 
@@ -59,13 +58,13 @@ function funcs.handleHit(object: DestructibleObject.SelfObject, foundArmorInfo: 
 	local cacheData = cacheData :: CacheData
 
 	-- calculate health lost percent
-	local maxHealth = object:getMaxHealth()
-	local lostHealthPercent = funcs.getLostHealthPercent(object:getHealth(), maxHealth)
+	local maxHealth = objectHit.Object:getMaxHealth()
+	local lostHealthPercent = funcs.getLostHealthPercent(objectHit.Object:getHealth(), maxHealth)
 	local prevHealthPercent = funcs.getLostHealthPercent(cacheData.PrevHealth, maxHealth)
 
 	-- do not render rust if lost health percent isn't enough
 	if lostHealthPercent - prevHealthPercent >= STEP_PERCENT then
-		cacheData.PrevHealth = object:getHealth()
+		cacheData.PrevHealth = objectHit.Object:getHealth()
 
 		-- get the parts that should be rusted (excluding already rusted)
 		local rustedParts: { BasePart } = funcs.getRustedPartsPercent(lostHealthPercent, cacheData.Parts)

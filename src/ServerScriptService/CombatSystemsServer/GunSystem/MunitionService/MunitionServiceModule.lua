@@ -4,6 +4,7 @@ local module = {}
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 local RayTypeService = require(script.Parent.RayTypeServiceModule)
@@ -20,19 +21,19 @@ local validatorPipeline = {} :: { ValidatorCallback }
 -- PUBLIC EVENTS
 
 -- called when munition is validated and fully permitted, used by other services for example to update mag size and ammo
-module.FireMunition = Signal.new() -- (rayInfo: MunitionController.RayInfo)
+module.FireMunition = Signal.new() -- (ray: RayTypeService.RayInfo)
 -- called before determining hit type and calculating specifics (e.g explosion hit list)
 -- mainly for use in MunitionHitService
-module.PreHit = Signal.new() -- (rayHitInfo: RayTypeService.RayHitInfo)
+module.PreHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
 
 -- PUBLIC API
-function module.processMunitionFire(rayInfo: RayTypeService.RayInfo)
-	module.FireMunition:fire(rayInfo)
+function module.processMunitionFire(ray: RayTypeService.RayInfo)
+	module.FireMunition:fire(ray)
 end
 
-function module.processMunitionHit(rayHitInfo: RayTypeService.RayHitInfo)
-	if not rayHitInfo.Hit then return end
-	module.PreHit:fire(rayHitInfo)
+function module.processMunitionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
+	if not hit.Hit then return end
+	module.PreHit:fire(ray, hit)
 end
 
 function module.registerFireValidator(validator: ValidatorCallback)
@@ -56,13 +57,8 @@ function module.validateRayFire(ray: RayTypeService.RayInfoNonValid): RayTypeSer
 end
 
 -- WIP function
--- TODO: hit validation
-function module.validateRayHit(fireRay: RayTypeService.RayInfo, hitPos: Vector3, hit: BasePart): RayTypeService.RayHitInfo
-	return {
-		RayInfo = fireRay,
-		HitPos = hitPos,
-		Hit = hit
-	}
+function module.validateRayHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
+	-- TODO: hit validation
 end
 
 return module
