@@ -1,5 +1,3 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
 if game.Players.LocalPlayer then task.defer(function()
 	require(script.HEImpactFXHandler)
 end) end

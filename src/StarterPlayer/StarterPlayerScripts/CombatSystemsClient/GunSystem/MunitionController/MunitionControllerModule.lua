@@ -85,7 +85,7 @@ function module.processFireMunition(ray: RayInfo)
 end
 
 function module.processRaySegment(ray: RayInfo, segment: RaySegmentInfo) 
-	module.RaySegmentReached:fire(segment)
+	module.RaySegmentReached:fire(ray, segment)
 end
 
 function module.processRayEnd(ray: RayInfo, hit: MunitionRayHitInfo.Common)

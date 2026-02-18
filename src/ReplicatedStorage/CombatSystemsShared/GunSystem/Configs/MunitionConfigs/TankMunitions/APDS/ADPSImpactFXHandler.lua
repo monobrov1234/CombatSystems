@@ -8,19 +8,18 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
 local MunitionController = require(PlayerScripts.CombatSystemsClient.GunSystem.MunitionController.MunitionControllerModule)
 local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-type RayHitInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo))
-
-MunitionController.RayEnded:connect(function(rayHitInfo: RayTypeService.RayHitInfo)
-	local rayInfo = rayHitInfo.RayInfo
-	if rayInfo.MunitionConfig.MunitionName ~= script.Parent.Name then return end
-	if not rayHitInfo.Hit then return end
+function funcs.handleRayEnded(ray: MunitionController.RayInfo, hit: MunitionRayHitInfo.Common)
+	if ray.MunitionConfig.MunitionName ~= script.Parent.Name then return end
+	if not hit.Hit then return end
 
 	local rng = Random.new()
 	local root = script.ImpactEffect:Clone()
-	local direction = (rayInfo.Origin.Position - rayHitInfo.HitPos).Unit
-	root.CFrame = CFrame.lookAt(rayHitInfo.HitPos, rayHitInfo.HitPos + direction)
+
+	local originPos = (ray.Origin and ray.Origin.Position) or ray.Body.InitOriginPos
+	local direction = (originPos - hit.HitPos).Unit
+	root.CFrame = CFrame.lookAt(hit.HitPos, hit.HitPos + direction)
 	root.Parent = GunSystemConfig.ProjectileFolder
 
 	local uplift = Vector3.new(0, 1, 0)
@@ -30,7 +29,7 @@ MunitionController.RayEnded:connect(function(rayHitInfo: RayTypeService.RayHitIn
 		local shard = script.Shard:Clone()
 		shard.CanTouch = false
 		shard.CanQuery = false
-		shard.CFrame = CFrame.new(rayHitInfo.HitPos)
+		shard.CFrame = CFrame.new(hit.HitPos)
 		shard.Parent = GunSystemConfig.ProjectileFolder
 
 		local dir = funcs.randomHemisphereDirection(rng, baseDir)
@@ -46,7 +45,7 @@ MunitionController.RayEnded:connect(function(rayHitInfo: RayTypeService.RayHitIn
 	end)
 
 	Debris:AddItem(root, 2)
-end)
+end
 
 function funcs.randomHemisphereDirection(rng: Random, baseDir: Vector3): Vector3
 	local v
@@ -59,5 +58,7 @@ function funcs.randomHemisphereDirection(rng: Random, baseDir: Vector3): Vector3
 
 	return v
 end
+
+MunitionController.RayEnded:connect(funcs.handleRayEnded)
 
 return module
