@@ -21,7 +21,7 @@ local _character: Model = player.Character or player.CharacterAdded:Wait()
 local hitmarkGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("HitmarkGui"):WaitForChild("Hitmark")
 local damageContainer = hitmarkGui:WaitForChild("DamageContainer")
 
-local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
+local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
 
 -- FINALS
 local dObjectTweenInfo = TweenInfo.new(1.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)

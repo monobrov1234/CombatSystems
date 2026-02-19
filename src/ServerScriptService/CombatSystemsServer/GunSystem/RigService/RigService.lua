@@ -6,9 +6,9 @@ local funcs = {}
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
+local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.GunSystemConfig)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local GunConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunConfig)
-local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
+local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtil)
 
 -- FINALS
 local log = Logger.new("GunRigService")
@@ -37,7 +37,7 @@ function module.rigGun(instance: Instance)
 end
 
 function funcs.startupRigGuns()
-	for _, tagged: Instance in ipairs(CollectionService:GetTagged(GunConfig.RigGunsTag)) do
+	for _, tagged: Instance in ipairs(CollectionService:GetTagged(GunSystemConfig.RigGunsTag)) do
 		log:debug("Rigging guns in {}", tagged.Name)
 		module.rigGuns(tagged)
 	end

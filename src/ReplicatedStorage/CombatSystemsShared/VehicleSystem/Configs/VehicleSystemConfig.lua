@@ -31,7 +31,7 @@ local config = {
 -- find and set the config folder
 for _, tagged: Instance in ipairs(CollectionService:GetTagged(config.FolderTag)) do
 	assert(tagged:IsA("Folder"))
-	assert(not config.Folder, "Multiple instances tagged by the VehicleSystemConfig FolderTag detected. There should be only one")
+	assert(not config.Folder, "Multiple instances tagged by the VehicleSystemConfig FolderTag detected. There must be only one")
 	config.Folder = tagged
 end
 assert(config.Folder, "VehicleSystem spawnable vehicles folder not found, please create one")

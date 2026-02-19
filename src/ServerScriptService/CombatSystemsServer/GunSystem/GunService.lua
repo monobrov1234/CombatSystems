@@ -5,23 +5,23 @@ local funcs = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local ServerScriptService = game:GetService("ServerScriptService")
+local GunConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunConfigUtil)
+local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtil)
 local MunitionService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.MunitionService)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.RayTypeService)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local GunConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.GunConfigUtilModule)
-local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
 
 -- IMPORTS INTERNAL
 local GunStateService = require(script.Parent.GunStateService)
 
 -- ROBLOX OBJECTS
 -- S->C
-local setStateRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.GunService.ServerToClient.SetGunState
-local replicateFireRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.GunService.ServerToClient.ReplicateFireGun
+local setStateRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.Core.ServerToClient.SetGunState
+local replicateFireRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.Core.ServerToClient.ReplicateFireGun
 -- C->S
-local reloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.GunService.ClientToServer.ReloadGun
+local reloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.Core.ClientToServer.ReloadGun
 -- SHARED
-local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.GunService.ReplicateReloadGun
+local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.Core.ReplicateReloadGun
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("GunService")

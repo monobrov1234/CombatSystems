@@ -8,7 +8,7 @@ local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(ga
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
 local RunService = game:GetService("RunService")
-local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.MunitionSystemConfig)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
 

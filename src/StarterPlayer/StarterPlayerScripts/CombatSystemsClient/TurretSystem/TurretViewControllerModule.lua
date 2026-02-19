@@ -21,9 +21,9 @@ local UserInputService = game:GetService("UserInputService")
 
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
-local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
-local TurretConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.TurretConfig)
-local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.MunitionSystemConfig)
+local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
+local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 local RecoilUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.CameraRecoilUtil)
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.MunitionConfigUtil)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
@@ -35,14 +35,14 @@ local GuiController = require(script.Parent.GuiControllerModule)
 
 -- ROBLOX OBJECTS
 -- S->C
-local setTurretStateRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ServerToClient.SetState
-local replicateFireRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ServerToClient.ReplicateFire
+local setTurretStateRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ServerToClient.SetState
+local replicateFireRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ServerToClient.ReplicateFire
 -- C->S
-local reloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.ReloadTurret
-local switchShellsRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.SwitchShells
-local switchGunRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.SwitchGun
+local reloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.ReloadTurret
+local switchShellsRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchShells
+local switchGunRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchGun
 -- SHARED
-local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ReplicateReload
+local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateReload
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("TurretViewController")
@@ -181,7 +181,7 @@ end
 function funcs.handleInput(input: InputObject, gameProccessed: boolean)
 	if gameProccessed then return end
 	if not turretInfo then return end
-	local bindings = TurretConfig.KeyBindings
+	local bindings = TurretSystemConfig.KeyBindings
 
 	-- first person mode (Q)
 	if input.KeyCode == bindings.FirstPersonMode.ToggleKey then

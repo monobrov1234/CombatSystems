@@ -10,7 +10,7 @@ local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtil)
-local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.DestructibleObjectConfig)
+local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.DestructibleObjectConfig)
 
 -- IMPORTS INTERNAL
 local VehicleRigUtil = require(script.Parent.VehicleRigUtil)

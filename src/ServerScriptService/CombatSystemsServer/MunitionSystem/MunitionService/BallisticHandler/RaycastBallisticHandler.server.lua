@@ -13,8 +13,8 @@ local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSy
 local RayTypeService = require(script.Parent.Parent.RayTypeService)
 
 -- ROBLOX OBJECTS
-local fireMunitionRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ClientToServer.FireMunition
-local replicationRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ServerToClient.ReplicateFireMunition
+local fireMunitionRemote = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.Core.ClientToServer.FireMunition
+local replicationRemote = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.Core.ServerToClient.ReplicateFireMunition
 
 -- FINALS
 local _log: Logger.SelfObject = Logger.new("RaycastBallisticHandlerServer")

@@ -10,21 +10,21 @@ local Players = game:GetService("Players")
 local MunitionService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.MunitionService)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.RayTypeService)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
+local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 
 -- IMPORTS INTERNAL
 local TurretStateService = require(script.Parent.TurretStateService)
 
 -- ROBLOX OBJECTS
 -- S->C
-local setTurretStateRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ServerToClient.SetState
+local setTurretStateRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ServerToClient.SetState
 -- C->S
-local reloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.ReloadTurret
-local switchShellsRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.SwitchShells
-local switchGunRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ClientToServer.SwitchGun
+local reloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.ReloadTurret
+local switchShellsRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchShells
+local switchGunRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchGun
 -- SHARED
-local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ReplicateReload
-local replicationRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ReplicateState
+local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateReload
+local replicationRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateState
 
 -- FINALS
 local _log: Logger.SelfObject = Logger.new("TurretService")

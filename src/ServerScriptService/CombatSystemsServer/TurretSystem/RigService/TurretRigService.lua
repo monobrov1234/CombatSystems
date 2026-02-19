@@ -7,8 +7,8 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local TurretConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.TurretConfigUtilModule)
-local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
+local TurretConfigUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretConfigUtil)
+local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 
 -- INTERNAL API

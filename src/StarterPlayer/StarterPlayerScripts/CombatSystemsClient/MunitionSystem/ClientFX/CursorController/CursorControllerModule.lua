@@ -9,7 +9,7 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local CursorConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.CursorConfig)
+local CursorConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.CursorConfig)
 
 -- ROBLOX OBJECTS
 local player = Players.LocalPlayer :: Player

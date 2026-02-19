@@ -19,7 +19,7 @@ local player = Players.LocalPlayer :: Player
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
+local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtil)
 local SignalModule = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 
 -- ROBLOX OBJECTS
@@ -29,7 +29,7 @@ local animator = humanoid:WaitForChild("Animator") :: Animator
 
 -- REMOTES
 -- S->C
-local setStateRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.GunService.ServerToClient.SetGunState
+local setStateRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.Core.ServerToClient.SetGunState
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("GunBackpackController")

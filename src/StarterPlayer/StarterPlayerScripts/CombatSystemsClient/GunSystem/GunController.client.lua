@@ -23,9 +23,9 @@ local RunService = game:GetService("RunService")
 
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
-local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
-local GunConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunConfig)
-local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.MunitionSystemConfig)
+local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.GunSystemConfig)
+local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtil)
 local CameraRecoilUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.CameraRecoilUtil)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
 local MovementController = require(PlayerScripts.CombatSystemsClient.MovementSystem.MovementControllerModule)
@@ -42,11 +42,11 @@ local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 
 -- REMOTES
 -- S->C
-local replicateFireRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.GunService.ServerToClient.ReplicateFireGun
+local replicateFireRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.Core.ServerToClient.ReplicateFireGun
 -- C->S
-local reloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.GunService.ClientToServer.ReloadGun
+local reloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.Core.ClientToServer.ReloadGun
 -- SHARED
-local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.GunService.ReplicateReloadGun
+local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.Core.ReplicateReloadGun
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("GunController")
@@ -140,8 +140,8 @@ function funcs.handleInput(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then return end
 
 	if input.UserInputType ~= Enum.UserInputType.MouseButton1 
-			and input.KeyCode ~= GunConfig.KeyBindings.ReloadKey 
-			and input.KeyCode ~= GunConfig.KeyBindings.PatrolKey then return end -- some unknown key pressed, exit
+			and input.KeyCode ~= GunSystemConfig.KeyBindings.ReloadKey 
+			and input.KeyCode ~= GunSystemConfig.KeyBindings.PatrolKey then return end -- some unknown key pressed, exit
 
 	local equippedGun: GunUtil.GunInfo? = BackpackController.getEquippedGun()
 	if not equippedGun then return end -- no gun equipped, exit
@@ -152,7 +152,7 @@ function funcs.handleInput(input: InputObject, gameProcessed: boolean)
 	assert(state)
 
 	-- patrol (G)
-	if input.KeyCode == GunConfig.KeyBindings.PatrolKey then
+	if input.KeyCode == GunSystemConfig.KeyBindings.PatrolKey then
 		if MovementController.isSprinting() and humanoid.MoveDirection.Magnitude ~= 0 then return end -- no patrol when running while sprinting, but allow patrol when standing while sprinting
 		if isFiring then return end -- no patrol when firing
 		if reloading then return end -- no patrol when reloading
@@ -176,7 +176,7 @@ function funcs.handleInput(input: InputObject, gameProcessed: boolean)
 
 	-- reloading (R)
 	-- only allow reload if nothing is reloading
-	if input.KeyCode == GunConfig.KeyBindings.ReloadKey or needReload then
+	if input.KeyCode == GunSystemConfig.KeyBindings.ReloadKey or needReload then
 		funcs.reloadGun(equippedGun) 
 	end
 end

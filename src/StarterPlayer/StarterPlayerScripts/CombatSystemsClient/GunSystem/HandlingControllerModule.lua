@@ -17,7 +17,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
+local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtil)
 local SignalModule = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 
 -- IMPORTS INTERNAL

@@ -5,7 +5,7 @@ DestructibleObject.__index = DestructibleObject
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.DestructibleObjectConfig)
+local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.DestructibleObjectConfig)
 
 export type ArmorInfo = {
 	ArmorType: string,

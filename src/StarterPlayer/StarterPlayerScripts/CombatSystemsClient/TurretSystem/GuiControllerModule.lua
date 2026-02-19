@@ -7,8 +7,8 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local GuiService = game:GetService("GuiService")
 local StarterGui = game:GetService("StarterGui")
-local TurretConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.TurretConfig)
-local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
+local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
+local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.MunitionConfigUtil)
 local PredictProjectile = require(ReplicatedStorage.CombatSystemsShared.Libs.PredictProjectile)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
@@ -107,8 +107,8 @@ function module:updateDropIndicator(munitionName: string)
 		origin,
 		direction * config.BallisticConfig.Speed,
 		config.BallisticConfig.Gravity,
-		TurretConfig.DropIndicatorConfig.Resolution,
-		TurretConfig.DropIndicatorConfig.Steps,
+		TurretSystemConfig.DropIndicatorConfig.Resolution,
+		TurretSystemConfig.DropIndicatorConfig.Steps,
 		self.raycastParams
 	)
 	local hitPosition = rayResult and rayResult.Position or (origin + (direction * config.MaxDistance))

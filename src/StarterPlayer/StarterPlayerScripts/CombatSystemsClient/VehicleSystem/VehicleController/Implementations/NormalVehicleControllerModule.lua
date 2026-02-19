@@ -5,7 +5,6 @@
     front turnable wheels and support any number of non-steering rear wheels.
 ]]
 
-local funcs = {}
 local module = {}
 
 -- IMPORTS
@@ -35,7 +34,7 @@ function module.handleSeated(info: VehicleUtil.VehicleInfo)
 		end
 	end
 
-	local chassis: BasePart = vehicleInfo.VehicleModel.PrimaryPart
+	local chassis: BasePart? = vehicleInfo.VehicleModel.PrimaryPart
 	assert(chassis, "Vehicle has no primary part (chassis)")
 	for _, child: Instance in ipairs(chassis:GetChildren()) do
 		if child:IsA("Attachment") and child.Name ~= "Attachment" then

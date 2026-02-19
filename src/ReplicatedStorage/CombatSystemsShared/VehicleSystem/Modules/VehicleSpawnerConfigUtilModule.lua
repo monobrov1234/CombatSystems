@@ -5,7 +5,6 @@ local module = {}
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VehicleSpawnerConfigPath = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSpawnerConfig
-local VehicleSpawnerConfig = require(VehicleSpawnerConfigPath)
 local VehicleSpawnerConfigTemplate = require(VehicleSpawnerConfigPath.Config)
 local TableInheritUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.TableInheritUtilModule)
 

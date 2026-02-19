@@ -4,7 +4,7 @@ module.__index = module
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
+local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 
 local DEFAULT_START_SPEED = 8 -- deg/sec
 local DEFAULT_STOP_SPEED = 5 -- deg/sec

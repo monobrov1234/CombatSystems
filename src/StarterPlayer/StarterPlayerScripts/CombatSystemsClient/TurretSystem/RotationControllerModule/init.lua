@@ -6,8 +6,8 @@ module.__index = module
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GuiService = game:GetService("GuiService")
-local TurretConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.TurretConfig)
-local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
+local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
+local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 
 -- IMPORTS INTERNAL
 local RotationUtil = require(script.RotationUtilModule)
@@ -17,7 +17,7 @@ local TraverseUtil = require(script.TraverseUtilModule)
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
 
-local replicationRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.TurretService.ReplicateState
+local replicationRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateState
 
 -- FINALS
 export type SelfObject = typeof(setmetatable({}, module)) & {
@@ -75,7 +75,7 @@ function module:updateTurretRotation(deltaTime: number)
 	self.traverseUtil:update(deltaTime)
 
 	-- replicate turret rotation to other players, using speed setting from the config
-	local resolution = TurretConfig.ReplicationResolution
+	local resolution = TurretSystemConfig.ReplicationResolution
 	self.timeAccumulator = self.timeAccumulator + deltaTime
 	if self.timeAccumulator >= resolution then
 		local x0, y0, z0 = self.turretInfo.YawMotor.C0:ToOrientation()
@@ -93,7 +93,7 @@ function module:updateTurretRotation(deltaTime: number)
 	end
 
 	-- draw debug ray if enabled
-	if TurretConfig.Debug then
+	if TurretSystemConfig.Debug then
 		local pitchTarget = self.turretInfo.PitchMotor.Part1
 		local origin = pitchTarget.Position
 		local direction = pitchTarget.CFrame.LookVector * 10000

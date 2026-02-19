@@ -19,9 +19,9 @@ local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSys
 -- ROBLOX OBJECTS
 local player = Players.LocalPlayer :: Player
 
-local fireMunitionBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ClientToServer.FireMunitionBallistic
-local verifyHitBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ClientToServer.VerifyHitBallistic
-local replicationBallisticRemote = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.MunitionService.ServerToClient.ReplicateFireMunitionBallistic
+local fireMunitionBallisticRemote = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.Core.ClientToServer.FireMunitionBallistic
+local verifyHitBallisticRemote = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.Core.ClientToServer.VerifyHitBallistic
+local replicationBallisticRemote = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.Core.ServerToClient.ReplicateFireMunitionBallistic
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("FastcastBallisticHandlerClient")

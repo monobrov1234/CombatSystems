@@ -17,7 +17,7 @@ local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionS
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 
 -- ROBLOX OBJECTS
-local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
+local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("DestructibleObjectService")

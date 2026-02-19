@@ -14,7 +14,7 @@ local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.Munitio
 local SharedDamageService = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DamageService.SharedDamageService)
 
 -- ROBLOX OBJECTS
-local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
+local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("HumanoidHitHandler")

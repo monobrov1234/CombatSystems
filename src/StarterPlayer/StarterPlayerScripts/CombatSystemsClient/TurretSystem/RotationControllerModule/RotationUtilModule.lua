@@ -6,7 +6,7 @@ module.__index = module
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
+local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 
 -- FINALS
 local deadZone = 0.01 -- will not rotate turret if last - current goal magnitude below this value
@@ -20,7 +20,7 @@ export type SelfObject = typeof(setmetatable({}, module)) & {
 	currentPitchC0: CFrame,
 }
 function module.new(turretInfo: TurretUtil.TurretInfo): SelfObject
-	local self: SelfObject = setmetatable({}, module)
+	local self = setmetatable({}, module)
 	self.turretInfo = turretInfo
 	self.currentYawC0 = turretInfo.YawMotor.C0
 	self.currentPitchC0 = turretInfo.PitchMotor.C0
