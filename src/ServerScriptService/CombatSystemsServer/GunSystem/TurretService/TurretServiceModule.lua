@@ -12,8 +12,6 @@ local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
 
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-
 -- IMPORTS INTERNAL
 local TurretStateService = require(script.Parent.TurretStateServiceModule)
 

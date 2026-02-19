@@ -11,8 +11,6 @@ local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local GunConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.GunConfigUtilModule)
 local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
 
-type RayInfo = typeof(require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo))
-
 -- IMPORTS INTERNAL
 local GunStateService = require(script.Parent.GunStateServiceModule)
 

@@ -20,7 +20,7 @@ local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
-local TurretViewController = require(player.PlayerScripts.CombatSystemsClient.GunSystem.TurretViewController.TurretViewControllerModule)
+local TurretViewController = require(player.PlayerScripts.CombatSystemsClient.TurretSystem.TurretViewControllerModule)
 local MovementController = require(player.PlayerScripts.CombatSystemsClient.MovementSystem.MovementControllerModule)
 
 -- IMPORTS INTERNAL
