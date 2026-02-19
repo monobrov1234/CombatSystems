@@ -12,10 +12,10 @@ local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.Vehicl
 local VehicleSpawnerConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSpawnerConfig)
 local VehicleSpawnerConfigUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleSpawnerConfigUtilModule)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
-local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupServiceModule)
+local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupService)
 
 -- IMPORTS INTERNAL
-local VehicleRigService = require(ServerScriptService.CombatSystemsServer.VehicleSystem.VehicleService.RigService.RigServiceModule)
+local VehicleRigService = require(ServerScriptService.CombatSystemsServer.VehicleSystem.VehicleService.RigService.VehicleRigService)
 
 -- ROBLOX OBJECTS
 -- remotes

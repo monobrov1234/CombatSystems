@@ -5,15 +5,15 @@ local module = {}
 -- IMPORTS
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TurretRigService = require(ServerScriptService.CombatSystemsServer.TurretSystem.RigService.TurretRigService)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
-local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtilModule)
+local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtil)
 local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.DestructibleObjectConfig)
-local TurretRigService = require(ServerScriptService.CombatSystemsServer.GunSystem.TurretService.RigService.RigServiceModule)
 
 -- IMPORTS INTERNAL
-local VehicleRigUtil = require(script.Parent.RigUtilModule)
+local VehicleRigUtil = require(script.Parent.VehicleRigUtil)
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("VehicleRigService")
@@ -22,8 +22,8 @@ type VehicleRigger = {
 	rigVehicle: (vehicle: Model, vehicleConfig: {}, chassis: BasePart, totalMass: number) -> (),
 }
 local riggerMapping: { [string]: VehicleRigger } = {
-	["Normal"] = require(script.Parent.Impl.NormalVehicleRiggerModule) :: VehicleRigger,
-	["Tracked"] = require(script.Parent.Impl.TrackedVehicleRiggerModule) :: VehicleRigger,
+	["Normal"] = require(script.Parent.Impl.NormalVehicleRigger) :: VehicleRigger,
+	["Tracked"] = require(script.Parent.Impl.TrackedVehicleRigger) :: VehicleRigger,
 }
 
 -- INTERNAL API (used by VehicleServiceModule)
@@ -128,7 +128,7 @@ function module.rigVehicle(vehicleInfo: VehicleUtil.VehicleInfoNotRigged): Vehic
 	-- passenger prompts
 	for _, seat: Seat in ipairs(passengerSeats) do
 		local passengerPrompt: ProximityPrompt = VehicleSystemConfig.BasePrompt:Clone()
-		passengerPrompt.ObjectText = seat:GetAttribute("SeatName") or info.VehicleModel.Name
+		passengerPrompt.ObjectText = (seat:GetAttribute("SeatName") :: string?) or info.VehicleModel.Name
 		passengerPrompt.ActionText = "Sit"
 		passengerPrompt.KeyboardKeyCode = Enum.KeyCode.Q
 		passengerPrompt.RequiresLineOfSight = false

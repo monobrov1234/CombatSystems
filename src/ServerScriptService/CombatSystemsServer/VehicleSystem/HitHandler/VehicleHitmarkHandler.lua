@@ -1,37 +1,34 @@
---!strict
-
 local module = {}
 local funcs = {}
 
 -- IMPORTS
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local DObjectHitService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.DObjectService.DObjectHitService)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
-local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
-local DObjectHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DObjectHitServiceModule)
+local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.RayTypeService)
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("VehicleKillOnDestroyHandler")
+local log: Logger.SelfObject = Logger.new("VehicleHitmarkHandler")
 
 function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DObjectHitService.ObjectHitInfo)
-	if objectHit.Damage == 0 then return end
-	if objectHit.Object:getHealth() > 0 then return end
+	-- if its some weak bullet hit the vehicle, do not show the direction indicator
+	if objectHit.Damage == 0 and (objectHit.Armor.ArmorType == "NoArmor" or "BulletProofArmor") then return end
 
 	-- verify that this object is a vehicle
 	local vehicle = objectHit.Object.object :: Instance
 	if not vehicle:IsA("Model") then return end
 	if not VehicleUtil.validateVehicle(vehicle) then return end
 
-	-- kill the driver
-	local seat: VehicleSeat = VehicleUtil.parseVehicleInfo(vehicle).DriverSeat
-	if seat.Occupant then
-		seat.Occupant:TakeDamage(150)
-		log:trace("Killed the driver of a vehicle {}", vehicle.Name)
-	end
+	local driverSeat = vehicle:FindFirstChildOfClass("VehicleSeat")
+	assert(driverSeat)
+
+	-- TODO: direction indicator event for client
+	log:debug("Direction indicator called for {}", driverSeat.Occupant)
 end
 
-DObjectHitService.ObjectHit:connect(funcs.handleHit) -- execute before every handler with normal priority so we can properly cancel the event
+DObjectHitService.ObjectHit:connect(funcs.handleHit)
 
 return module

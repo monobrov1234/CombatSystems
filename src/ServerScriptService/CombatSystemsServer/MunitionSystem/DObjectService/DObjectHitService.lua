@@ -6,15 +6,15 @@ local funcs = {}
 -- IMPORTS
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MunitionHitService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.MunitionHitService)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.DropoffUtil)
 local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.DestructibleObject.DestructibleObject)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local DObjectService = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DObjectService)
 local SharedDamageServiceModule = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DamageService.SharedDamageService)
-local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
+local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.RayTypeService)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
-local MunitionHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionHitServiceModule)
 
 -- ROBLOX OBJECTS
 local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.ClientFX.ServerToClient.ExplosionHitmark

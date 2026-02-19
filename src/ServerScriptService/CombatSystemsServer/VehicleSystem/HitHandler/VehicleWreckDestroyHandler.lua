@@ -12,9 +12,9 @@ local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.DestructibleObjectConfig)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
-local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
+local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.RayTypeService)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
-local DObjectHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DObjectHitServiceModule)
+local DObjectHitService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.DObjectService.DObjectHitService)
 
 -- FINALS
 local _log: Logger.SelfObject = Logger.new("VehicleWreckDestroyHandler")

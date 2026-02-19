@@ -15,12 +15,12 @@ local PhysicsService = game:GetService("PhysicsService")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
-local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupServiceModule)
+local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupService)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
 
 -- IMPORTS INTERNAL
-local SpawnerService = require(script.Parent.SpawnerService.SpawnerServiceModule)
-local RigService = require(script.Parent.RigService.RigServiceModule)
+local SpawnerService = require(script.Parent.SpawnerService)
+local VehicleRigService = require(script.Parent.RigService.VehicleRigService)
 
 -- ROBLOX OBJECTS
 local setOwnershipRemote = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Events.ClientToServer.SetVehicleOwnership
@@ -240,8 +240,8 @@ PhysicsService:RegisterCollisionGroup("Wheel")
 PhysicsService:CollisionGroupSetCollidable("Wheel", "Wheel", false)
 PhysicsService:CollisionGroupSetCollidable("Wheel", "Vehicle", false)
 
-RigService.DriverPromptTriggered = funcs.handleDriverPromptTriggered
-RigService.PassengerPromptTriggered = funcs.handlePassengerPromptTriggered
+VehicleRigService.DriverPromptTriggered = funcs.handleDriverPromptTriggered
+VehicleRigService.PassengerPromptTriggered = funcs.handlePassengerPromptTriggered
 
 setOwnershipRemote.OnServerEvent:Connect(funcs.handleSetOwnership)
 adminDeleteRemote.OnServerEvent:Connect(funcs.handleAdminVehicleDelete)

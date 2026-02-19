@@ -5,12 +5,12 @@ local funcs = {}
 -- IMPORTS
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TurretStateService = require(script.Parent.TurretStateServiceModule)
+local TurretStateService = require(script.Parent.TurretStateService)
 local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
 local TurretConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.TurretConfigUtilModule)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
-local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
-local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
+local MunitionService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.MunitionService)
+local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.RayTypeService)
 
 function funcs.validateTurretFire(rayInfo: RayTypeService.RayInfoNonValid): RaycastParams?
     if not rayInfo.Player then return nil end -- should have player to get a turret he is manning

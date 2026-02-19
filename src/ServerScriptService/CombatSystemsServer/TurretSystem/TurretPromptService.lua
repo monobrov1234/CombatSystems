@@ -7,13 +7,13 @@ local funcs = {}
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupService)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
-local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupServiceModule)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
 
 -- IMPORTS INTERNAL
-local RigService = require(script.Parent.RigService.RigServiceModule)
+local RigService = require(script.Parent.RigService.TurretRigService)
 
 -- handles prompt interaction
 function funcs.handleSeatPromptTriggered(player: Player, turretInfo: TurretUtil.TurretInfo, prompt: ProximityPrompt)

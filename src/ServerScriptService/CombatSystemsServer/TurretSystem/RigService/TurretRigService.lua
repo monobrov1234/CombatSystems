@@ -5,11 +5,11 @@ local module = {}
 -- IMPORTS
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local TurretConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.TurretConfigUtilModule)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
-local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtilModule)
 
 -- INTERNAL API
 module.SeatPromptTriggered = Signal.new() -- (player: Player, turretInfo: TurretUtil.TurretInfo, prompt: ProximityPrompt)

@@ -7,7 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
-local RayTypeService = require(script.Parent.RayTypeServiceModule)
+local RayTypeService = require(script.Parent.RayTypeService)
 
 -- FINALS
 local _log: Logger.SelfObject = Logger.new("MunitionService")

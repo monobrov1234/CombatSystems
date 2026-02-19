@@ -11,8 +11,8 @@ local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.Munitio
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 
 -- IMPORTS INTERNAL
-local MunitionService = require(script.Parent.MunitionServiceModule)
-local RayTypeService = require(script.Parent.RayTypeServiceModule)
+local MunitionService = require(script.Parent.MunitionService)
+local RayTypeService = require(script.Parent.RayTypeService)
 
 -- FINALS
 local _log: Logger.SelfObject = Logger.new("MunitionHitService")
