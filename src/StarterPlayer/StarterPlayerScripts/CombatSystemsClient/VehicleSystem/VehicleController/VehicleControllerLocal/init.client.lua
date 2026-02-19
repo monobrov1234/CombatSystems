@@ -62,7 +62,7 @@ function funcs.handleHumanoidSeated(active: boolean, seat: Seat | VehicleSeat)
 		return
 	end
 
-	if not seat or not seat.Parent then return end
+	if not seat or not seat.Parent or not seat.Parent:IsA("Model") then return end
 	if not VehicleUtil.validateVehicle(seat.Parent) then return end
 	log:debug("Handling seated event on seat {}", seat.Name)
 

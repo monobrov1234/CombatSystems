@@ -7,7 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local VehicleConfigUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleConfigUtilModule)
 local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.DestructibleObjectConfig)
-local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObjectModule)
+local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObject)
 
 -- FINALS
 export type VehicleInfoNotRigged = {
@@ -24,7 +24,7 @@ export type VehicleInfo = VehicleInfoNotRigged & {
 }
 
 function module.validateVehicle(vehicleModel: Model): boolean
-	return vehicleModel:HasTag(VehicleSystemConfig.Tag)
+	return vehicleModel:HasTag(VehicleSystemConfig.Tag) and DestructibleObject.validateObject(vehicleModel)
 end
 
 function module.validatePassengerSeat(seat: Seat): boolean
@@ -87,7 +87,7 @@ function module.parseVehicleInfoNonRig(vehicleModel: Model): VehicleInfoNotRigge
 end
 
 function module.isVehicleFriendly(vehicleModel: Model, team: Team): boolean
-	local vehicleTeam: string? = vehicleModel:GetAttribute(VehicleSystemConfig.TeamAttribute)
+	local vehicleTeam = vehicleModel:GetAttribute(VehicleSystemConfig.TeamAttribute) :: string?
 	return team.Name == vehicleTeam
 end
 
@@ -109,7 +109,7 @@ function module.findPlayerCurrentVehicle(player: Player): VehicleInfo?
 		currentAncestor = currentAncestor.Parent
 	end
 
-	local vehicleModel = currentAncestor :: Model?
+	local vehicleModel = currentAncestor :: Model
 	if not vehicleModel then return nil end
 
 	return module.parseVehicleInfo(vehicleModel)

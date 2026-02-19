@@ -10,11 +10,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local DestructibleObjectService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DestructibleObjectServiceModule)
 local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.DestructibleObjectConfig)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local DObjectHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DObjectHitServiceModule)
 
 -- FINALS
 local _log: Logger.SelfObject = Logger.new("VehicleWreckDestroyHandler")
@@ -22,7 +22,7 @@ local _log: Logger.SelfObject = Logger.new("VehicleWreckDestroyHandler")
 local RUST_COLOR = Color3.fromRGB(0, 0, 0)
 local RUST_MATERIAL = Enum.Material.CorrodedMetal
 
-function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DestructibleObjectService.ObjectHitInfo): boolean
+function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DObjectHitService.ObjectHitInfo): boolean
 	if objectHit.Damage == 0 then return false end
 	if objectHit.Object:getHealth() > 0 then return false end
 
@@ -80,6 +80,6 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 	return true
 end
 
-DestructibleObjectService.ObjectHit:connect(funcs.handleHit, Signal.Priority.NORMAL - 5) -- execute before the default handler (LOW priority) so we can properly cancel the event
+DObjectHitService.ObjectHit:connect(funcs.handleHit, Signal.Priority.NORMAL - 5) -- execute before the default handler (LOW priority) so we can properly cancel the event
 
 return module

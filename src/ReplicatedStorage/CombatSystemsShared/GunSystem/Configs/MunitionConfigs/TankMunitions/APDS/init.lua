@@ -1,9 +1,3 @@
-local DefaultConfig = require(game:GetService("ReplicatedStorage").CombatSystemsShared.GunSystem.Configs.MunitionConfigs.Default.DefaultConfig)
-
-if game.Players.LocalPlayer then task.defer(function()
-	require(script.ADPSImpactFXHandler)
-end) end
-
 return {
 	-- DAMAGE
 	HumanoidDamage = 150, -- Damage to humanoids
@@ -19,7 +13,10 @@ return {
 			HandlerConfig = { CosmeticBullet = script.APBullet },
 		},
 
-		ImpactFXHandler = nil, -- no default realization, will be our custom ImpactFXHandler
+		ImpactFXHandler = {
+			HandlerModuleName = "APDSImpactFXHandler",
+			HandlerConfig = {}
+		}, -- custom handler
 	},
 
 	-- TODO
@@ -60,4 +57,4 @@ return {
 		Speed = 750, -- Projectile speed studs per second
 		HighFidelitySegmentSize = 0.25, -- higher resolution because this munition fires not often
 	},
-} :: typeof(DefaultConfig)
+}

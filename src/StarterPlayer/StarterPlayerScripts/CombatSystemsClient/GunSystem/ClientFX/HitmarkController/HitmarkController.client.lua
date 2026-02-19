@@ -10,10 +10,8 @@ local GuiService = game:GetService("GuiService")
 local TweenService = game:GetService("TweenService")
 local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObjectModule)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
-local DObjectDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageCalculation.DObjectDamageServiceModule)
-local HumanoidDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageCalculation.HumanoidDamageServiceModule)
+local SharedDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageService.SharedDamageServiceModule)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.GunSystem.MunitionController.MunitionControllerModule)
 
 -- ROBLOX OBJECTS
@@ -44,22 +42,23 @@ end
 function funcs.handleRayEnded(ray: MunitionController.RayInfo, hit: MunitionRayHitInfo.Common)
 	if player ~= ray.Player then return end
 	if not hit.Hit then return end
+	local fullHit = hit :: MunitionRayHitInfo.CommonFull
 
-	local dObject = DestructibleObject.fromInstanceChild(hit.Hit)
-	if dObject and DObjectDamageService.canDamageObject(dObject, ray.MunitionConfig, player.Team) then
-		local damage = DObjectDamageService.calculateDirectDamage(ray.MunitionConfig, ray.Body, hit :: MunitionRayHitInfo.CommonFull)
-		funcs.showHitmark(damage, Color3.new(0, 0.615686, 1), dObjectTweenInfo)
-	else
-		local character: Model? = hit.Hit:FindFirstAncestorOfClass("Model")
-		if not character then return end
+	if not SharedDamageService.canDamageHit(player, player.Team, fullHit, ray.MunitionConfig) then return end
+	local damage = SharedDamageService.calculateDirectDamage(ray.Body, fullHit, ray.MunitionConfig)
+
+	-- check if it's humanoid then show humanoid hitmark
+	local character: Model? = hit.Hit:FindFirstAncestorOfClass("Model")
+	if character then
 		local humanoid = character:FindFirstChildOfClass("Humanoid")
-		if not humanoid then return end
-
-		if not HumanoidDamageService.canDamageCharacter(player, player.Team, character, ray.MunitionConfig) then return end
-
-		local expectedDamage = HumanoidDamageService.calculateDirectDamage(ray.Body, hit :: MunitionRayHitInfo.CommonFull, ray.MunitionConfig)
-		funcs.showHitmark(expectedDamage, Color3.new(1, 0.235294, 0), humanoidTweenInfo)
+		if humanoid then
+			funcs.showHitmark(damage, Color3.new(1, 0.235294, 0), humanoidTweenInfo)
+			return
+		end
 	end
+
+	-- otherwise it should be DObject
+	funcs.showHitmark(damage, Color3.new(0, 0.615686, 1), dObjectTweenInfo)
 end
 
 function funcs.handleExplosionHitmark(totalDamage: number, armored: boolean)

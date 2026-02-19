@@ -1,5 +1,7 @@
 local module = {}
 
+if game:GetService("RunService"):IsServer() then return module end
+
 -- IMPORTS
 local Players = game:GetService("Players")
 local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(game.StarterPlayer.StarterPlayerScripts)
@@ -9,7 +11,8 @@ local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 
 MunitionController.RayEnded:connect(function(ray: MunitionController.RayInfo, hit: MunitionRayHitInfo.Common)
-	if ray.MunitionConfig.MunitionName ~= script.Parent.Name then return end
+	local handler = ray.MunitionConfig.FXConfig.ImpactFXHandler
+	if not handler or handler.HandlerModuleName ~= "HEImpactFXHandler" then return end
 	if not hit.Hit then return end
 
 	-- slopcode directly from trek, TODO: rewrite

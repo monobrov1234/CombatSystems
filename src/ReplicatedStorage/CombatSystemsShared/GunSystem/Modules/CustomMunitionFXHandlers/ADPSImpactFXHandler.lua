@@ -1,6 +1,8 @@
 local module = {}
 local funcs = {}
 
+if game:GetService("RunService"):IsServer() then return module end
+
 -- IMPORTS
 local Players = game:GetService("Players")
 local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(game.StarterPlayer.StarterPlayerScripts)
@@ -11,7 +13,8 @@ local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 
 function funcs.handleRayEnded(ray: MunitionController.RayInfo, hit: MunitionRayHitInfo.Common)
-	if ray.MunitionConfig.MunitionName ~= script.Parent.Name then return end
+	local handler = ray.MunitionConfig.FXConfig.ImpactFXHandler
+	if not handler or handler.HandlerModuleName ~= "APDSImpactFXHandler" then return end
 	if not hit.Hit then return end
 
 	local rng = Random.new()

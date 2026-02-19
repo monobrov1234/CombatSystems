@@ -6,14 +6,18 @@ DestructibleObject.__index = DestructibleObject
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.DestructibleObjectConfig)
-local DestructibleObjectUtil = require(script.Parent.DObjectUtilModule)
+
+export type ArmorInfo = {
+	ArmorType: string,
+	Resistance: number,
+}
 
 export type SelfObject = typeof(setmetatable({}, DestructibleObject)) & {
 	object: Instance,
 	HealthChanged: RBXScriptSignal,
 }
 
--- search up until first ancestor with destructible object tag is found, if nothing found - return nil
+-- search up until the first ancestor with destructible object tag is found, if nothing found - return nil
 function DestructibleObject.fromInstanceChild(instance: Instance): SelfObject?
 	local objectAncestor: Instance? = instance
 	while objectAncestor do
@@ -29,11 +33,21 @@ function DestructibleObject.fromInstanceChild(instance: Instance): SelfObject?
 end
 
 function DestructibleObject.fromInstance(instance: Instance): SelfObject
-	DestructibleObjectUtil.parseValidateObject(instance)
+	DestructibleObject.parseValidateObject(instance)
 	local self = setmetatable({}, DestructibleObject) :: SelfObject
 	self.object = instance
 	self.HealthChanged = instance:GetAttributeChangedSignal(DestructibleObjectConfig.HealthAttribute)
 	return self
+end
+
+function DestructibleObject.parseValidateObject(dObject: Instance)
+	assert(DestructibleObject.validateObject(dObject), "Not a destructible object")
+	assert(dObject:GetAttribute(DestructibleObjectConfig.MaxHealthAttribute), "Destructible object should have its max health attribute")
+	assert(dObject:GetAttribute(DestructibleObjectConfig.HealthAttribute), "Destructible object should have its health attribute")
+end
+
+function DestructibleObject.validateObject(dObject: Instance)
+	return dObject:HasTag(DestructibleObjectConfig.Tag)
 end
 
 function DestructibleObject:takeDamage(amount: number)

@@ -1,9 +1,3 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-if game.Players.LocalPlayer then task.defer(function()
-	require(script.HEImpactFXHandler)
-end) end
-
 return {
 	-- DAMAGE
 	HumanoidDamage = 80, -- Damage to humanoids
@@ -19,7 +13,10 @@ return {
 			HandlerConfig = { CosmeticBullet = script.HEBullet },
 		},
 
-		ImpactFXHandler = nil, -- no default realization, will be our custom ImpactFXHandler
+		ImpactFXHandler = {
+			HandlerModuleName = "HEImpactFXHandler",
+			HandlerConfig = {}
+		}, -- custom handler
 	},
 
 	ObjectDamageConfig = { -- How much damage this munition does to destructible objects that also can have armor

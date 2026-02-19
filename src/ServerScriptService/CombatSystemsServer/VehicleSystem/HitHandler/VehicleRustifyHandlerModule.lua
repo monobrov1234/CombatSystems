@@ -8,9 +8,9 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
-local DestructibleObjectService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DestructibleObjectServiceModule)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
+local DObjectHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DObjectHitServiceModule)
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("VehicleRustifyHandler")
@@ -26,7 +26,7 @@ type CacheData = {
 }
 local cacheMap = {} :: { [Model]: CacheData }
 
-function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DestructibleObjectService.ObjectHitInfo)
+function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DObjectHitService.ObjectHitInfo)
 	if objectHit.Damage == 0 then return end
 
 	-- verify that this object is a vehicle
@@ -143,6 +143,6 @@ function funcs.getVehicleParts(vehicle: Model): { BasePart }
 	return parts
 end
 
-DestructibleObjectService.ObjectHit:connect(funcs.handleHit)
+DObjectHitService.ObjectHit:connect(funcs.handleHit)
 
 return module

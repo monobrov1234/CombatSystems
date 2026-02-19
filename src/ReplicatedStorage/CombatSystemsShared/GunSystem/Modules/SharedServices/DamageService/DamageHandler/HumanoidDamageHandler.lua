@@ -1,22 +1,27 @@
-local module = {}
+--!strict
+
+local handler = {} 
+local funcs = {}
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
-local MunitionConfigUtilModule = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
+local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.DropoffUtilModule)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
+local SharedDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageService.SharedDamageServiceModule)
 
--- PUBLIC API
-function module.canDamageCharacter(shooter: Player?, shooterTeam: Team?, targetCharacter: Model, config: MunitionConfigUtilModule.DefaultType)
-	local humanoid: Humanoid? = targetCharacter:FindFirstChildOfClass("Humanoid")
-	if not humanoid or humanoid.Health == 0 then return false end
-	local targetPlayer: Player? = Players:GetPlayerFromCharacter(targetCharacter)
+function handler.canDamageHit(shooter: Player?, shooterTeam: Team?, hit: MunitionRayHitInfo.CommonFull, config: MunitionConfigUtil.DefaultType): boolean
+	local character: Model? = hit.Hit:FindFirstAncestorOfClass("Model")
+	if not character then return true end
+	local humanoid: Humanoid? = funcs.verifyCharacterHumanoid(character)
+	if not humanoid then return true end
+	local targetPlayer: Player? = Players:GetPlayerFromCharacter(character)
 	if not targetPlayer then return true end
 
-	-- check if the shooter damaged itself
+	-- check if the shooter damaged himself
 	if not config.CanDamageSelf then
 		if targetPlayer == shooter then return false end
 	end
@@ -43,7 +48,12 @@ function module.canDamageCharacter(shooter: Player?, shooterTeam: Team?, targetC
 	return true
 end
 
-function module.calculateDirectDamage(ray: MunitionRayInfo.Common, hit: MunitionRayHitInfo.CommonFull, config: MunitionConfigUtilModule.DefaultType): number
+function handler.calculateDirectDamage(ray: MunitionRayInfo.Common, hit: MunitionRayHitInfo.CommonFull, config: MunitionConfigUtil.DefaultType): number?
+	local character: Model? = hit.Hit:FindFirstAncestorOfClass("Model")
+	if not character then return nil end
+	local humanoid: Humanoid? = funcs.verifyCharacterHumanoid(character)
+	if not humanoid then return nil end
+
 	local totalDamage = config.HumanoidDamage
 	if config.EnableDropoff then
 		totalDamage = DropoffUtil.calculateDropoff(
@@ -61,4 +71,15 @@ function module.calculateDirectDamage(ray: MunitionRayInfo.Common, hit: Munition
 	return totalDamage
 end
 
-return module
+function funcs.verifyCharacterHumanoid(character: Model): Humanoid?
+	local humanoid: Humanoid? = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then return nil end
+
+	if humanoid.Health == 0 then
+		return nil -- invalid dead humanoid
+	else return humanoid end
+end
+
+SharedDamageService.registerDamageHandler(handler :: SharedDamageService.DamageHandler)
+
+return {}

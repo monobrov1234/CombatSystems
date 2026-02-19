@@ -7,13 +7,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
-local DestructibleObjectService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DestructibleObjectServiceModule)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
+local DObjectHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DObjectHitServiceModule)
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("VehicleHitmarkHandler")
 
-function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DestructibleObjectService.ObjectHitInfo)
+function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DObjectHitService.ObjectHitInfo)
 	-- if its some weak bullet hit the vehicle, do not show the direction indicator
 	if objectHit.Damage == 0 and (objectHit.Armor.ArmorType == "NoArmor" or "BulletProofArmor") then return end
 
@@ -29,6 +29,6 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 	log:debug("Direction indicator called for {}", driverSeat.Occupant)
 end
 
-DestructibleObjectService.ObjectHit:connect(funcs.handleHit)
+DObjectHitService.ObjectHit:connect(funcs.handleHit)
 
 return module

@@ -11,7 +11,7 @@ local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.DropoffUtilModule)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
-local HumanoidDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageCalculation.HumanoidDamageServiceModule)
+local SharedDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageService.SharedDamageServiceModule)
 
 -- ROBLOX OBJECTS
 local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.GunSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
@@ -20,14 +20,15 @@ local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.GunS
 local log: Logger.SelfObject = Logger.new("HumanoidHitHandler")
 
 function funcs.handleDirectHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull)
-	assert(hit.Hit)
 	local character: Model? = hit.Hit:FindFirstAncestorOfClass("Model")
 	if not character then return end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if not humanoid then return end
 
-	local damage = HumanoidDamageService.calculateDirectDamage(ray.Body, hit, ray.MunitionConfig)
-	funcs.damageHumanoid(character, damage, ray)
+	if not SharedDamageService.canDamageHit(ray.Player, ray.Team, hit, ray.MunitionConfig) then return end
+	local damage: number? = SharedDamageService.calculateDirectDamage(ray.Body, hit, ray.MunitionConfig)
+	assert(damage)
+	funcs.damageHumanoid(character, humanoid, damage)
 end
 
 function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull, hitParts: MunitionHitService.ExplosionHits)
@@ -52,7 +53,9 @@ function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayH
 
 		local damage = funcs.calculateExplosionDamage(ray, explosionHit)
 		log:debug("Calculated explosion damage {} for part {}", damage, explosionHit.Part)
-		if funcs.damageHumanoid(character, damage, ray) then
+
+		if SharedDamageService.canDamageHit(ray.Player, ray.Team, hit, ray.MunitionConfig) then 
+			funcs.damageHumanoid(character, humanoid, damage)
 			totalDamage += damage
 		end
 	end
@@ -63,13 +66,9 @@ function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayH
 	end
 end
 
-function funcs.damageHumanoid(character: Model, damage: number, ray: RayTypeService.RayInfo): boolean
-	local humanoid = character:FindFirstChild("Humanoid") :: Humanoid -- should never error
-	if not HumanoidDamageService.canDamageCharacter(ray.Player, ray.Team, character, ray.MunitionConfig) then return false end
-
+function funcs.damageHumanoid(character: Model, humanoid: Humanoid, damage: number)
 	humanoid:TakeDamage(damage)
 	-- TODO: hit indicator event for the target player
-	return true
 end
 
 function funcs.calculateExplosionDamage(ray: RayTypeService.RayInfo, hit: MunitionHitService.ExplosionHitInfo): number

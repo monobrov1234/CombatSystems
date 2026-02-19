@@ -8,14 +8,14 @@ local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
-local DestructibleObjectService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DestructibleObjectServiceModule)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
+local DObjectHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.DestructibleObjectService.DObjectHitServiceModule)
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("VehicleKillOnDestroyHandler")
 
-function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DestructibleObjectService.ObjectHitInfo)
+function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DObjectHitService.ObjectHitInfo)
 	if objectHit.Damage == 0 then return end
 	if objectHit.Object:getHealth() > 0 then return end
 
@@ -32,6 +32,6 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 	end
 end
 
-DestructibleObjectService.ObjectHit:connect(funcs.handleHit) -- execute before every handler with normal priority so we can properly cancel the event
+DObjectHitService.ObjectHit:connect(funcs.handleHit) -- execute before every handler with normal priority so we can properly cancel the event
 
 return module

@@ -13,8 +13,16 @@ local function loadModules(folder: Folder)
 	end
 end
 
-local combatSystemsFolder = ServerScriptService:FindFirstChild("CombatSystemsServer")
-if combatSystemsFolder then loadModules(combatSystemsFolder) end
+local function loadFolders(service: Instance)
+	local combatSystemsFolder = service:FindFirstChild("CombatSystemsServer")
+	if combatSystemsFolder then loadModules(combatSystemsFolder) end
 
-local combatSystemsPluginsFolder = ServerScriptService:FindFirstChild("CombatSystemsPlugins")
-if combatSystemsPluginsFolder then loadModules(combatSystemsPluginsFolder) end
+	local combatSystemsSharedFolder = service:FindFirstChild("CombatSystemsShared")
+	if combatSystemsSharedFolder then loadModules(combatSystemsSharedFolder) end
+
+	local combatSystemsPluginsFolder = service:FindFirstChild("CombatSystemsPlugins")
+	if combatSystemsPluginsFolder then loadModules(combatSystemsPluginsFolder) end
+end
+
+loadFolders(ServerScriptService)
+loadFolders(game:GetService("ReplicatedStorage"))
