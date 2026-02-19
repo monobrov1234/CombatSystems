@@ -1,7 +1,5 @@
 -- config for general use in rifles (like D-19, BR-18)
 
-local DefaultConfig = require(game:GetService("ReplicatedStorage").CombatSystemsShared.GunSystem.Configs.MunitionConfigs.Default.DefaultConfig)
-
 return {
 	-- DAMAGE
 	HumanoidDamage = 8, -- Damage to humanoids
@@ -26,4 +24,4 @@ return {
 	ObjectDamageConfig = { -- How much damage this munition does to destructible objects that also can have armor
 		["NoArmor"] = 1, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
 	},
-} :: typeof(DefaultConfig)
+}

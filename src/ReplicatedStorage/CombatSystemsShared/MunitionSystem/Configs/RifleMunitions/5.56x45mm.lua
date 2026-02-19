@@ -1,7 +1,5 @@
 -- config for general use in rifles (like D-19, BR-18)
 
-local DefaultConfig = require(game:GetService("ReplicatedStorage").CombatSystemsShared.GunSystem.Configs.MunitionConfigs.Default.DefaultConfig)
-
 return {
 	-- DAMAGE
 	HumanoidDamage = 16, -- Damage to humanoids
@@ -49,4 +47,4 @@ return {
 	ExplosionConfig = {
 		CanExplode = false,
 	},
-} :: typeof(DefaultConfig)
+}

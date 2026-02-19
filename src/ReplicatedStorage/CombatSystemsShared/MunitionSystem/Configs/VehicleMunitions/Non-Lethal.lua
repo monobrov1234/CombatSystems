@@ -1,7 +1,4 @@
-local DefaultConfig = require(game:GetService("ReplicatedStorage").CombatSystemsShared.GunSystem.Configs.MunitionConfigs.Default.DefaultConfig)
-
-local config
-config = {
+return {
 	-- DAMAGE
 	HumanoidDamage = 0.5, -- Damage to humanoids
 
@@ -47,6 +44,4 @@ config = {
 		["NoArmor"] = 0.2, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
 		["BulletProofArmor"] = 0.05, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
 	},
-} :: typeof(DefaultConfig)
-
-return config
+}

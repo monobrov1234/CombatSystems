@@ -6,7 +6,7 @@ local funcs = {}
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GunStateService = require(script.Parent.GunStateServiceModule)
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
 local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
 local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
@@ -33,7 +33,7 @@ function funcs.validateGunFire(ray: RayTypeService.RayInfoNonValid): RaycastPara
 
 	local raycastParams = RaycastParams.new()
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-	raycastParams.FilterDescendantsInstances = { character, tool, GunSystemConfig.ProjectileFolder }
+	raycastParams.FilterDescendantsInstances = { character, tool, MunitionSystemConfig.ProjectileFolder }
 	return raycastParams
 end
 

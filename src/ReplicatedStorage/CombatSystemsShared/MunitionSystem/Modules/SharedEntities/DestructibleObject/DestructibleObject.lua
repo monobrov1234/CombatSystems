@@ -5,7 +5,7 @@ DestructibleObject.__index = DestructibleObject
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.DestructibleObjectConfig)
+local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.DestructibleObjectConfig)
 
 export type ArmorInfo = {
 	ArmorType: string,
@@ -21,18 +21,20 @@ export type SelfObject = typeof(setmetatable({}, DestructibleObject)) & {
 function DestructibleObject.fromInstanceChild(instance: Instance): SelfObject?
 	local objectAncestor: Instance? = instance
 	while objectAncestor do
+		local dObject: SelfObject? = DestructibleObject.fromInstance(objectAncestor)
+		if dObject then
+			return dObject
+		end
+
 		if objectAncestor:HasTag(DestructibleObjectConfig.Tag) then break end
 		objectAncestor = objectAncestor.Parent
 	end
 
-	if objectAncestor then
-		return DestructibleObject.fromInstance(objectAncestor)
-	else
-		return nil
-	end
+	return nil
 end
 
-function DestructibleObject.fromInstance(instance: Instance): SelfObject
+function DestructibleObject.fromInstance(instance: Instance): SelfObject?
+	if not DestructibleObject.validateObject(instance) then return nil end
 	DestructibleObject.parseValidateObject(instance)
 	local self = setmetatable({}, DestructibleObject) :: SelfObject
 	self.object = instance

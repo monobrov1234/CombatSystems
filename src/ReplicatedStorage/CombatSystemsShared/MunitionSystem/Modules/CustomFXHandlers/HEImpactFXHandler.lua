@@ -7,8 +7,8 @@ local Players = game:GetService("Players")
 local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(game.StarterPlayer.StarterPlayerScripts)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
-local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 
 MunitionController.RayEnded:connect(function(ray: MunitionController.RayInfo, hit: MunitionRayHitInfo.Common)
 	local handler = ray.MunitionConfig.FXConfig.ImpactFXHandler
@@ -18,7 +18,7 @@ MunitionController.RayEnded:connect(function(ray: MunitionController.RayInfo, hi
 	-- slopcode directly from trek, TODO: rewrite
 	local theparticles = script.SmallExplosion:Clone()
 	theparticles.Position = hit.HitPos
-	theparticles.Parent = GunSystemConfig.ProjectileFolder
+	theparticles.Parent = MunitionSystemConfig.ProjectileFolder
 	theparticles:FindFirstChildOfClass("Sound"):Play()
 
 	for i, v in pairs(theparticles:GetChildren()) do

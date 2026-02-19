@@ -8,8 +8,8 @@ local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(ga
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
 local RunService = game:GetService("RunService")
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
-local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
 
 -- FINALS
@@ -30,7 +30,7 @@ MunitionController.RayEnded:connect(function(ray: MunitionController.RayInfo, hi
 	bullet.CanCollide = false
 	bullet.CanQuery = false
 	bullet.CanTouch = false
-	bullet.Parent = GunSystemConfig.ProjectileFolder
+	bullet.Parent = MunitionSystemConfig.ProjectileFolder
 
 	local originPos = (ray.Origin and ray.Origin.Position) or ray.Body.InitOriginPos
 	local direction = hit.HitPos - originPos

@@ -8,9 +8,9 @@ local Players = game:GetService("Players")
 local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(game.StarterPlayer.StarterPlayerScripts)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Debris = game:GetService("Debris")
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
-local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 
 function funcs.handleRayEnded(ray: MunitionController.RayInfo, hit: MunitionRayHitInfo.Common)
 	local handler = ray.MunitionConfig.FXConfig.ImpactFXHandler
@@ -23,7 +23,7 @@ function funcs.handleRayEnded(ray: MunitionController.RayInfo, hit: MunitionRayH
 	local originPos = (ray.Origin and ray.Origin.Position) or ray.Body.InitOriginPos
 	local direction = (originPos - hit.HitPos).Unit
 	root.CFrame = CFrame.lookAt(hit.HitPos, hit.HitPos + direction)
-	root.Parent = GunSystemConfig.ProjectileFolder
+	root.Parent = MunitionSystemConfig.ProjectileFolder
 
 	local uplift = Vector3.new(0, 1, 0)
 	local baseDir = (direction + uplift).Unit
@@ -33,7 +33,7 @@ function funcs.handleRayEnded(ray: MunitionController.RayInfo, hit: MunitionRayH
 		shard.CanTouch = false
 		shard.CanQuery = false
 		shard.CFrame = CFrame.new(hit.HitPos)
-		shard.Parent = GunSystemConfig.ProjectileFolder
+		shard.Parent = MunitionSystemConfig.ProjectileFolder
 
 		local dir = funcs.randomHemisphereDirection(rng, baseDir)
 		shard.AssemblyLinearVelocity = dir * rng:NextNumber(50, 80)

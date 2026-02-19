@@ -7,11 +7,11 @@ local funcs = {}
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.DropoffUtilModule)
-local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObject)
-local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
-local DObjectService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DObjectServiceModule)
-local SharedDamageServiceModule = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageService.SharedDamageServiceModule)
+local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.DropoffUtil)
+local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.DestructibleObject.DestructibleObject)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local DObjectService = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DObjectService)
+local SharedDamageServiceModule = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DamageService.SharedDamageService)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.RayTypeServiceModule)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
 local MunitionHitService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionHitServiceModule)
@@ -46,7 +46,6 @@ function funcs.handleDirectHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitI
 end
 
 function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull, hits: MunitionHitService.ExplosionHits)
-	assert(hit.Hit)
 	local totalDamage = 0
 	local foundObjects = {} :: { DestructibleObject.SelfObject }
 	for _, explosionHit: MunitionHitService.ExplosionHitInfo in ipairs(hits) do
@@ -63,7 +62,7 @@ function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayH
 		end
 		if isDescendant then continue end
 
-		local dObject = DestructibleObject.fromInstanceChild(explosionHit.Part)
+		local dObject: DestructibleObject.SelfObject? = DestructibleObject.fromInstanceChild(explosionHit.Part)
 		if not dObject then continue end
 		if table.find(foundObjects, dObject) then continue end -- skip if already found
 		table.insert(foundObjects, dObject)

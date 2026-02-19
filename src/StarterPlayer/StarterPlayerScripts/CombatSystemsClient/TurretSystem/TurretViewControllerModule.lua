@@ -21,11 +21,11 @@ local UserInputService = game:GetService("UserInputService")
 
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
 local TurretConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.TurretConfig)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
-local RecoilUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.CameraRecoilUtilModule)
-local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
+local RecoilUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.CameraRecoilUtil)
+local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.MunitionConfigUtil)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
 local CursorController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.ClientFX.CursorController.CursorControllerModule)
 
@@ -85,7 +85,7 @@ function module.setTurretView(turretModel: Model?, customRayFilters: { Instance 
 
 	raycastParams = RaycastParams.new()
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-	local filterDescendantsInstances = { turretInfo.TurretModel, character, GunSystemConfig.ProjectileFolder }
+	local filterDescendantsInstances = { turretInfo.TurretModel, character, MunitionSystemConfig.ProjectileFolder }
 	if customRayFilters then
 		for _, instance: Instance in ipairs(customRayFilters) do
 			table.insert(filterDescendantsInstances, instance)

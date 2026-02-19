@@ -23,10 +23,10 @@ local RunService = game:GetService("RunService")
 
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
 local GunConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunConfig)
 local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtilModule)
-local RecoilUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.CameraRecoilUtilModule)
+local CameraRecoilUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.CameraRecoilUtil)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
 local MovementController = require(PlayerScripts.CombatSystemsClient.MovementSystem.MovementControllerModule)
 local CursorController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.ClientFX.CursorController.CursorControllerModule)
@@ -54,7 +54,7 @@ local cleaner = ConnectionCleaner.new()
 
 -- STATE
 local guiController: GuiController.SelfObject?
-local recoilUtil: RecoilUtil.SelfObject?
+local recoilUtil: CameraRecoilUtil.SelfObject?
 local raycastParams: RaycastParams?
 
 local autoFireConnection: RBXScriptConnection?
@@ -77,7 +77,7 @@ function funcs.handleGunEquipped(gunInfo: GunUtil.GunInfo)
 	raycastParams = RaycastParams.new()
 	assert(raycastParams)
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
-	raycastParams.FilterDescendantsInstances = { character, gunInfo.Tool, GunSystemConfig.ProjectileFolder }
+	raycastParams.FilterDescendantsInstances = { character, gunInfo.Tool, MunitionSystemConfig.ProjectileFolder }
 
 	-- initialize gui
 	guiController = GuiController.new(gunInfo)
@@ -92,7 +92,7 @@ function funcs.handleGunEquipped(gunInfo: GunUtil.GunInfo)
 	guiController:enableGui()
 
 	-- initialize recoil util
-	recoilUtil = RecoilUtil.new()
+	recoilUtil = CameraRecoilUtil.new()
 	assert(recoilUtil)
 	recoilUtil:Start()
 

@@ -4,26 +4,26 @@ local handler = {}
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.MunitionConfigUtilModule)
+local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.MunitionConfigUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
-local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.DropoffUtilModule)
-local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObject)
-local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
-local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
-local DObjectService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DObjectServiceModule)
-local SharedDamageService = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedServices.DamageService.SharedDamageServiceModule)
+local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.DropoffUtil)
+local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.DestructibleObject.DestructibleObject)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
+local DObjectService = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DObjectService)
+local SharedDamageService = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DamageService.SharedDamageService)
 
 function handler.canDamageHit(shooter: Player?, shooterTeam: Team?, hit: MunitionRayHitInfo.CommonFull, config: MunitionConfigUtil.DefaultType): boolean
-	local dObjectPart: BasePart = hit.Hit
-	if not DestructibleObject.validateObject(dObjectPart) then return true end
+	local dObject: DestructibleObject.SelfObject? = DestructibleObject.fromInstanceChild(hit.Hit)
+	if not dObject then return true end
 
 	-- teammate check
 	if not config.CanDamageFriendly and shooterTeam then
 		-- find the root DObject in the hierarchy, and check if it is a vehicle
 		-- used to prevent dealing damage to a nested DObjects in a vehicle (for example - turret shield on a truck)
 		-- TODO: rework
-		local objectAncestor: Instance = dObjectPart
-		local ancestor: Instance? = dObjectPart
+		local objectAncestor: Instance = dObject.object
+		local ancestor: Instance? = dObject.object
 		while ancestor do
 			ancestor = ancestor.Parent
 			if ancestor and DestructibleObject.validateObject(ancestor) then 
@@ -40,10 +40,10 @@ function handler.canDamageHit(shooter: Player?, shooterTeam: Team?, hit: Munitio
 end
 
 function handler.calculateDirectDamage(ray: MunitionRayInfo.Common, hit: MunitionRayHitInfo.CommonFull, config: MunitionConfigUtil.DefaultType): number?
-	local dObjectPart: BasePart = hit.Hit
-	if not DestructibleObject.validateObject(dObjectPart) then return nil end
-
-	local totalDamage: number = DObjectService.getDamageForPart(config, dObjectPart)
+	local dObject: DestructibleObject.SelfObject? = DestructibleObject.fromInstanceChild(hit.Hit)
+	if not dObject then return nil end
+	
+	local totalDamage: number = DObjectService.getDamageForPart(config, dObject.object :: BasePart)
 	if config.EnableDropoff then
 		totalDamage = DropoffUtil.calculateDropoff(
 			totalDamage,

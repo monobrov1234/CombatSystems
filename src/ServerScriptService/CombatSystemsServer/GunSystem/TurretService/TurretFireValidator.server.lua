@@ -6,7 +6,7 @@ local funcs = {}
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TurretStateService = require(script.Parent.TurretStateServiceModule)
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
 local TurretConfigUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.ConfigUtils.TurretConfigUtilModule)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.TurretUtilModule)
 local MunitionService = require(ServerScriptService.CombatSystemsServer.GunSystem.MunitionService.MunitionServiceModule)
@@ -55,7 +55,7 @@ function funcs.validateTurretFire(rayInfo: RayTypeService.RayInfoNonValid): Rayc
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
 	-- by default we ignore character, all projectiles, and the turret model
-	local filterDescendantsInstances = { player.Character,  GunSystemConfig.ProjectileFolder, turretInfo.TurretModel } :: { Instance }
+	local filterDescendantsInstances = { player.Character,  MunitionSystemConfig.ProjectileFolder, turretInfo.TurretModel } :: { Instance }
 
 	-- insert additional instances provided by SetTurretHandler
     local raycastBlacklist = TurretStateService.getPlayerRaycastBlacklist(player)

@@ -6,8 +6,8 @@ local module = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local VehicleConfigUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleConfigUtilModule)
-local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.DestructibleObjectConfig)
-local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.DestructibleObject.DestructibleObject)
+local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.DestructibleObjectConfig)
+local DestructibleObject = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.DestructibleObject.DestructibleObject)
 
 -- FINALS
 export type VehicleInfoNotRigged = {
@@ -36,7 +36,8 @@ function module.parseVehicleInfo(vehicleModel: Model): VehicleInfo
 	local vehicleInfo: VehicleInfoNotRigged = module.parseVehicleInfoNonRig(vehicleModel)
 
 	-- verify that vehicle is destructible object
-	local vehicleObject: DestructibleObject.SelfObject = DestructibleObject.fromInstance(vehicleModel)
+	local vehicleObject: DestructibleObject.SelfObject? = DestructibleObject.fromInstance(vehicleModel)
+	assert(vehicleObject, "Vehicle is not a destructible object")
 
 	return {
 		VehicleModel = vehicleInfo.VehicleModel,

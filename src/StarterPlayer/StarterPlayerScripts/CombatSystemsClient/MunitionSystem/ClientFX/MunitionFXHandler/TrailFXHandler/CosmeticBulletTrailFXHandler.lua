@@ -6,8 +6,8 @@ local module = {}
 local Players = game:GetService("Players")
 local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(game.StarterPlayer.StarterPlayerScripts)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.GunSystemConfig)
-local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs.MunitionSystemConfig)
+local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
 
 -- FINALS
@@ -24,7 +24,7 @@ MunitionController.RayFired:connect(function(ray: MunitionController.RayInfo)
 	assert(config.CosmeticBullet)
 
 	local cosmeticBulletClone = config.CosmeticBullet:Clone()
-	cosmeticBulletClone.Parent = GunSystemConfig.ProjectileFolder
+	cosmeticBulletClone.Parent = MunitionSystemConfig.ProjectileFolder
 	cosmeticBulletsCache[ray.RayId] = cosmeticBulletClone
 end)
 

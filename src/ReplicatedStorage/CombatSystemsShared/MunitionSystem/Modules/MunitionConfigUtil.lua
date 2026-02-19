@@ -6,7 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TableInheritUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.TableInheritUtilModule)
 
 -- FINALS
-local munitionConfigs = ReplicatedStorage.CombatSystemsShared.GunSystem.Configs.MunitionConfigs
+local munitionConfigs = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Configs
 local defaultConfig = require(munitionConfigs.Default.DefaultConfig)
 export type DefaultType = typeof(defaultConfig)
 
