@@ -9,9 +9,9 @@ return {
 	},
 
 	MovementConfig = { -- Vehicle engine and movement config
-		MaxSpeed = 60, -- Max speed of vehicle
+		MaxSpeed = 55, -- Max speed of vehicle
 		Acceleration = 0.35, -- How fast vehicle will reach max speed
-		Braking = 0.3, -- How fast vehicle will decelerate
+		Braking = 0.35, -- How fast vehicle will decelerate
 		TorqueMultiplier = 130, -- Mass will be multiplied by this value to calculate torque
 	},
 

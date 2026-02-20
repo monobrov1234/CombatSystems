@@ -22,39 +22,35 @@ local _log: Logger.SelfObject = Logger.new("VehicleWreckDestroyHandler")
 local RUST_COLOR = Color3.fromRGB(0, 0, 0)
 local RUST_MATERIAL = Enum.Material.CorrodedMetal
 
+-- INTERNAL FUNCTIONS
 function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DObjectHitService.ObjectHitInfo): boolean
 	if objectHit.Damage == 0 then return false end
 	if objectHit.Object:getHealth() > 0 then return false end
 
-	-- verify that this object is a vehicle
 	local vehicle = objectHit.Object.object :: Instance
 	if not vehicle:IsA("Model") then return false end
 	if not VehicleUtil.validateVehicle(vehicle) then return false end
 
 	local vehicleInfo = VehicleUtil.parseVehicleInfo(vehicle)
 
-	-- remove the destructible object marker and vehicle tag so the vehicle will be treated as a normal part
 	vehicle:RemoveTag(VehicleSystemConfig.Tag)
 	vehicle:RemoveTag(DestructibleObjectConfig.Tag)
 
-	-- transform the vehicle into a wreck
 	for _, part: Instance in ipairs(vehicle:GetDescendants() :: { Instance }) do
 		if part:IsA("BasePart") then
 			part.Color = RUST_COLOR
 			part.Material = RUST_MATERIAL
 		elseif part:IsA("ProximityPrompt") then
-			part:Destroy() -- remove all the seat prompts
+			part:Destroy()
 		elseif part:IsA("CylindricalConstraint") then
-			part.AngularActuatorType = Enum.ActuatorType.None -- disable the wheel motor
+			part.AngularActuatorType = Enum.ActuatorType.None
 		end
 	end
 
-	-- remove the wreck after 10 seconds
 	task.delay(10, function()
 		vehicle:Destroy()
 	end)
 
-	-- play the destroy sound
 	local sound: Sound = script.PipeSound:Clone()
 	sound.Parent = vehicle.PrimaryPart
 	sound:Play()
@@ -76,10 +72,10 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 		end
 	end
 
-	-- cancel the event by returning true
 	return true
 end
 
-DObjectHitService.ObjectHit:connect(funcs.handleHit, Signal.Priority.NORMAL - 5) -- execute before the default handler (LOW priority) so we can properly cancel the event
+-- SUBSCRIPTIONS
+DObjectHitService.ObjectHit:connect(funcs.handleHit, Signal.Priority.NORMAL - 5)
 
 return module

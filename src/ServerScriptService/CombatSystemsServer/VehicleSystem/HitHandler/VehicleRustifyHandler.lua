@@ -21,15 +21,17 @@ local RUST_COLOR = Color3.fromRGB(0, 0, 0)
 local RUST_MATERIAL = Enum.Material.CorrodedMetal
 
 type CacheData = {
-	Parts: { BasePart }, -- all vehicle parts
-	PrevHealth: number, -- vehicle health on last rust render
+	Parts: { BasePart },
+	PrevHealth: number,
 }
+
+-- STATE
 local cacheMap = {} :: { [Model]: CacheData }
 
+-- INTERNAL FUNCTIONS
 function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DObjectHitService.ObjectHitInfo)
 	if objectHit.Damage == 0 then return end
 
-	-- verify that this object is a vehicle
 	local vehicle = objectHit.Object.object :: Instance
 	if not vehicle:IsA("Model") then return end
 	if not VehicleUtil.validateVehicle(vehicle) then return end
@@ -38,14 +40,12 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 
 	local cacheData: CacheData? = cacheMap[vehicle]
 	if not cacheData then
-		-- cache the vehicle
 		cacheData = {
 			Parts = funcs.getVehicleParts(vehicle),
 			PrevHealth = objectHit.Object:getMaxHealth(),
 		}
 		cacheMap[vehicle] = cacheData
 
-		-- remove from the cache when vehicle will be destroyed
 		vehicle.AncestryChanged:Connect(function(oldParent: Instance, newParent: Instance?)
 			if not newParent then
 				cacheMap[vehicle] = nil
@@ -58,19 +58,14 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 
 	assert(cacheData)
 
-	-- calculate the health lost percent
 	local maxHealth = objectHit.Object:getMaxHealth()
 	local lostHealthPercent = funcs.getLostHealthPercent(objectHit.Object:getHealth(), maxHealth)
 	local prevHealthPercent = funcs.getLostHealthPercent(cacheData.PrevHealth, maxHealth)
 
-	-- do not render rust if the lost health percent isn't enough
 	if lostHealthPercent - prevHealthPercent >= STEP_PERCENT then
 		cacheData.PrevHealth = objectHit.Object:getHealth()
 
-		-- get the parts that should be rusted (excluding already rusted)
 		local rustedParts: { BasePart } = funcs.getRustedPartsPercent(lostHealthPercent, cacheData.Parts)
-
-		-- rustify those parts
 		for _, part: BasePart in ipairs(rustedParts) do
 			funcs.rustifyPart(part)
 		end
@@ -91,21 +86,18 @@ function funcs.rustifyPart(part: BasePart)
 end
 
 function funcs.getRustedPartsPercent(percent: number, parts: { BasePart }): { BasePart }
-	-- Clamp input to avoid invalid values
 	percent = math.clamp(percent, 0, 100)
 
 	local totalParts = #parts
 	if totalParts == 0 then return {} end
 
-	-- How many parts should be rusted in total for this percent
 	local targetRustedCount = math.floor(totalParts * (percent / 100) + 0.00001)
 
-	-- Count currently rusted and gather candidates (not rusted yet)
 	local currentRustedCount = 0
 	local candidates: { BasePart } = {}
 	for _, part in ipairs(parts) do
-		-- If parts list is cached, some parts can be removed/destroyed; skip invalid ones
 		if not part.Parent then continue end
+
 		if funcs.isRustedPart(part) then
 			currentRustedCount += 1
 		else
@@ -119,7 +111,6 @@ function funcs.getRustedPartsPercent(percent: number, parts: { BasePart }): { Ba
 	needed = math.min(needed, #candidates)
 	if needed <= 0 then return {} end
 
-	-- Pick `needed` random candidates (without repeats)
 	local selected: { BasePart } = {}
 	for i = 1, needed do
 		local idx = math.random(1, #candidates)
@@ -136,6 +127,7 @@ end
 
 function funcs.getVehicleParts(vehicle: Model): { BasePart }
 	local parts = {} :: { BasePart }
+
 	for _, part: Instance in vehicle:GetDescendants() do
 		if part:IsA("BasePart") then table.insert(parts, part :: BasePart) end
 	end
@@ -143,6 +135,7 @@ function funcs.getVehicleParts(vehicle: Model): { BasePart }
 	return parts
 end
 
+-- SUBSCRIPTIONS
 DObjectHitService.ObjectHit:connect(funcs.handleHit)
 
 return module

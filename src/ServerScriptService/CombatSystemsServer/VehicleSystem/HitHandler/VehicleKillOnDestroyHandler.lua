@@ -15,16 +15,15 @@ local DObjectHitService = require(ServerScriptService.CombatSystemsServer.Muniti
 -- FINALS
 local log: Logger.SelfObject = Logger.new("VehicleKillOnDestroyHandler")
 
+-- INTERNAL FUNCTIONS
 function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DObjectHitService.ObjectHitInfo)
 	if objectHit.Damage == 0 then return end
 	if objectHit.Object:getHealth() > 0 then return end
 
-	-- verify that this object is a vehicle
 	local vehicle = objectHit.Object.object :: Instance
 	if not vehicle:IsA("Model") then return end
 	if not VehicleUtil.validateVehicle(vehicle) then return end
 
-	-- kill the driver
 	local seat: VehicleSeat = VehicleUtil.parseVehicleInfo(vehicle).DriverSeat
 	if seat.Occupant then
 		seat.Occupant:TakeDamage(150)
@@ -32,6 +31,7 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 	end
 end
 
-DObjectHitService.ObjectHit:connect(funcs.handleHit) -- execute before every handler with normal priority so we can properly cancel the event
+-- SUBSCRIPTIONS
+DObjectHitService.ObjectHit:connect(funcs.handleHit)
 
 return module

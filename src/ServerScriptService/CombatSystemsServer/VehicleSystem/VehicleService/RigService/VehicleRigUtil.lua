@@ -8,6 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VehicleConfigUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleConfigUtil)
 local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtil)
 
+-- PUBLIC API
 function module.createCenterOfMass(vehicleConfig: VehicleConfigUtil.DefaultType, baseParts: { BasePart }): Part
 	local centerOfMass = Instance.new("Part")
 	centerOfMass.Name = "CenterOfMass"
@@ -19,7 +20,6 @@ function module.createCenterOfMass(vehicleConfig: VehicleConfigUtil.DefaultType,
 end
 
 function module.constraintWheel(vehicleConfig: VehicleConfigUtil.DefaultType, chassis: BasePart, totalMass: number, wheelCount: number, wheel: BasePart)
-	-- weld wheel children together and set collision group
 	for _, descendant: Instance in ipairs(wheel:GetDescendants()) do
 		if not descendant:IsA("BasePart") then continue end
 		RigUtil.weld(descendant, wheel)
@@ -27,7 +27,6 @@ function module.constraintWheel(vehicleConfig: VehicleConfigUtil.DefaultType, ch
 	end
 	wheel.CollisionGroup = "Wheel"
 
-	-- then constraint
 	local rootAttachment = Instance.new("Attachment")
 	rootAttachment.CFrame = chassis.CFrame:ToObjectSpace(wheel.CFrame * CFrame.Angles(0, 0, math.rad(-90)))
 	rootAttachment.Parent = chassis
@@ -52,7 +51,7 @@ function module.constraintWheel(vehicleConfig: VehicleConfigUtil.DefaultType, ch
 	motor.AngularActuatorType = Enum.ActuatorType.Motor
 	motor.MotorMaxTorque = (vehicleConfig.MovementConfig.TorqueMultiplier * totalMass / wheelCount) * (wheel.Size.Y / 2)
 	motor.LimitsEnabled = true
-	motor.UpperLimit = 0.2 -- wheel sticking fix
+	motor.UpperLimit = 0.2
 	motor.LowerLimit = vehicleConfig.SuspensionConfig.FreeLength + vehicleConfig.SuspensionConfig.LowerLimit
 	motor.Parent = wheel
 

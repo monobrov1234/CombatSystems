@@ -1,3 +1,5 @@
+--!strict
+
 local module = {}
 local funcs = {}
 
@@ -13,11 +15,10 @@ local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionS
 -- FINALS
 local log: Logger.SelfObject = Logger.new("VehicleHitmarkHandler")
 
+-- INTERNAL FUNCTIONS
 function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo.Common, objectHit: DObjectHitService.ObjectHitInfo)
-	-- if its some weak bullet hit the vehicle, do not show the direction indicator
 	if objectHit.Damage == 0 and (objectHit.Armor.ArmorType == "NoArmor" or "BulletProofArmor") then return end
 
-	-- verify that this object is a vehicle
 	local vehicle = objectHit.Object.object :: Instance
 	if not vehicle:IsA("Model") then return end
 	if not VehicleUtil.validateVehicle(vehicle) then return end
@@ -29,6 +30,7 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 	log:debug("Direction indicator called for {}", driverSeat.Occupant)
 end
 
+-- SUBSCRIPTIONS
 DObjectHitService.ObjectHit:connect(funcs.handleHit)
 
 return module

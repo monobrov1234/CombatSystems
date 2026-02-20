@@ -1,17 +1,12 @@
 --!strict
 
---[[
-    Vehicle Service (Server-Side)
-]]
-
 local module = {}
 local funcs = {}
 
 -- IMPORTS
 local Players = game:GetService("Players")
-local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local PhysicsService = game:GetService("PhysicsService")
+local ServerScriptService = game:GetService("ServerScriptService")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.VehicleSystemConfig)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
@@ -20,42 +15,34 @@ local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.Co
 local PlayerTeamCheckUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.PlayerTeamCheckUtil)
 
 -- IMPORTS INTERNAL
-local SpawnerService = require(script.Parent.VehicleSpawnerService)
 local VehicleRigService = require(script.Parent.RigService.VehicleRigService)
 
 -- ROBLOX OBJECTS
+-- C->S
 local setOwnershipRemote = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Events.ClientToServer.SetVehicleOwnership
-local adminDeleteRemote = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Events.AdminTools.ClientToServer.DeleteVehicle
-local adminSpawnRemote = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Events.AdminTools.ClientToServer.SpawnVehicle
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("VehicleService")
+local log: Logger.SelfObject = Logger.new("VehicleSeatService")
 
--- SpawnerService.DriverPromptTriggered
+-- INTERNAL FUNCTIONS
 function funcs.handleDriverPromptTriggered(player: Player, vehicleInfo: VehicleUtil.VehicleInfo, prompt: ProximityPrompt)
-	if not funcs.checkVehicleAcccesTool(player) then 
+	if not funcs.checkVehicleAccessTool(player) then
 		local seatConfig = vehicleInfo.VehicleConfig.SeatConfig
 		if seatConfig.DriverGroupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, seatConfig.DriverGroupWhitelist) then return end
 		if seatConfig.DriverTeamWhitelist and not PlayerTeamCheckUtil.isInAnyWhitelistedTeam(player, seatConfig.DriverTeamWhitelist) then return end
 	end
+
 	funcs.handlePromptGeneric(player, vehicleInfo, prompt, vehicleInfo.DriverSeat)
 end
 
--- SpawnerService.PassengerPromptTriggered
 function funcs.handlePassengerPromptTriggered(player: Player, vehicleInfo: VehicleUtil.VehicleInfo, prompt: ProximityPrompt, seat: Seat)
-	if not funcs.checkVehicleAcccesTool(player) then 
+	if not funcs.checkVehicleAccessTool(player) then
 		local seatConfig = vehicleInfo.VehicleConfig.SeatConfig
 		if seatConfig.PassengerGroupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, seatConfig.PassengerGroupWhitelist) then return end
 		if seatConfig.PassengerTeamWhitelist and not PlayerTeamCheckUtil.isInAnyWhitelistedTeam(player, seatConfig.PassengerTeamWhitelist) then return end
 	end
-	funcs.handlePromptGeneric(player, vehicleInfo, prompt, seat)
-end
 
-function funcs.checkVehicleAcccesTool(player: Player) 
-	local character: Model? = player.Character
-	assert(character)
-	local vehicleAccessTool: Tool? = character:FindFirstChildOfClass("Tool")
-	return vehicleAccessTool and vehicleAccessTool:HasTag(VehicleSystemConfig.VehicleAccessToolTag)
+	funcs.handlePromptGeneric(player, vehicleInfo, prompt, seat)
 end
 
 function funcs.handlePromptGeneric(player: Player, vehicleInfo: VehicleUtil.VehicleInfo, prompt: ProximityPrompt, seat: Seat | VehicleSeat)
@@ -68,6 +55,7 @@ function funcs.handlePromptGeneric(player: Player, vehicleInfo: VehicleUtil.Vehi
 
 	local cleaner = ConnectionCleaner.new()
 	local cleaned = false
+
 	local function resetPrompt()
 		if cleaned then return end
 		cleaned = true
@@ -76,55 +64,54 @@ function funcs.handlePromptGeneric(player: Player, vehicleInfo: VehicleUtil.Vehi
 		funcs.handleDismount(player, vehicleInfo, seat)
 	end
 
-	-- recheck memory leaks
-	-- will re-enable the prompt if the player leaves his seat, guaranteed
 	cleaner:add(humanoid.Seated:Connect(function(active: boolean)
 		if not active then resetPrompt() end
-	end)) -- humanoid left the seat
+	end))
+
 	cleaner:add(player.CharacterRemoving:Connect(function()
 		resetPrompt()
-	end)) -- character died
+	end))
+
 	cleaner:add(Players.PlayerRemoving:Connect(function(playerRemoving: Player)
 		if playerRemoving == player then resetPrompt() end
-	end)) -- player left
+	end))
+
 	funcs.handlePlayerSeated(player, vehicleInfo, seat)
 end
 
 function funcs.handlePlayerSeated(player: Player, vehicleInfo: VehicleUtil.VehicleInfo, seat: Seat | VehicleSeat)
 	if seat ~= vehicleInfo.DriverSeat then return end
-	-- play the enter vehicle sound
 	funcs.playSound("Enter", seat)
 
-	-- start the engine idle sound if it exists
 	local engineIdle = (vehicleInfo.EnginePart :: BasePart):FindFirstChild("EngineIdle") :: Sound?
 	if engineIdle then engineIdle:Play() end
 
-	-- hook vehicle seat throttle changed event to play move sound
 	local engineMove = (vehicleInfo.EnginePart :: BasePart):FindFirstChild("EngineMove") :: Sound?
-	if engineMove then
-		local seat = seat :: VehicleSeat
-		local occupant = seat.Occupant
-		assert(occupant)
-		local connection: RBXScriptConnection
-		connection = seat.Changed:Connect(function(property: string)
-			if seat.Occupant ~= occupant then
-				engineMove:Stop()
-				connection:Disconnect()
-				return
-			end
+	if not engineMove then return end
 
-			if property ~= "Throttle" then return end
-			if seat.Throttle ~= 0 then
-				engineMove:Play()
-			else
-				engineMove:Stop()
-			end
-		end)
-	end
+	local seatAsVehicleSeat = seat :: VehicleSeat
+	local occupant = seatAsVehicleSeat.Occupant
+	assert(occupant)
+
+	local connection: RBXScriptConnection
+	connection = seatAsVehicleSeat.Changed:Connect(function(property: string)
+		if seatAsVehicleSeat.Occupant ~= occupant then
+			engineMove:Stop()
+			connection:Disconnect()
+			return
+		end
+
+		if property ~= "Throttle" then return end
+
+		if seatAsVehicleSeat.Throttle ~= 0 then
+			engineMove:Play()
+		else
+			engineMove:Stop()
+		end
+	end)
 end
 
 function funcs.handleDismount(player: Player, vehicleInfo: VehicleUtil.VehicleInfo, seat: Seat | VehicleSeat)
-	-- dismount player
 	local dismountPart: BasePart
 	if seat == vehicleInfo.DriverSeat then
 		dismountPart = vehicleInfo.DismountPart
@@ -140,40 +127,16 @@ function funcs.handleDismount(player: Player, vehicleInfo: VehicleUtil.VehicleIn
 		end
 	end
 
-	-- play driver-specific sounds
 	if seat ~= vehicleInfo.DriverSeat then return end
-
-	-- play the dismount sound
 	funcs.playSound("Dismount", seat)
 
 	local enginePart: BasePart? = vehicleInfo.EnginePart
 	if enginePart then
-		-- stop the engine sound if it exists
 		local engineIdle = enginePart:FindFirstChild("EngineIdle") :: Sound?
 		if engineIdle then engineIdle:Stop() end
 	end
 end
 
-function funcs.trySitPlayer(player: Player, seat: BasePart): boolean
-	assert(seat:IsA("Seat") or seat:IsA("VehicleSeat"))
-	if seat.Occupant then return false end -- someone is already sitting in this seat
-
-	local character: Model? = player.Character
-	if not character then return false end
-	local humanoid: Humanoid? = character:FindFirstChildOfClass("Humanoid")
-	if not humanoid or humanoid:GetState() == Enum.HumanoidStateType.Dead or humanoid.SeatPart then return false end -- player is already sitting in some seat
-
-	if seat:IsA("Seat") then
-		seat:Sit(humanoid)
-	elseif seat:IsA("VehicleSeat") then
-		seat:Sit(humanoid)
-	end
-
-	return true
-end
-
--- force set vehicle ownership to driver
--- TODO vulnerable method: can be spammed by the exploiter to lag the server
 function funcs.handleSetOwnership(player: Player)
 	log:debug("Handling set vehicle ownership event for player {}", player.Name)
 
@@ -188,7 +151,7 @@ function funcs.handleSetOwnership(player: Player)
 	assert(vehicleModel and vehicleModel:IsA("Model") and VehicleUtil.validateVehicle(vehicleModel))
 	local primaryPart: BasePart? = vehicleModel.PrimaryPart
 	assert(primaryPart)
-	VehicleUtil.parseVehicleInfo(vehicleModel) -- validate vehicle
+	VehicleUtil.parseVehicleInfo(vehicleModel)
 
 	primaryPart:SetNetworkOwner(player)
 	log:debug("Successfully set player as a network owner for vehicle {}", vehicleModel.Name)
@@ -205,54 +168,41 @@ function funcs.handleSetOwnership(player: Player)
 	end)
 end
 
-function funcs.handleAdminVehicleSpawn(player: Player, vehicleName: string, spawnCframe: CFrame)
-	assert(typeof(vehicleName) == "string" and typeof(spawnCframe) == "CFrame")
-	log:debug("Handling admin vehicle spawn event for player {}", player.Name)
+function funcs.trySitPlayer(player: Player, seat: BasePart): boolean
+	assert(seat:IsA("Seat") or seat:IsA("VehicleSeat"))
+	if seat.Occupant then return false end
 
 	local character: Model? = player.Character
-	assert(character)
-	local currentTool = character:FindFirstChildOfClass("Tool")
-	assert(currentTool and currentTool:HasTag(VehicleSystemConfig.VehicleSpawnerToolTag))
+	if not character then return false end
+	local humanoid: Humanoid? = character:FindFirstChildOfClass("Humanoid")
+	if not humanoid or humanoid:GetState() == Enum.HumanoidStateType.Dead or humanoid.SeatPart then return false end
 
-	local vehicle = VehicleSystemConfig.Folder:FindFirstChild(vehicleName) :: Model?
-	assert(vehicle)
+	if seat:IsA("Seat") then
+		seat:Sit(humanoid)
+	elseif seat:IsA("VehicleSeat") then
+		seat:Sit(humanoid)
+	end
 
-	SpawnerService.spawnVehicle(vehicle, spawnCframe)
+	return true
 end
 
-function funcs.handleAdminVehicleDelete(player: Player, vehicle: Model)
-	assert(typeof(vehicle) == "Instance")
-	assert(vehicle:IsA("Model"))
-	log:debug("Handling admin vehicle delete event for player {}", player.Name)
-
+function funcs.checkVehicleAccessTool(player: Player): boolean
 	local character: Model? = player.Character
 	assert(character)
-	local currentTool = character:FindFirstChildOfClass("Tool")
-	assert(currentTool and currentTool:HasTag(VehicleSystemConfig.VehicleDeleterToolTag))
-
-	assert(VehicleUtil.validateVehicle(vehicle))
-	vehicle:Destroy()
+	local vehicleAccessTool: Tool? = character:FindFirstChildOfClass("Tool")
+	return (vehicleAccessTool and vehicleAccessTool:HasTag(VehicleSystemConfig.VehicleAccessToolTag)) or false
 end
 
 function funcs.playSound(soundName: string, soundParent: Instance)
 	local sound = soundParent:FindFirstChild(soundName) :: Sound?
-	if sound then
-		assert(sound:IsA("Sound"))
-		sound:Play()
-	end
+	if not sound then return end
+	assert(sound:IsA("Sound"))
+	sound:Play()
 end
 
--- setup the collision groups
-PhysicsService:RegisterCollisionGroup("Vehicle")
-PhysicsService:RegisterCollisionGroup("Wheel")
-PhysicsService:CollisionGroupSetCollidable("Wheel", "Wheel", false)
-PhysicsService:CollisionGroupSetCollidable("Wheel", "Vehicle", false)
-
-VehicleRigService.DriverPromptTriggered = funcs.handleDriverPromptTriggered
-VehicleRigService.PassengerPromptTriggered = funcs.handlePassengerPromptTriggered
-
+-- SUBSCRIPTIONS
+VehicleRigService.DriverPromptTriggered:connect(funcs.handleDriverPromptTriggered)
+VehicleRigService.PassengerPromptTriggered:connect(funcs.handlePassengerPromptTriggered)
 setOwnershipRemote.OnServerEvent:Connect(funcs.handleSetOwnership)
-adminDeleteRemote.OnServerEvent:Connect(funcs.handleAdminVehicleDelete)
-adminSpawnRemote.OnServerEvent:Connect(funcs.handleAdminVehicleSpawn)
 
 return module
