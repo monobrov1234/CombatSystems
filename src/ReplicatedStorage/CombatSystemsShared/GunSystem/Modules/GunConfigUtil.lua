@@ -3,7 +3,7 @@ module.__index = module
 
 -- IMPORTS
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TableInheritUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.TableInheritUtilModule)
+local TableInheritUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.TableInheritUtil)
 
 -- FINALS
 local gunConfigs = ReplicatedStorage.CombatSystemsShared.GunSystem.Configs

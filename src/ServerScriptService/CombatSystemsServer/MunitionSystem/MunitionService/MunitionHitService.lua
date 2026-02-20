@@ -8,7 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local BoundsUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.BoundsUtil)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
-local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
+local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
 -- IMPORTS INTERNAL
 local MunitionService = require(script.Parent.MunitionService)

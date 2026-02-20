@@ -1,4 +1,4 @@
--- SERVICES
+-- IMPORTS
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer :: Player
 local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPlayer").StarterPlayerScripts)

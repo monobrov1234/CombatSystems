@@ -14,11 +14,9 @@ local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.Munitio
 local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
 local FastCastRedux = require(ReplicatedStorage.CombatSystemsShared.Libs.FastCastRedux)
 local FastCastReduxTypes = require(ReplicatedStorage.CombatSystemsShared.Libs.FastCastRedux.TypeDefinitions)
-local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
+local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionController)
 
 -- ROBLOX OBJECTS
-local player = Players.LocalPlayer :: Player
-
 local fireMunitionBallisticRemote = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.Core.ClientToServer.FireMunitionBallistic
 local verifyHitBallisticRemote = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.Core.ClientToServer.VerifyHitBallistic
 local replicationBallisticRemote = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.Core.ServerToClient.ReplicateFireMunitionBallistic

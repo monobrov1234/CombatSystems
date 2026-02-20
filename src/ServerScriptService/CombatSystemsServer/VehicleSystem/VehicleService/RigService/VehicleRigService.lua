@@ -8,7 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TurretRigService = require(ServerScriptService.CombatSystemsServer.TurretSystem.RigService.TurretRigService)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
+local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
 local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtil)
 local DestructibleObjectConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.DestructibleObjectConfig)
 
@@ -26,7 +26,7 @@ local riggerMapping: { [string]: VehicleRigger } = {
 	["Tracked"] = require(script.Parent.Impl.TrackedVehicleRigger) :: VehicleRigger,
 }
 
--- INTERNAL API (used by VehicleServiceModule)
+-- INTERNAL API (used by VehicleService)
 module.DriverPromptTriggered = function() end :: (player: Player, vehicleInfo: VehicleUtil.VehicleInfo, prompt: ProximityPrompt) -> ()
 module.PassengerPromptTriggered = function() end :: (player: Player, vehicleInfo: VehicleUtil.VehicleInfo, prompt: ProximityPrompt, seat: Seat) -> ()
 

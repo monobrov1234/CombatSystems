@@ -4,8 +4,9 @@ local module = {}
 
 -- IMPORTS
 local Players = game:GetService("Players")
-local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(game.StarterPlayer.StarterPlayerScripts)
-local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
+local player = Players.LocalPlayer :: Player
+local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPlayer").StarterPlayerScripts)
+local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionController)
 
 -- FINALS
 local muzzleFlashRays = {} :: { [BasePart]: boolean }

@@ -9,7 +9,7 @@ local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local TurretConfigUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretConfigUtil)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
-local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
+local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
 -- INTERNAL API
 module.SeatPromptTriggered = Signal.new() -- (player: Player, turretInfo: TurretUtil.TurretInfo, prompt: ProximityPrompt)

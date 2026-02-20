@@ -1,27 +1,34 @@
 --!strict
 
+local funcs = {}
+
 -- IMPORTS
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local player = Players.LocalPlayer :: Player
+local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPlayer").StarterPlayerScripts)
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ProximityPromptService = game:GetService("ProximityPromptService")
+
+local TurretViewController = require(PlayerScripts.CombatSystemsClient.TurretSystem.TurretController.TurretViewController)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
+local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
-local TurretViewController = require(script.Parent.TurretViewControllerModule)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
+local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
+
+-- ROBLOX OBJECTS
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("TurretSeatScanner")
 local cleaner = ConnectionCleaner.new()
-local player = Players.LocalPlayer :: Player
 local character: Model = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 
 -- STATE
 local currentSeat: BasePart?
 
-local function handleHumanoidSeated(active: boolean, seat: BasePart)
+-- INTERNAL FUNCTIONS
+function funcs.handleHumanoidSeated(active: boolean, seat: BasePart)
 	if not active and currentSeat then
 		log:debug("Handling dismount event on stationary turret")
 		TurretViewController.setTurretView(nil, nil)
@@ -37,7 +44,6 @@ local function handleHumanoidSeated(active: boolean, seat: BasePart)
 	if not TurretUtil.validateTurret(turretModel) then return end
 	log:debug("Handling seated event on stationary turret {}", turretModel.Name)
 
-	-- if this turret is mounted on a vehicle, ignore that vehicle in ray params
 	local customRayFilters: { Instance }?
 	local vehicleInfo = VehicleUtil.findPlayerCurrentVehicle(player)
 	if vehicleInfo then customRayFilters = { vehicleInfo.VehicleModel } :: { Instance } end
@@ -49,14 +55,16 @@ local function handleHumanoidSeated(active: boolean, seat: BasePart)
 	ProximityPromptService.Enabled = false
 end
 
-local function hookSeated()
-	cleaner:add(humanoid.Seated:Connect(handleHumanoidSeated))
+function funcs.hookSeated()
+	cleaner:add(humanoid.Seated:Connect(funcs.handleHumanoidSeated))
 end
-hookSeated()
+
+-- SUBSCRIPTIONS
+funcs.hookSeated()
 
 player.CharacterAdded:Connect(function(newCharacter)
 	cleaner:disconnectAll()
 	character = newCharacter
 	humanoid = character:WaitForChild("Humanoid") :: Humanoid
-	hookSeated()
+	funcs.hookSeated()
 end)

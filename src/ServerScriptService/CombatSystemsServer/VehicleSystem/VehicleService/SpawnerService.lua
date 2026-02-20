@@ -10,8 +10,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
 local VehicleSpawnerConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSpawnerConfig)
-local VehicleSpawnerConfigUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleSpawnerConfigUtilModule)
-local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
+local VehicleSpawnerConfigUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleSpawnerConfigUtil)
+local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
 local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupService)
 
 -- IMPORTS INTERNAL

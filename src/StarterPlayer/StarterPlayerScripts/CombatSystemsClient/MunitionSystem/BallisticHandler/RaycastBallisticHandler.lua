@@ -12,7 +12,7 @@ local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.MunitionConfigUtil)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
-local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
+local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionController)
 
 -- ROBLOX OBJECTS
 local fireMunitionRemote = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.Core.ClientToServer.FireMunition

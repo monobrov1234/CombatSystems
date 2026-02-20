@@ -8,7 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtil)
-local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
+local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("GunStateService")

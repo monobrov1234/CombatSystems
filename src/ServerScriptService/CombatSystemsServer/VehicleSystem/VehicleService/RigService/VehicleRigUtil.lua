@@ -5,7 +5,7 @@ local module = {}
 -- IMPORTS
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VehicleConfigUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleConfigUtilModule)
+local VehicleConfigUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleConfigUtil)
 local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtil)
 
 function module.createCenterOfMass(vehicleConfig: VehicleConfigUtil.DefaultType, baseParts: { BasePart }): Part

@@ -11,7 +11,7 @@ local VehicleSpawnerConfigTemplate = require(VehicleSpawnerConfigPath.Config)
 -- ROBLOX OBJECTS
 local player = Players.LocalPlayer :: Player
 local playerGui = player.PlayerGui
-local character = player.Character or player.CharacterAdded:Wait()
+local _character = player.Character or player.CharacterAdded:Wait()
 
 -- gui
 local spawnerGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("VehicleSystemGui"):WaitForChild("SpawnerGui")
@@ -69,6 +69,6 @@ end
 openGuiRemote.OnClientEvent:Connect(funcs.handleOpenRemote)
 
 player.CharacterAdded:Connect(function(newCharacter: Model)
-	character = newCharacter
+	_character = newCharacter
 	spawnerGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("VehicleSystemGui"):WaitForChild("SpawnerGui")
 end)

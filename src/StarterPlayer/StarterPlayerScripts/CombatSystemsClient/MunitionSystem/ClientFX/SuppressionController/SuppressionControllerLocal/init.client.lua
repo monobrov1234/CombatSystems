@@ -4,18 +4,18 @@ local funcs = {}
 
 -- IMPORTS
 local Players = game:GetService("Players")
-local PlayerScripts = (Players.LocalPlayer :: Player).PlayerScripts :: typeof(game.StarterPlayer.StarterPlayerScripts)
+local player = Players.LocalPlayer :: Player
+local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPlayer").StarterPlayerScripts)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.MunitionConfigUtil)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
-local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
+local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionController)
 
 -- IMPORTS INTERNAL
-local SuppressUtil = require(script.SuppressUtilModule)
+local SuppressUtil = require(script.SuppressUtil)
 
 -- ROBLOX OBJECTS
-local player = Players.LocalPlayer :: Player
 local character: Model = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 local rootPart = character:WaitForChild("HumanoidRootPart") :: BasePart

@@ -14,7 +14,7 @@ local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.Munitio
 local DObjectService = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DObjectService)
 local SharedDamageServiceModule = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DamageService.SharedDamageService)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.RayTypeService)
-local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.SignalModule)
+local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
 -- ROBLOX OBJECTS
 local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.ClientFX.ServerToClient.ExplosionHitmark

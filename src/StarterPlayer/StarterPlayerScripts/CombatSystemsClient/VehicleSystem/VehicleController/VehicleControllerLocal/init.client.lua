@@ -12,19 +12,21 @@ local funcs = {}
 -- IMPORTS
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer :: Player
+local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPlayer").StarterPlayerScripts)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local ProximityPromptService = game:GetService("ProximityPromptService")
-local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
+local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
+local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
-local TurretViewController = require(player.PlayerScripts.CombatSystemsClient.TurretSystem.TurretViewControllerModule)
-local MovementController = require(player.PlayerScripts.CombatSystemsClient.MovementSystem.MovementControllerModule)
+local TurretViewController = require(PlayerScripts.CombatSystemsClient.TurretSystem.TurretController.TurretViewController)
+local MovementController = require(PlayerScripts.CombatSystemsClient.MovementSystem.MovementController)
 
 -- IMPORTS INTERNAL
-local GuiController = require(script.GuiControllerModule)
+local VehicleViewController = require(script.VehicleViewController)
+local _GuiController = require(script.GuiController)
 
 -- ROBLOX OBJECTS
 local character = player.Character or player.CharacterAdded:Wait()
@@ -43,8 +45,8 @@ type VehicleController = {
 	handleDismount: () -> (),
 }
 local controllerMapping: { [string]: VehicleController } = {
-	["Normal"] = require(script.Parent.Implementations.NormalVehicleControllerModule),
-	["Tracked"] = require(script.Parent.Implementations.TrackedVehicleControllerModule),
+	["Normal"] = require(script.Parent.Implementations.NormalVehicleController),
+	["Tracked"] = require(script.Parent.Implementations.TrackedVehicleController),
 }
 
 local vehicleInfo: VehicleUtil.VehicleInfo
@@ -67,7 +69,7 @@ function funcs.handleHumanoidSeated(active: boolean, seat: Seat | VehicleSeat)
 	log:debug("Handling seated event on seat {}", seat.Name)
 
 	local info = VehicleUtil.parseVehicleInfo(seat.Parent)
-	GuiController.enableGui(info)
+	VehicleViewController.setVehicleView(info)
 
 	if seat == info.DriverSeat then
 		log:debug("Is a driver seat")
@@ -105,7 +107,7 @@ end
 
 function funcs.clearVehicle()
 	log:debug("Clearing state...")
-	GuiController.disableGui()
+	VehicleViewController.setVehicleView(nil)
 
 	if currentSeat == vehicleInfo.DriverSeat then
 		log:debug("Clearing driver seat state...")

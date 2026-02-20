@@ -14,9 +14,9 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PhysicsService = game:GetService("PhysicsService")
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtilModule)
+local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
 local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupService)
-local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
+local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
 
 -- IMPORTS INTERNAL
 local SpawnerService = require(script.Parent.SpawnerService)

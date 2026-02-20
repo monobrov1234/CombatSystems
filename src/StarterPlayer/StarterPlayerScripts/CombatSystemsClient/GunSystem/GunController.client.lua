@@ -22,18 +22,18 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleanerModule)
+local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
 local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.MunitionSystemConfig)
 local GunSystemConfig = require(ReplicatedStorage.CombatSystemsShared.GunSystem.GunSystemConfig)
 local GunUtil = require(ReplicatedStorage.CombatSystemsShared.GunSystem.Modules.GunUtil)
 local CameraRecoilUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.CameraRecoilUtil)
-local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionControllerModule)
-local MovementController = require(PlayerScripts.CombatSystemsClient.MovementSystem.MovementControllerModule)
-local CursorController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.ClientFX.CursorController.CursorControllerModule)
+local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionController)
+local MovementController = require(PlayerScripts.CombatSystemsClient.MovementSystem.MovementController)
+local CursorController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.ClientFX.CursorController)
 
 -- IMPORTS INTERNAL
-local BackpackController = require(script.Parent.BackpackControllerModule)
-local GuiController = require(script.Parent.GuiControllerModule)
+local BackpackController = require(script.Parent.BackpackController)
+local GuiController = require(script.Parent.GuiController)
 
 -- ROBLOX OBJECTS
 local mouse = player:GetMouse()
