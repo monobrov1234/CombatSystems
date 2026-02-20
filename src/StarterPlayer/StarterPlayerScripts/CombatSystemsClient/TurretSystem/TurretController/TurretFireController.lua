@@ -10,12 +10,13 @@ local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPla
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-
-local TurretReloadController = require(script.Parent.TurretReloadController)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 local RecoilUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.CameraRecoilUtil)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionController)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
+
+-- IMPORTS INTERNAL
+local TurretReloadController = require(script.Parent.TurretReloadController)
 local TurretViewController = require(script.Parent.TurretViewController)
 local TurretSoundController = require(script.Parent.TurretSoundController)
 local TurretStateController = require(script.Parent.TurretStateController)
@@ -90,21 +91,20 @@ function funcs.stopAutoFire()
 end
 
 function funcs.fireTurret()
-	local info = turretInfo
-	local state = turretState
 	local raycastParams: RaycastParams? = TurretStateController.getCurrentRaycastParams()
-
-	if not info or not state or not raycastParams then return end
+	if not turretInfo or not turretState or not raycastParams then return end
 	if TurretStateController.getCurrentClipSize() <= 0 then return end
 
-	local firerateRPM = TurretStateController.getFirerateRPM()
+	local firerateRPM: number? = TurretStateController.getFirerateRPM()
+	assert(firerateRPM)
+
 	if firerateRPM <= 0 then return end
 	if os.clock() - funcs.getLastShootTime() < 60 / firerateRPM then return end
 
-	local firingPart: BasePart = (state.UsingMainGun and info.FiringPoint or info.FiringPointCoax) :: BasePart
-	local spreadConfig = state.UsingMainGun and info.TurretConfig.GunConfig.SpreadConfig
-		or info.TurretConfig.GunConfig.CoaxConfig.SpreadConfig
-	local direction = (info.PitchMotor.Part1 :: BasePart).CFrame.LookVector
+	local firingPart: BasePart = (turretState.UsingMainGun and turretInfo.FiringPoint or turretInfo.FiringPointCoax) :: BasePart
+	local spreadConfig = turretState.UsingMainGun and turretInfo.TurretConfig.GunConfig.SpreadConfig
+		or turretInfo.TurretConfig.GunConfig.CoaxConfig.SpreadConfig
+	local direction = (turretInfo.PitchMotor.Part1 :: BasePart).CFrame.LookVector
 
 	local selectedMunition: string? = TurretStateController.getCurrentSelectedMunition()
 	assert(selectedMunition)
@@ -122,11 +122,11 @@ function funcs.fireTurret()
 	TurretStateController.setClipSize(currentClipSize - 1)
 	funcs.setLastShootTime(os.clock())
 
-	local recoilConfig = state.UsingMainGun and info.TurretConfig.GunConfig.RecoilConfig
-		or info.TurretConfig.GunConfig.CoaxConfig.RecoilConfig
+	local recoilConfig = turretState.UsingMainGun and turretInfo.TurretConfig.GunConfig.RecoilConfig
+		or turretInfo.TurretConfig.GunConfig.CoaxConfig.RecoilConfig
 	recoilUtil:Kick(recoilConfig.Pitch, recoilConfig.Yaw, nil, recoilConfig.Strength, recoilConfig.LerpTime)
 
-	TurretSoundController.play(state.UsingMainGun and "Fire" or "FireCoax", firingPart)
+	TurretSoundController.play(turretState.UsingMainGun and "Fire" or "FireCoax", firingPart)
 end
 
 function funcs.reset()

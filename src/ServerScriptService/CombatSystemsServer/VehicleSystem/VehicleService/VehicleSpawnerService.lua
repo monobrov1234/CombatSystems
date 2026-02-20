@@ -8,10 +8,11 @@ module.__index = module
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
-local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
-local VehicleSpawnerConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSpawnerConfig)
+local PlayerTeamCheckUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.PlayerTeamCheckUtil)
+local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.VehicleSystemConfig)
 local VehicleSpawnerConfigUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleSpawnerConfigUtil)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
+local VehicleSpawnerConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.VehicleSpawnerConfig)
 local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupService)
 
 -- IMPORTS INTERNAL
@@ -61,20 +62,22 @@ end
 -- INTERNAL FUNCTIONS
 -- spawner core functionality
 function funcs.handleSpawnerTriggered(player: Player, spawner: BasePart, config: VehicleSpawnerConfigUtil.DefaultType)
-	if config.GroupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, config.GroupWhitelist) then return end
+	if not funcs.checkPlayer(player, config) then return end
 	if funcs.checkSpawnerOnCooldown(spawner, config) then return end
 	openGuiRemote:FireClient(player, spawner)
 end
 
+-- remote event
 function funcs.handleUseSpawner(player: Player, spawner: BasePart, vehicleName: string)
 	assert(typeof(player) == "Instance" and typeof(spawner) == "Instance" and typeof(vehicleName) == "string")
-	local config = VehicleSpawnerConfigUtil.parseSpawnerConfig(spawner)
-	assert(table.find(config.Spawnables, vehicleName))
+	assert(spawner:IsA("BasePart"))
+	local config: VehicleSpawnerConfigUtil.DefaultType = VehicleSpawnerConfigUtil.parseSpawnerConfig(spawner)
+	assert(table.find(config.Spawnables, vehicleName)) -- that vehicle should be in the spawnable vehicles list in the spawner config
 
-	if config.GroupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, config.GroupWhitelist) then return end
+	if not funcs.checkPlayer(player, config) then return end
 	if funcs.checkSpawnerOnCooldown(spawner, config) then return end
 
-	local character = player.Character
+	local character: Model? = player.Character
 	if not character then return end
 	local rootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	assert(rootPart and rootPart:IsA("BasePart"))
@@ -129,6 +132,12 @@ function funcs.handleUseSpawner(player: Player, spawner: BasePart, vehicleName: 
 	task.delay(config.Delay, function()
 		spawner.Color = config.EnabledColor :: Color3
 	end)
+end
+
+function funcs.checkPlayer(player: Player, config: VehicleSpawnerConfigUtil.DefaultType): boolean
+	if config.GroupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, config.GroupWhitelist) then return false end
+	if config.TeamWhitelist and not PlayerTeamCheckUtil.isInAnyWhitelistedTeam(player, config.TeamWhitelist) then return false end
+	return true
 end
 
 function funcs.checkSpawnerOnCooldown(spawner: BasePart, config: VehicleSpawnerConfigUtil.DefaultType): boolean

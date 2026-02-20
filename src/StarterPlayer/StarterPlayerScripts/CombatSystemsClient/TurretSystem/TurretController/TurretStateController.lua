@@ -7,10 +7,12 @@ local funcs = {}
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local player = Players.LocalPlayer :: Player
-local TurretViewController = require(script.Parent.TurretViewController)
 local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.MunitionSystemConfig)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
+
+-- IMPORTS INTERNAL
+local TurretViewController = require(script.Parent.TurretViewController)
 
 -- STATE
 local turretInfo: TurretUtil.TurretInfo?
@@ -23,10 +25,14 @@ function module.getCurrentRaycastParams(): RaycastParams?
 end
 
 function module.getCurrentClipSize(): number?
-	if not turretState or not turretInfo then return nil end
+	if not turretState or not turretInfo then
+		return nil
+	end
 	if turretState.UsingMainGun then
 		return turretState.ClipSizeStorage[turretState.SelectedMunition] or nil
-	else return turretState.CoaxClipSize end
+	else
+		return turretState.CoaxClipSize
+	end
 end
 
 function module.setClipSize(clipSize: number)
@@ -50,21 +56,21 @@ function module.getCurrentStoredAmmo(): number?
 	else return turretState.CoaxAmmoSize end
 end
 
-function module.getFirerateRPM(): number
-	assert(turretInfo and turretState)
+function module.getFirerateRPM(): number?
+	if not turretInfo or not turretState then return nil end
 	return turretState.UsingMainGun and turretInfo.TurretConfig.GunConfig.FirerateRPM or turretInfo.TurretConfig.GunConfig.CoaxConfig.FirerateRPM
 end
 
 -- INTERNAL FUNCTIONS
 function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo, customRayFilters: { Instance }?)
 	turretInfo = newTurretInfo
-    fireRaycastParams = funcs.buildRaycastParams(customRayFilters)
+	fireRaycastParams = funcs.buildRaycastParams(customRayFilters)
 end
 
 function funcs.handleTurretViewCleared()
 	turretInfo = nil
 	turretState = nil
-    fireRaycastParams = nil
+	fireRaycastParams = nil
 end
 
 function funcs.handleTurretStateChanged(newTurretState: TurretUtil.TurretStateInfo)
@@ -88,6 +94,7 @@ function funcs.buildRaycastParams(customRayFilters: { Instance }?): RaycastParam
 	return raycastParams
 end
 
+-- SUBSCRIPTIONS
 TurretViewController.TurretViewSet:connect(funcs.handleTurretViewSet, Signal.Priority.HIGH)
 TurretViewController.TurretStateChanged:connect(funcs.handleTurretStateChanged, Signal.Priority.HIGH)
 TurretViewController.TurretViewCleared:connect(funcs.handleTurretViewCleared, Signal.Priority.HIGH)

@@ -1,7 +1,3 @@
---!strict
-
-local DefaultNormalConfig = require(game:GetService("ReplicatedStorage").CombatSystemsShared.VehicleSystem.Configs.VehicleConfigs.Default.DefaultNormalConfig)
-
 return {
 	ConfigType = "Normal",
 	Description = "Utility Vehicle",
@@ -34,4 +30,4 @@ return {
 		StiffnessMultiplier = 160, -- Mass will be multiplied by this value to calculate stiffness 280
 		DampingPercent = 10, -- Percent of stiffness to use as damping
 	},
-} :: typeof(DefaultNormalConfig)
+}

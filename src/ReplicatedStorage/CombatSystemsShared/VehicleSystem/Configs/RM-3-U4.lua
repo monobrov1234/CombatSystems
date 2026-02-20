@@ -1,8 +1,4 @@
---!strict
-
-local DefaultTrackedConfig = require(game:GetService("ReplicatedStorage").CombatSystemsShared.VehicleSystem.Configs.VehicleConfigs.Default.DefaultTrackedConfig)
-
-local config = {
+return {
 	ConfigType = "Tracked",
 
 	MaxHealth = 100,
@@ -41,6 +37,4 @@ local config = {
 		StiffnessMultiplier = 90, -- Mass will be multiplied by this value to calculate stiffness
 		DampingPercent = 10, -- Percent of stiffness to use as damping
 	},
-} :: typeof(DefaultTrackedConfig)
-
-return config
+}

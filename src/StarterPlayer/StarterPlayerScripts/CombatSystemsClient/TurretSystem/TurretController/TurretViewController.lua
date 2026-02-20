@@ -8,13 +8,15 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer :: Player
 local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPlayer").StarterPlayerScripts)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-
-local CursorController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.ClientFX.CursorController)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
+-- IMPORTS INTERNAL
+local CursorController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.ClientFX.CursorController)
+
 -- ROBLOX OBJECTS
+-- S->C
 local setTurretStateRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ServerToClient.SetState
 
 -- FINALS
@@ -55,10 +57,11 @@ end
 
 -- INTERNAL FUNCTIONS
 function funcs.clearTurretView()
+	if not turretInfo then return end
+	module.TurretViewCleared:fire()
 	turretInfo = nil
 	turretState = nil
 	CursorController.disableCursor()
-	module.TurretViewCleared:fire()
 end
 
 function funcs.handleSetTurretState(newTurretState: TurretUtil.TurretStateInfo)
@@ -68,9 +71,10 @@ end
 
 -- SUBSCRIPTIONS
 player.CharacterAdded:Connect(function()
-	if turretInfo then funcs.clearTurretView() end
+	if turretInfo then
+		funcs.clearTurretView()
+	end
 end)
-
 setTurretStateRemote.OnClientEvent:Connect(funcs.handleSetTurretState)
 
 return module

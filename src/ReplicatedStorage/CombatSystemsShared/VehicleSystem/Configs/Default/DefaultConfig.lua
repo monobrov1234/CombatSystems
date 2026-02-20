@@ -1,5 +1,3 @@
---!strict
-
 --[[
 	Default config for every vehicle type
 ]]

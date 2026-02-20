@@ -10,11 +10,13 @@ local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPla
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local TurretViewController = require(script.Parent.TurretViewController)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
 local CursorController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.ClientFX.CursorController)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
+
+-- IMPORTS INTERNAL
+local TurretViewController = require(script.Parent.TurretViewController)
 
 -- FINALS
 local cleaner = ConnectionCleaner.new()
@@ -35,6 +37,11 @@ end
 
 function funcs.handleTurretViewCleared()
 	cleaner:disconnectAll()
+	if firstPersonMode then
+		funcs.exitFirstPerson()
+		firstPersonMode = false
+	end
+	firstPersonStep = 1
 	turretInfo = nil
 end
 
@@ -83,11 +90,15 @@ function funcs.toggleFirstPerson()
 		end))
 	else
 		cleaner:disconnectAll()
-		camera.FieldOfView = initialFOV 
-		UserInputService.MouseDeltaSensitivity = initialSens 
-		UserInputService.MouseBehavior = Enum.MouseBehavior.Default
-		CursorController.enableCursor()
+		funcs.exitFirstPerson()
 	end
+end
+
+function funcs.exitFirstPerson()
+	workspace.CurrentCamera.FieldOfView = initialFOV 
+	UserInputService.MouseDeltaSensitivity = initialSens 
+	UserInputService.MouseBehavior = Enum.MouseBehavior.Default
+	CursorController.enableCursor()
 end
 
 function funcs.zoomInFirstPerson()
@@ -118,9 +129,11 @@ end
 function funcs.getFirstPersonZoom(): number
 	assert(turretInfo)
 	local steps = turretInfo.TurretConfig.ZoomConfig.ZoomSteps
-	if firstPersonStep < 1 or firstPersonStep > #steps then 
-		return 0 
-	else return steps[firstPersonStep] end
+	if firstPersonStep < 1 or firstPersonStep > #steps then
+		return 0
+	else
+		return steps[firstPersonStep]
+	end
 end
 
 -- SUBSCRIPTIONS

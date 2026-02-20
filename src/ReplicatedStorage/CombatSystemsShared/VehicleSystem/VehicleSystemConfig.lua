@@ -3,7 +3,7 @@ local StarterGui = game:GetService("StarterGui")
 
 local config = {
 	FolderTag = "SpawnableVehicles", -- can be any instance, all vehicles that can be spawned should be there
-	Folder = nil :: Folder, -- will be set internally to a folder resolved by the FolderTag attribute
+	Folder = (nil :: any) :: Folder, -- will be set internally to a folder resolved by the FolderTag attribute
 
 	Tag = "VehicleControl", -- Vehicle model should have this tag for vehicle system to recognize it as a vehicle
 	DismountPartName = "DismountPart", -- on exit, player will be teleported to that part, it should be direct child of the vehicle model

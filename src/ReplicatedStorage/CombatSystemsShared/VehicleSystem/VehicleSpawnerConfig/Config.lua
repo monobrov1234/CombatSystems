@@ -10,7 +10,9 @@ return {
 	PositionOffset = Vector3.new(5, 0, 0), -- custom position offset from spawner local space
 	RotationOffset = Vector3.new(0, -90, 0), -- custom rotation offset from spawner local space
 
-	ForceDestroyObstruction = false, -- if true, will force destroy any vehicles in the spawner's way to spawn a new vehicle
+	ForceDestroyObstruction = false, -- if true, will force destroy any vehicles in the spawner's way to spawn new vehicle
 	-- if false - only vehicles that doesn't have a player driving them will be destroyed
-	GroupWhitelist = nil :: { number }, -- only players within those groups will be allowed to use the spawner, nil = disable
+
+	GroupWhitelist = (nil :: any) :: { number }, -- only players within these groups will be allowed to use the spawner, nil = disable
+	TeamWhitelist = (nil :: any) :: { string } -- only players within these team names will be allowed to use the spawner, nil = disable 
 }

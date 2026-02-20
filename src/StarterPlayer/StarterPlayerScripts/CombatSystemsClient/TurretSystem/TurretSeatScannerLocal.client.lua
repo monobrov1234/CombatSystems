@@ -8,13 +8,14 @@ local player = Players.LocalPlayer :: Player
 local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPlayer").StarterPlayerScripts)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ProximityPromptService = game:GetService("ProximityPromptService")
-
-local TurretViewController = require(PlayerScripts.CombatSystemsClient.TurretSystem.TurretController.TurretViewController)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
-local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSystemConfig)
+local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.VehicleSystemConfig)
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
+
+-- IMPORTS INTERNAL
+local TurretViewController = require(PlayerScripts.CombatSystemsClient.TurretSystem.TurretController.TurretViewController)
 
 -- ROBLOX OBJECTS
 
@@ -38,10 +39,16 @@ function funcs.handleHumanoidSeated(active: boolean, seat: BasePart)
 		return
 	end
 
-	if not seat then return end
+	if not seat then
+		return
+	end
 	local turretModel = seat.Parent :: Model?
-	if not turretModel or not turretModel:IsA("Model") then return end
-	if not TurretUtil.validateTurret(turretModel) then return end
+	if not turretModel or not turretModel:IsA("Model") then
+		return
+	end
+	if not TurretUtil.validateTurret(turretModel) then
+		return
+	end
 	log:debug("Handling seated event on stationary turret {}", turretModel.Name)
 
 	local customRayFilters: { Instance }?

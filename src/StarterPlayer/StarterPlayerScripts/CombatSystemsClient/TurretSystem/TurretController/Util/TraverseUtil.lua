@@ -8,8 +8,9 @@ module.__index = module
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 
-local DEFAULT_START_SPEED = 8 -- deg/sec
-local DEFAULT_STOP_SPEED = 5 -- deg/sec
+-- FINALS
+local DEFAULT_START_SPEED = 8
+local DEFAULT_STOP_SPEED = 5
 local DIR_EPS = 0.001
 
 local START_HOLD_TIME = 0.06 -- seconds
@@ -18,10 +19,9 @@ local STOP_HOLD_TIME = 0.02 -- seconds
 local DIR_CHANGE_HOLD_TIME = 0.06 -- seconds
 local RESTART_COOLDOWN_TIME = 0.5 -- seconds
 
-local DIR_CHANGE_MIN_TRAVEL = 12 -- degrees in new direction before restart is allowed
-local MIN_TRAVEL_BEFORE_RESTART = 12 -- degrees in current movement before restart is allowed
-
-local START_MIN_TRAVEL = 6 -- degrees in one direction before any sounds can start
+local DIR_CHANGE_MIN_TRAVEL = 12
+local MIN_TRAVEL_BEFORE_RESTART = 12
+local START_MIN_TRAVEL = 6
 
 export type SelfObject = typeof(setmetatable({}, module)) & {
 	-- FINALS
@@ -49,6 +49,7 @@ export type SelfObject = typeof(setmetatable({}, module)) & {
 	startTravel: number,
 }
 
+-- PUBLIC API
 function module.new(
 	turretInfo: TurretUtil.TurretInfo,
 	startSpeed: number?,
@@ -213,6 +214,7 @@ function module:update(deltaTime: number)
 	me.lastYawDeg = yawDeg
 end
 
+-- INTERNAL FUNCTIONS
 function funcs.startMoving(self: SelfObject)
 	self.moving = true
 	self.movingTravel = 0

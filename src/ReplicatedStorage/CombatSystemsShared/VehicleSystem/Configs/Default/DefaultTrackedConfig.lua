@@ -1,11 +1,8 @@
---!strict
 --[[
 	Default config for every tracked vehicle
 ]]
 
-local DefaultConfig = require(game:GetService("ReplicatedStorage").CombatSystemsShared.VehicleSystem.Configs.VehicleConfigs.Default.DefaultConfig)
-
-local config = {
+return {
 	ConfigType = "Tracked",
 
 	PhysicalConfig = { -- vehicle physics and rig config
@@ -40,5 +37,3 @@ local config = {
 		DampingPercent = 10, -- Percent of stiffness to use as damping
 	},
 }
-
-return config :: typeof(config) & typeof(DefaultConfig)

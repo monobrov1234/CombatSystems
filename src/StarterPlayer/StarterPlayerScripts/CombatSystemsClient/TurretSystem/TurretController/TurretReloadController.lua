@@ -10,14 +10,18 @@ local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Mo
 local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
+
+-- IMPORTS INTERNAL
 local TurretSoundController = require(script.Parent.TurretSoundController)
 local TurretStateController = require(script.Parent.TurretStateController)
 local TurretViewController = require(script.Parent.TurretViewController)
 
 -- ROBLOX OBJECTS
+-- C->S
 local reloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.ReloadTurret
 local switchShellsRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchShells
 local switchGunRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchGun
+-- SHARED
 local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateReload
 
 -- FINALS
@@ -41,6 +45,9 @@ end
 function funcs.handleTurretViewCleared()
 	cleaner:disconnectAll()
 	turretInfo = nil
+	turretState = nil
+	reloading = false
+	reloadingCoax = false
 end
 
 function funcs.handleTurretStateChanged(newTurretState: TurretUtil.TurretStateInfo)
@@ -89,15 +96,19 @@ function funcs.reloadTurret(usingMain: boolean)
 
 	if usingMain then
 		reloading = true
-	else reloadingCoax = true end
+	else
+		reloadingCoax = true
+	end
 
 	local reloadDuration: number = funcs.getReloadDuration()
 	module.ReloadStarted:fire(reloadDuration)
 
 	cleaner:add(task.delay(reloadDuration, function()
-		if usingMain then 
-			reloading = false 
-		else reloadingCoax = false end
+		if usingMain then
+			reloading = false
+		else
+			reloadingCoax = false
+		end
 		reloadRemote:FireServer(usingMain)
 	end))
 

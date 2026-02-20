@@ -8,7 +8,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TableInheritUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.TableInheritUtil)
 
 -- ROBLOX OBJECTS
-local configsFolder = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleConfigs
+local configsFolder = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs
 local defaultConfigs = configsFolder.Default
 local defaultConfigScript = defaultConfigs.DefaultConfig
 
