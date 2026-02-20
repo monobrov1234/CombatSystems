@@ -5,7 +5,7 @@ local funcs = {}
 -- IMPORTS
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local VehicleSpawnerConfigPath = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Configs.VehicleSpawnerConfig
+local VehicleSpawnerConfigPath = ReplicatedStorage.CombatSystemsShared.VehicleSystem.VehicleSpawnerConfig
 local VehicleSpawnerConfigTemplate = require(VehicleSpawnerConfigPath.Config)
 
 -- ROBLOX OBJECTS

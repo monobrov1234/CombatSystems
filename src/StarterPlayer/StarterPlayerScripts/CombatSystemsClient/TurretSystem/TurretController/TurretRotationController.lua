@@ -30,26 +30,26 @@ local replicationRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Eve
 local cleaner = ConnectionCleaner.new()
 
 -- STATE
-local activeTurretInfo: TurretUtil.TurretInfo?
-local activeRaycastParams: RaycastParams?
+local turretInfo: TurretUtil.TurretInfo?
+local raycastParams: RaycastParams?
 local rotationUtil: RotationUtil.SelfObject?
 local traverseUtil: TraverseUtil.SelfObject?
+
 local debugRayPart: Part?
 local lastYawRotation = Vector3.new(math.huge, math.huge, math.huge)
 local lastPitchRotation = Vector3.new(math.huge, math.huge, math.huge)
 local timeAccumulator = 0.0
 
 -- INTERNAL FUNCTIONS
-function funcs.handleTurretViewSet(turretInfo: TurretUtil.TurretInfo)
-	local raycastParams: RaycastParams? = TurretStateController.getCurrentRaycastParams()
+function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo)
+	raycastParams = TurretStateController.getCurrentRaycastParams()
 	assert(raycastParams)
 
-	activeTurretInfo = turretInfo
-	activeRaycastParams = raycastParams
-	rotationUtil = RotationUtil.new(turretInfo)
-	local yawBase = turretInfo.YawMotor.Part0
+	turretInfo = newTurretInfo
+	rotationUtil = RotationUtil.new(newTurretInfo)
+	local yawBase = newTurretInfo.YawMotor.Part0
 	traverseUtil = TraverseUtil.new(
-		turretInfo,
+		newTurretInfo,
 		nil,
 		nil,
 		yawBase and yawBase:FindFirstChild("TraverseStart") :: Sound?,
@@ -79,38 +79,32 @@ function funcs.handleTurretViewCleared()
 	end
 
 	rotationUtil = nil
-	activeTurretInfo = nil
-	activeRaycastParams = nil
+	turretInfo = nil
+	raycastParams = nil
 	lastYawRotation = Vector3.new(math.huge, math.huge, math.huge)
 	lastPitchRotation = Vector3.new(math.huge, math.huge, math.huge)
 	timeAccumulator = 0
 end
 
 function funcs.updateTurretRotation(deltaTime: number)
-	if not activeTurretInfo or not activeRaycastParams or not rotationUtil or not traverseUtil then
-		return
-	end
-	if not activeTurretInfo.TurretModel.Parent then
-		return
-	end
+	if not turretInfo or not raycastParams or not rotationUtil or not traverseUtil then return end
+	if not turretInfo.TurretModel.Parent then return end
 
 	local camera = workspace.CurrentCamera
-	if camera then
-		local inset: Vector2 = GuiService:GetGuiInset()
-		local unitRay = camera:ViewportPointToRay(mouse.X, mouse.Y + inset.Y)
-		local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 10000, activeRaycastParams)
-		local hit = result and result.Position or unitRay.Origin + (unitRay.Direction * 10000)
-		rotationUtil:rotateTurret(hit, deltaTime)
-	end
+	local inset: Vector2 = GuiService:GetGuiInset()
+	local unitRay = camera:ViewportPointToRay(mouse.X, mouse.Y + inset.Y)
+	local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 10000, raycastParams)
+	local hit = result and result.Position or unitRay.Origin + (unitRay.Direction * 10000)
+	rotationUtil:rotateTurret(hit, deltaTime)
 
 	traverseUtil:update(deltaTime)
 
 	local resolution = TurretSystemConfig.ReplicationResolution
 	timeAccumulator = timeAccumulator + deltaTime
 	if timeAccumulator >= resolution then
-		local x0, y0, z0 = activeTurretInfo.YawMotor.C0:ToOrientation()
+		local x0, y0, z0 = turretInfo.YawMotor.C0:ToOrientation()
 		local yawRotation = Vector3.new(x0, y0, z0)
-		local x1, y1, z1 = activeTurretInfo.PitchMotor.C0:ToOrientation()
+		local x1, y1, z1 = turretInfo.PitchMotor.C0:ToOrientation()
 		local pitchRotation = Vector3.new(x1, y1, z1)
 		local sensivity = 0.005
 		if (yawRotation - lastYawRotation).Magnitude > sensivity or (pitchRotation - lastPitchRotation).Magnitude > sensivity then
@@ -122,11 +116,11 @@ function funcs.updateTurretRotation(deltaTime: number)
 	end
 
 	if TurretSystemConfig.Debug then
-		local pitchTarget = activeTurretInfo.PitchMotor.Part1
+		local pitchTarget = turretInfo.PitchMotor.Part1
 		if pitchTarget then
 			local origin = pitchTarget.Position
 			local direction = pitchTarget.CFrame.LookVector * 10000
-			local result = workspace:Raycast(origin, direction, activeRaycastParams)
+			result = workspace:Raycast(origin, direction, raycastParams)
 			local hitPosition = result and result.Position or (origin + direction)
 			funcs.renderDebugRay(origin, hitPosition)
 		end
@@ -134,12 +128,8 @@ function funcs.updateTurretRotation(deltaTime: number)
 end
 
 function funcs.renderDebugRay(origin: Vector3, goal: Vector3)
-	if not debugRayPart then
-		debugRayPart = funcs.createDebugRayPart()
-	end
-	if not debugRayPart then
-		return
-	end
+	if not debugRayPart then debugRayPart = funcs.createDebugRayPart() end
+	assert(debugRayPart)
 
 	local rayDir = goal - origin
 	local distance = rayDir.Magnitude

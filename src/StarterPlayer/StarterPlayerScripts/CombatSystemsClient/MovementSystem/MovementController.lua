@@ -6,7 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
-local Config = require(ReplicatedStorage.CombatSystemsShared.MovementSystem.Configs.MovementSystemConfig)
+local Config = require(ReplicatedStorage.CombatSystemsShared.MovementSystem.MovementSystemConfig)
 local SignalModule = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
 -- ROBLOX OBJECTS

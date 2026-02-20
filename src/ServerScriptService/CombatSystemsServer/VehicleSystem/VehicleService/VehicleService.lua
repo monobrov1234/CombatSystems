@@ -17,9 +17,10 @@ local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.Vehicl
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
 local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupService)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
+local PlayerTeamCheckUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.PlayerTeamCheckUtil)
 
 -- IMPORTS INTERNAL
-local SpawnerService = require(script.Parent.SpawnerService)
+local SpawnerService = require(script.Parent.VehicleSpawnerService)
 local VehicleRigService = require(script.Parent.RigService.VehicleRigService)
 
 -- ROBLOX OBJECTS
@@ -32,54 +33,61 @@ local log: Logger.SelfObject = Logger.new("VehicleService")
 
 -- SpawnerService.DriverPromptTriggered
 function funcs.handleDriverPromptTriggered(player: Player, vehicleInfo: VehicleUtil.VehicleInfo, prompt: ProximityPrompt)
-	funcs.handlePromptGeneric(player, vehicleInfo, prompt, vehicleInfo.DriverSeat, vehicleInfo.VehicleConfig.SeatConfig.DriverGroupWhitelist)
+	if not funcs.checkVehicleAcccesTool(player) then 
+		local seatConfig = vehicleInfo.VehicleConfig.SeatConfig
+		if seatConfig.DriverGroupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, seatConfig.DriverGroupWhitelist) then return end
+		if seatConfig.DriverTeamWhitelist and not PlayerTeamCheckUtil.isInAnyWhitelistedTeam(player, seatConfig.DriverTeamWhitelist) then return end
+	end
+	funcs.handlePromptGeneric(player, vehicleInfo, prompt, vehicleInfo.DriverSeat)
 end
 
 -- SpawnerService.PassengerPromptTriggered
 function funcs.handlePassengerPromptTriggered(player: Player, vehicleInfo: VehicleUtil.VehicleInfo, prompt: ProximityPrompt, seat: Seat)
-	funcs.handlePromptGeneric(player, vehicleInfo, prompt, seat, vehicleInfo.VehicleConfig.SeatConfig.PassengerGroupWhitelist)
+	if not funcs.checkVehicleAcccesTool(player) then 
+		local seatConfig = vehicleInfo.VehicleConfig.SeatConfig
+		if seatConfig.PassengerGroupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, seatConfig.PassengerGroupWhitelist) then return end
+		if seatConfig.PassengerTeamWhitelist and not PlayerTeamCheckUtil.isInAnyWhitelistedTeam(player, seatConfig.PassengerTeamWhitelist) then return end
+	end
+	funcs.handlePromptGeneric(player, vehicleInfo, prompt, seat)
 end
 
-function funcs.handlePromptGeneric(
-	player: Player,
-	vehicleInfo: VehicleUtil.VehicleInfo,
-	prompt: ProximityPrompt,
-	seat: Seat | VehicleSeat,
-	groupWhitelist: { number }?
-)
-	local character = player.Character :: Model
+function funcs.checkVehicleAcccesTool(player: Player) 
+	local character: Model? = player.Character
+	assert(character)
 	local vehicleAccessTool: Tool? = character:FindFirstChildOfClass("Tool")
-	if not vehicleAccessTool or not vehicleAccessTool:HasTag(VehicleSystemConfig.VehicleAccessToolTag) then
-		if groupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, groupWhitelist) then return end
+	return vehicleAccessTool and vehicleAccessTool:HasTag(VehicleSystemConfig.VehicleAccessToolTag)
+end
+
+function funcs.handlePromptGeneric(player: Player, vehicleInfo: VehicleUtil.VehicleInfo, prompt: ProximityPrompt, seat: Seat | VehicleSeat)
+	local character: Model? = player.Character
+	assert(character)
+	if not funcs.trySitPlayer(player, seat) then return end
+
+	prompt.Enabled = false
+	local humanoid = character:FindFirstChild("Humanoid") :: Humanoid
+
+	local cleaner = ConnectionCleaner.new()
+	local cleaned = false
+	local function resetPrompt()
+		if cleaned then return end
+		cleaned = true
+		prompt.Enabled = true
+		cleaner:disconnectAll()
+		funcs.handleDismount(player, vehicleInfo, seat)
 	end
 
-	if funcs.trySitPlayer(player, seat) then
-		prompt.Enabled = false
-		local humanoid = character:FindFirstChild("Humanoid") :: Humanoid
-
-		local cleaner = ConnectionCleaner.new()
-		local cleaned = false
-		local function resetPrompt()
-			if cleaned then return end
-			cleaned = true
-			prompt.Enabled = true
-			cleaner:disconnectAll()
-			funcs.handleDismount(player, vehicleInfo, seat)
-		end
-
-		-- recheck memory leaks
-		-- will re-enable the prompt if the player leaves his seat, guaranteed
-		cleaner:add(humanoid.Seated:Connect(function(active: boolean)
-			if not active then resetPrompt() end
-		end)) -- humanoid left the seat
-		cleaner:add(player.CharacterRemoving:Connect(function()
-			resetPrompt()
-		end)) -- character died
-		cleaner:add(Players.PlayerRemoving:Connect(function(playerRemoving: Player)
-			if playerRemoving == player then resetPrompt() end
-		end)) -- player left
-		funcs.handlePlayerSeated(player, vehicleInfo, seat)
-	end
+	-- recheck memory leaks
+	-- will re-enable the prompt if the player leaves his seat, guaranteed
+	cleaner:add(humanoid.Seated:Connect(function(active: boolean)
+		if not active then resetPrompt() end
+	end)) -- humanoid left the seat
+	cleaner:add(player.CharacterRemoving:Connect(function()
+		resetPrompt()
+	end)) -- character died
+	cleaner:add(Players.PlayerRemoving:Connect(function(playerRemoving: Player)
+		if playerRemoving == player then resetPrompt() end
+	end)) -- player left
+	funcs.handlePlayerSeated(player, vehicleInfo, seat)
 end
 
 function funcs.handlePlayerSeated(player: Player, vehicleInfo: VehicleUtil.VehicleInfo, seat: Seat | VehicleSeat)

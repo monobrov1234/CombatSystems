@@ -16,9 +16,11 @@ return {
 		DriverPromptDistance = 20, -- proximity prompt activation distance
 		PassengerPromptHoldDuration = 0.5,
 		PassengerPromptDistance = 15,
-		-- those below are group id lists
-		DriverGroupWhitelist = nil :: { number }?, -- player will be required to be in those groups to drive the vehicle
-		PassengerGroupWhitelist = nil :: { number }?, -- player will be required to be in those groups to enter the vehicle as passenger
+
+		DriverGroupWhitelist = nil :: { number }?, -- driver will be required to be in any of these groups to drive the vehicle
+		DriverTeamWhitelist = nil :: { string }?, -- driver will be required to be in any of these teams to drive the vehicle
+		PassengerGroupWhitelist = nil :: { number }?, -- passenger will be required to be in any of these groups to enter the vehicle
+		PassengerTeamWhitelist = nil :: { string }?, -- passenger will be required to be in any of these teams to enter the vehicle
 	},
 
 	DecorConfig = {

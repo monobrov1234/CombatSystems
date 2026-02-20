@@ -37,6 +37,15 @@ local reloadingCoax = false
 module.ReloadStarted = Signal.new() -- (duration: number)
 module.GunSwitched = Signal.new() -- (isMain: boolean)
 
+-- PUBLIC API
+function module.isReloading()
+	return reloading
+end
+
+function module.isReloadingCoax()
+	return reloadingCoax
+end
+
 -- INTERNAL FUNCTIONS
 function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo)
 	turretInfo = newTurretInfo

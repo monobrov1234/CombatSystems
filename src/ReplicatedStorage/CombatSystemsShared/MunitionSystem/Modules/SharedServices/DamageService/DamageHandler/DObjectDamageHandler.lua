@@ -43,7 +43,7 @@ function handler.calculateDirectDamage(ray: MunitionRayInfo.Common, hit: Munitio
 	local dObject: DestructibleObject.SelfObject? = DestructibleObject.fromInstanceChild(hit.Hit)
 	if not dObject then return nil end
 	
-	local totalDamage: number = DObjectService.getDamageForPart(config, dObject.object :: BasePart)
+	local totalDamage: number = DObjectService.getDamageForPart(config, hit.Hit)
 	if config.EnableDropoff then
 		totalDamage = DropoffUtil.calculateDropoff(
 			totalDamage,

@@ -13,6 +13,6 @@ return {
 	ForceDestroyObstruction = false, -- if true, will force destroy any vehicles in the spawner's way to spawn new vehicle
 	-- if false - only vehicles that doesn't have a player driving them will be destroyed
 
-	GroupWhitelist = (nil :: any) :: { number }, -- only players within these groups will be allowed to use the spawner, nil = disable
-	TeamWhitelist = (nil :: any) :: { string } -- only players within these team names will be allowed to use the spawner, nil = disable 
+	GroupWhitelist = nil :: { number }?, -- only players within these groups will be allowed to use the spawner, nil = disable
+	TeamWhitelist = nil :: { string }? -- only players within these team names will be allowed to use the spawner, nil = disable 
 }

@@ -91,9 +91,10 @@ function funcs.stopAutoFire()
 end
 
 function funcs.fireTurret()
-	local raycastParams: RaycastParams? = TurretStateController.getCurrentRaycastParams()
-	if not turretInfo or not turretState or not raycastParams then return end
+	if not turretInfo or not turretState then return end
 	if TurretStateController.getCurrentClipSize() <= 0 then return end
+	if turretState.UsingMainGun and TurretReloadController.isReloading() then return end
+	if not turretState.UsingMainGun and TurretReloadController.isReloadingCoax() then return end
 
 	local firerateRPM: number? = TurretStateController.getFirerateRPM()
 	assert(firerateRPM)
@@ -106,6 +107,8 @@ function funcs.fireTurret()
 		or turretInfo.TurretConfig.GunConfig.CoaxConfig.SpreadConfig
 	local direction = (turretInfo.PitchMotor.Part1 :: BasePart).CFrame.LookVector
 
+	local raycastParams: RaycastParams? = TurretStateController.getCurrentRaycastParams()
+	assert(raycastParams)
 	local selectedMunition: string? = TurretStateController.getCurrentSelectedMunition()
 	assert(selectedMunition)
 	MunitionController.fireMunition({

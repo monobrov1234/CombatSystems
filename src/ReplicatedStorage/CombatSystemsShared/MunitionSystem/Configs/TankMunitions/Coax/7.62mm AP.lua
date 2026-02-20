@@ -1,6 +1,6 @@
 return {
 	-- DAMAGE
-	HumanoidDamage = 7, -- Damage to humanoids
+	HumanoidDamage = 10, -- Damage to humanoids
 
 	-- VISUALS
 	FXConfig = {
