@@ -29,13 +29,14 @@ return {
 	CanSuppress = true,
 
 	MaxDistance = 3000,
+	
 	EnableDropoff = true,
 	DropoffConfig = {
 		DropoffStartDistance = 60,
 		DropoffEndDistance = 1200,
 	},
 
-	EnableBallistics = true,
+	EnableBallistics = false,
 	BallisticConfig = {
 		Speed = 4000,
 		Gravity = Vector3.new(0, -workspace.Gravity, 0),

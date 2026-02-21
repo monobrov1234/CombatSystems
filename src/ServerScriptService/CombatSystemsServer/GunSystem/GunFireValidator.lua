@@ -1,5 +1,6 @@
 --!strict
 
+local module = {}
 local funcs = {}
 
 -- IMPORTS
@@ -38,3 +39,5 @@ function funcs.validateGunFire(ray: RayTypeService.RayInfoNonValid): RaycastPara
 end
 
 MunitionService.registerFireValidator(funcs.validateGunFire)
+
+return module

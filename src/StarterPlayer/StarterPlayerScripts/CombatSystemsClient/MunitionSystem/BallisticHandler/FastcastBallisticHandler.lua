@@ -14,6 +14,7 @@ local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.Munitio
 local MunitionRayInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayInfo)
 local FastCastRedux = require(ReplicatedStorage.CombatSystemsShared.Libs.FastCastRedux)
 local FastCastReduxTypes = require(ReplicatedStorage.CombatSystemsShared.Libs.FastCastRedux.TypeDefinitions)
+local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.MunitionSystemConfig)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionController)
 
 -- ROBLOX OBJECTS
@@ -113,6 +114,7 @@ function funcs.newBehavior(rayInfo: MunitionController.RayInfo): FastCastReduxTy
 	castBehavior.Acceleration = config.BallisticConfig.Gravity
 	castBehavior.HighFidelitySegmentSize = config.BallisticConfig.HighFidelitySegmentSize
 	castBehavior.RaycastParams = rayInfo.RaycastParams
+	castBehavior.CosmeticBulletContainer = MunitionSystemConfig.ProjectileFolder
 	return castBehavior
 end
 
