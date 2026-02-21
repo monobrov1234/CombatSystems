@@ -1,88 +1,135 @@
---!strict
-
 export type FXHandlerType = {
 	HandlerModuleName: string,
 	HandlerConfig: {},
 }
 
 return {
-	MunitionName = "", -- will be internally set, dont change
+	-- Name of this munition type. Automatically set by the system. Do not change manually.
+	MunitionName = "",
 
-	-- DAMAGE
-	HumanoidDamage = 0, -- Damage to humanoids
+	-- Base damage dealt to Humanoids on direct hit
+	HumanoidDamage = 0,
+	-- Damage multiplier applied when hitting the head
 	HeadshotMultiplier = 1.5,
-	CanDamageSelf = false, -- can this munition damage its shooter in any way
-	CanDamageFriendly = false, -- can this munition deal damage to friendly players/vehicles
+	-- Whether this munition can damage its own shooter (only on explosion)
+	CanDamageSelf = false,
+	-- Whether this munition can damage friendly players or vehicles
+	CanDamageFriendly = false,
 
-	-- VISUALS
 	FXConfig = {
-		-- see CombatSystemsClient.MunitionController.FXHandler folder in StarterPlayerScripts for available names and configs
-		ShootFXHandler = nil :: FXHandlerType?, -- will handle shoot fx like muzzle flash
-		TrailFXHandler = nil :: FXHandlerType?, -- will handle how bullet trail will behave
-		ImpactFXHandler = nil :: FXHandlerType?, -- will handle impact effect on bullet hit
+		-- Controls firing effects (muzzle flash, smoke, shell ejection etc.)
+		ShootFXHandler = nil :: FXHandlerType?,
+		-- Controls projectile trail visuals
+		TrailFXHandler = nil :: FXHandlerType?,
+		-- Controls impact effects (sparks, decals, particles etc.)
+		ImpactFXHandler = nil :: FXHandlerType?,
 	},
 
-	ObjectDamageConfig = { -- How much damage this munition does to destructible objects that also can have armor
-		["NoArmor"] = 0, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
-		["BulletProofArmor"] = 0, -- Protected from standard caliber bullets - typical vehicle armor
-		["LightArmor"] = 0, -- Protected from high caliber bullets, explosions, HE shells - typical armored car armor (also tanks rear can have light armor)
-		["MediumArmor"] = 0, -- Protected from small caliber AP shells (typically armored cars use those) - typical tank armor
+	-- Damage dealt to destructible objects based on armor type (direct hit)
+	ObjectDamageConfig = {
+		-- Unarmored objects and light cover
+		["NoArmor"] = 0,
+		-- Bulletproof glass and light vehicle protection
+		["BulletProofArmor"] = 0,
+		-- Light armored vehicles and tank rear/turret ring
+		["LightArmor"] = 0,
+		-- Standard tank armor
+		["MediumArmor"] = 0,
+		-- Reinforced medium armor
 		["MediumHeavyArmor"] = 0,
-		["HeavyArmor"] = 0, -- Protected from standard caliber AP shells - typical tank armor infront
-		["SuperHeavyArmor"] = 0, -- Protected from everything except powerful shells (direct hit from artillery, battleship main guns) - typical armor for buildings
+		-- Heavy tank frontal armor
+		["HeavyArmor"] = 0,
+		-- Fortifications and extremely heavy armor
+		["SuperHeavyArmor"] = 0,
 	},
 
+	-- Explosion configuration for HE shells, rockets, grenades etc.
 	ExplosionConfig = {
-		CanExplode = false, -- Does this munition explode on impact?
-		HumanoidDamage = 0, -- Damage to humanoids
-		Radius = 0, -- Radius of explosion
-		DropoffStartRadius = 0, -- Radius where damage will start to drop off, anything within this radius will receive 100% damage
+		-- Whether the munition explodes on impact
+		CanExplode = false,
+		-- Explosion damage dealt to Humanoids
+		HumanoidDamage = 0,
+		-- Maximum explosion radius in studs
+		Radius = 0,
+		-- Radius in which targets receive 100% explosion damage
+		DropoffStartRadius = 0,
 
-		ObjectDamageConfig = { -- How much damage this explosion does to destructible objects that also can have armor
-			["NoArmor"] = 0, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
-			["BulletProofArmor"] = 0, -- Protected from standard caliber bullets - typical vehicle armor
-			["LightArmor"] = 0, -- Protected from high caliber bullets, explosions, HE shells - typical armored car armor (also tanks rear can have light armor)
-			["MediumArmor"] = 0, -- Protected from small caliber AP shells (typically armored cars use those) - typical tank armor
+		-- Explosion damage to destructible objects based on armor type
+		ObjectDamageConfig = {
+			-- Unarmored objects and light cover
+			["NoArmor"] = 0,
+			-- Bulletproof glass and light vehicle protection
+			["BulletProofArmor"] = 0,
+			-- Light armored vehicles and tank rear/turret ring
+			["LightArmor"] = 0,
+			-- Standard tank armor
+			["MediumArmor"] = 0,
+			-- Reinforced medium armor
 			["MediumHeavyArmor"] = 0,
-			["HeavyArmor"] = 0, -- Protected from standard caliber AP shells - typical tank armor infront
-			["SuperHeavyArmor"] = 0, -- Protected from everything except powerful shells (direct hit from artillery, battleship main guns) - typical armor for buildings
+			-- Heavy tank frontal armor
+			["HeavyArmor"] = 0,
+			-- Fortifications and extremely heavy armor
+			["SuperHeavyArmor"] = 0,
 		},
 	},
 
+	-- Whether this munition applies suppression effects to nearby players
 	CanSuppress = true,
+	-- Whether a direct impact also triggers suppression
 	CanSuppressImpact = false,
+
 	SuppressionConfig = {
+		-- Enables tense screen overlay effect when suppressed
 		EnableTense = true,
 		TenseConfig = {
+			-- Duration (seconds) the tense effect stays at full intensity
 			StayTime = 0,
+			-- Intensity of the tense overlay
 			TransparencyMultiplier = 1,
+			-- Fade-out speed multiplier for tense effect
 			FadeOutTimeMultiplier = 1,
 		},
 
+		-- Enables camera shake from the munition
 		EnableCameraShake = false,
 		TrailCameraShakeConfig = {
+			-- Strength multiplier of the camera shake
 			MagnitudeMult = 2.5,
+			-- Roughness / jitter of the shake
 			Roughness = 4,
+			-- Time to reach full shake intensity (seconds)
 			FadeInTime = 0.1,
+			-- Time to fade out the shake (seconds)
 			FadeOutTime = 0.2,
+			-- Influence on camera position
 			PosInfluence = Vector3.new(0.15, 0.15, 0.15),
+			-- Influence on camera rotation
 			RotInfluence = Vector3.new(1, 1, 1),
 		},
+		-- Camera shake config for direct impacts (nil = use TrailCameraShakeConfig)
 		ImpactCameraShakeConfig = nil :: {}?,
 	},
 
-	-- BALLISTICS
-	MaxDistance = 1500, -- Max distance this munition can travel in studs
+	-- Maximum travel distance in studs before despawn
+	MaxDistance = 1500,
+
+	-- Enables damage reduction with increasing distance
 	EnableDropoff = false,
 	DropoffConfig = {
+		-- Distance where damage dropoff begins (studs)
 		DropoffStartDistance = 100,
+		-- Distance where damage reaches minimum (studs)
 		DropoffEndDistance = 300,
 	},
 
-	EnableBallistics = false, -- Should this munition use more advanced physics (TODO: maybe move all the physics entirely to fastcast)
-	BallisticConfig = { -- Ballistic physics config
-		Speed = 700, -- Projectile speed studs per second
-		Gravity = Vector3.new(0, -workspace.Gravity, 0), -- Projectile gravity
-		HighFidelitySegmentSize = 0.5, -- Resolution of the projectile ballistic tracing
+	-- Enables realistic ballistic simulation (gravity, trajectory arc)
+	EnableBallistics = false,
+	BallisticConfig = {
+		-- Initial projectile speed in studs per second
+		Speed = 700,
+		-- Gravity vector applied to the projectile
+		Gravity = Vector3.new(0, -workspace.Gravity, 0),
+		-- Segment size for precise ballistic trajectory (smaller = more accurate)
+		HighFidelitySegmentSize = 0.5,
 	},
 }

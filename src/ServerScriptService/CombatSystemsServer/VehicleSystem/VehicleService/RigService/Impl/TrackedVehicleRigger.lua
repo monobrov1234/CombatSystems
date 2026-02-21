@@ -14,8 +14,8 @@ local VehicleRigUtil = require(script.Parent.Parent.VehicleRigUtil)
 local VehicleRigService = require(script.Parent.Parent.VehicleRigService)
 
 -- INTERNAL FUNCTIONS
-function funcs.handleTypeRigRequested(vehicle: Model, vehicleConfig: VehicleConfigUtil.DefaultType, chassis: BasePart, totalMass: number): boolean
-	if vehicleConfig.ConfigType ~= "Tracked" then return false end
+function funcs.handleTypeRigRequested(vehicle: Model, vehicleConfig: VehicleConfigUtil.DefaultType, chassis: BasePart, totalMass: number)
+	if vehicleConfig.ConfigType ~= "Tracked" then return end
 
 	local tracks = vehicle:FindFirstChild("Tracks")
 	assert(tracks, "Tracks model not found")
@@ -30,8 +30,6 @@ function funcs.handleTypeRigRequested(vehicle: Model, vehicleConfig: VehicleConf
 	for _, wheel in ipairs(wheels) do
 		VehicleRigUtil.constraintWheel(vehicleConfig, chassis, totalMass, #wheels, wheel)
 	end
-
-	return true
 end
 
 -- SUBSCRIPTIONS

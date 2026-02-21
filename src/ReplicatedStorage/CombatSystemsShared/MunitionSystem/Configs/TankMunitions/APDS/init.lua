@@ -1,8 +1,6 @@
 return {
-	-- DAMAGE
-	HumanoidDamage = 150, -- Damage to humanoids
+	HumanoidDamage = 150,
 
-	-- VISUALS
 	FXConfig = {
 		ShootFXHandler = {
 			HandlerModuleName = "FlashShootFXHandler",
@@ -16,11 +14,10 @@ return {
 		ImpactFXHandler = {
 			HandlerModuleName = "APDSImpactFXHandler",
 			HandlerConfig = {}
-		}, -- custom handler
+		},
 	},
 
-	-- TODO
-	ObjectDamageConfig = { -- How much damage this munition does to destructible objects that also can have armor
+	ObjectDamageConfig = {
 		["NoArmor"] = 150,
 		["BulletProofArmor"] = 150,
 		["LightArmor"] = 50,
@@ -51,10 +48,9 @@ return {
 		},
 	},
 
-	-- BALLISTICS
-	EnableBallistics = true, -- Should this munition use simple raycast or more advanced physics?
+	EnableBallistics = true,
 	BallisticConfig = {
-		Speed = 750, -- Projectile speed studs per second
-		HighFidelitySegmentSize = 0.25, -- higher resolution because this munition fires not often
+		Speed = 750,
+		HighFidelitySegmentSize = 0.25,
 	},
 }

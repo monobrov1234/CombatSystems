@@ -1,8 +1,6 @@
 return {
-	-- DAMAGE
-	HumanoidDamage = 0.5, -- Damage to humanoids
+	HumanoidDamage = 0.5,
 
-	-- VISUALS
 	FXConfig = {
 		ShootFXHandler = {
 			HandlerModuleName = "FlashShootFXHandler",
@@ -30,7 +28,7 @@ return {
 		},
 
 		EnableCameraShake = true,
-		TrailCameraShakeConfig = { -- a little camera shake, will not affect your ability to aim much but will be more immersive
+		TrailCameraShakeConfig = {
 			MagnitudeMult = 1,
 			Roughness = 3,
 			FadeInTime = 0.1,
@@ -40,8 +38,8 @@ return {
 		},
 	},
 
-	ObjectDamageConfig = { -- How much damage this munition does to destructible objects that also can have armor
-		["NoArmor"] = 0.2, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
-		["BulletProofArmor"] = 0.05, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
+	ObjectDamageConfig = {
+		["NoArmor"] = 0.2,
+		["BulletProofArmor"] = 0.05,
 	},
 }

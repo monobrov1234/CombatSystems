@@ -1,5 +1,5 @@
 return {
-	DropIndicatorType = "Manual", -- Automatic, Manual, None; will enable second cursor that will determine bullet drop
+	DropIndicatorType = "Manual",
 
 	DecorConfig = {
 		SoundsConfig = {
@@ -9,11 +9,11 @@ return {
 		},
 	},
 
-	GunConfig = { -- gun specs
-		FirerateRPM = 45, -- To calculate how much delay will be between shots, rounds per minute
-		ClipSize = 1, -- How much rounds turret can shoot before reloading
-		ReloadDuration = 5.5, -- How much time it takes to reload the turret in seconds
-		AmmoTypes = { -- How much rounds of each type are stored in main gun
+	GunConfig = {
+		FirerateRPM = 45,
+		ClipSize = 1,
+		ReloadDuration = 5.5,
+		AmmoTypes = {
 			{ name = "APDS", stored = 50 },
 			{ name = "HE", stored = 30 },
 		},
@@ -30,7 +30,7 @@ return {
 			LerpTime = 0.2,
 		},
 
-		EnableCoax = true, -- Coaxial machine gun
+		EnableCoax = true,
 		CoaxConfig = require(script.Parent.Coax["Tank 7.62mm"]),
 	},
 

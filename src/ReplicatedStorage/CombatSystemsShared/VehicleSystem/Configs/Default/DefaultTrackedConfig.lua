@@ -5,35 +5,37 @@
 return {
 	ConfigType = "Tracked",
 
-	PhysicalConfig = { -- vehicle physics and rig config
-		Mass = 40, -- This value will be multiplied by 1000 to calculate total mass
+	PhysicalConfig = {
+		Mass = 40,
 	},
 
-	MovementConfig = { -- Vehicle engine and movement config
-		MaxSpeed = 20, -- Max speed of vehicle
-		Acceleration = 0.45, -- How fast vehicle will reach max speed
-		Braking = 1, -- How fast vehicle will decelerate
-		TorqueMultiplier = 250, -- Mass will be multiplied by this value to calculate torque
+	MovementConfig = {
+		MaxSpeed = 20,
+		Acceleration = 0.45,
+		Braking = 1,
+		TorqueMultiplier = 250,
 	},
 
-	MovementConfigTracked = { -- Special for tracked vehicles
-		TurnRate = 4, -- Turn speed, closer to 1 = faster
+	-- Tracked vehicle type special
+	MovementConfigTracked = {
+		-- Turn speed, closer to 1 = faster
+		TurnRate = 4, 
 	},
 
-	WheelConfig = { -- Vehicle wheel physics
-		PhysicalProperties = PhysicalProperties.new( -- Wheel physical properties
-			20, -- Density, higher = heavier wheels
-			1, -- Friction, max is 2
-			1, -- Elasticity, higher = more bounce, but can conflict with suspension
-			50, -- Friction weight, max is 100
-			50 -- ElasticityWeight
+	WheelConfig = {
+		PhysicalProperties = PhysicalProperties.new(
+			20,
+			1,
+			1,
+			50,
+			50
 		),
 	},
 
-	SuspensionConfig = { -- SpringConstraints configuration
-		FreeLength = 3.05, -- Resting length of spring
-		LowerLimit = 0.5, -- Final limit is calculated using FreeLength + LowerLimit
-		StiffnessMultiplier = 90, -- Mass will be multiplied by this value to calculate stiffness
-		DampingPercent = 10, -- Percent of stiffness to use as damping
+	SuspensionConfig = {
+		FreeLength = 3.05,
+		LowerLimit = 0.5,
+		StiffnessMultiplier = 90,
+		DampingPercent = 10,
 	},
 }

@@ -3,31 +3,25 @@ return {
 	Description = "Utility Vehicle",
 	MaxHealth = 20,
 
-	PhysicalConfig = { -- vehicle physics and rig config
-		Mass = 10, -- This value will be multiplied by 1000 to calculate total mass
+	PhysicalConfig = {
+		Mass = 10,
 	},
 
-	MovementConfig = { -- Vehicle engine and movement config
-		MaxSpeed = 50, -- Max speed of vehicle
-		Acceleration = 0.15, -- How fast vehicle will reach max speed
-		Braking = 0.5, -- How fast vehicle will decelerate
-		TorqueMultiplier = 130, -- Mass will be multiplied by this value to calculate torque
+	MovementConfig = {
+		MaxSpeed = 50,
+		Acceleration = 0.15,
+		Braking = 0.5,
+		TorqueMultiplier = 130,
 	},
 
-	WheelConfig = { -- Vehicle wheel physics
-		PhysicalProperties = PhysicalProperties.new( -- Wheel physical properties
-			7, -- Density, higher = heavier wheels
-			1, -- Friction, max is 2
-			1, -- Elasticity, higher = more bounce, but can conflict with suspension
-			50, -- Friction weight, max is 100
-			0 -- ElasticityWeight
-		),
+	WheelConfig = {
+		PhysicalProperties = PhysicalProperties.new(7, 1, 1, 50, 0),
 	},
 
-	SuspensionConfig = { -- SpringConstraints configuration
-		FreeLength = 2, -- Resting length of spring
-		LowerLimit = 0.1, -- Final limit is calculated using FreeLength + LowerLimit
-		StiffnessMultiplier = 160, -- Mass will be multiplied by this value to calculate stiffness 280
-		DampingPercent = 10, -- Percent of stiffness to use as damping
+	SuspensionConfig = {
+		FreeLength = 2,
+		LowerLimit = 0.1,
+		StiffnessMultiplier = 160,
+		DampingPercent = 10,
 	},
 }

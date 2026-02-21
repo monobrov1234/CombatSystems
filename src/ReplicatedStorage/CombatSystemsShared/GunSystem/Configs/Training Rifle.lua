@@ -1,5 +1,5 @@
 return {
-	Description = "Non-Lethal Training Rifle",
+	Description = "Training Rifle",
 
 	DecorConfig = {
 		AnimationsFolder = script.Animations,
@@ -14,7 +14,7 @@ return {
 		ReloadDuration = 3,
 		MagSize = 30,
 		AmmoSize = 10000,
-		AmmoType = "NonLethal",
+		AmmoType = "Training Round",
 
 		SpreadConfig = {
 			Yaw = 0.55,

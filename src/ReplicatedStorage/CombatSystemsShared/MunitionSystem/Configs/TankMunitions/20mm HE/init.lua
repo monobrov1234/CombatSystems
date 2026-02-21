@@ -1,8 +1,6 @@
 return {
-	-- DAMAGE
-	HumanoidDamage = 80, -- Damage to humanoids
+	HumanoidDamage = 80,
 
-	-- VISUALS
 	FXConfig = {
 		ShootFXHandler = {
 			HandlerModuleName = "FlashShootFXHandler",
@@ -16,23 +14,23 @@ return {
 		ImpactFXHandler = {
 			HandlerModuleName = "HEImpactFXHandler",
 			HandlerConfig = {}
-		}, -- custom handler
+		},
 	},
 
-	ObjectDamageConfig = { -- How much damage this munition does to destructible objects that also can have armor
-		["NoArmor"] = 50, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
-		["BulletProofArmor"] = 10, -- Protected from standard caliber bullets - typical vehicle armor
+	ObjectDamageConfig = {
+		["NoArmor"] = 50,
+		["BulletProofArmor"] = 10,
 	},
 
 	ExplosionConfig = {
-		CanExplode = true, -- Does this munition explode on impact?
-		HumanoidDamage = 80, -- Damage to humanoids
-		Radius = 12, -- Radius of explosion
-		DropoffStartRadius = 2, -- Radius where damage will start to drop off, anything within this radius will receive 100% damage
+		CanExplode = true,
+		HumanoidDamage = 80,
+		Radius = 12,
+		DropoffStartRadius = 2,
 
-		ObjectDamageConfig = { -- How much damage this explosion does to destructible objects that also can have armor
-			["NoArmor"] = 20, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
-			["BulletProofArmor"] = 10, -- Protected from standard caliber bullets - typical vehicle armor
+		ObjectDamageConfig = {
+			["NoArmor"] = 20,
+			["BulletProofArmor"] = 10,
 		},
 	},
 
@@ -58,16 +56,15 @@ return {
 		},
 	},
 
-	-- BALLISTICS
-	MaxDistance = 1500, -- Max distance this munition can travel in studs
+	MaxDistance = 1500,
 	EnableDropoff = true,
 	DropoffConfig = {
 		DropoffStartDistance = 100,
 		DropoffEndDistance = 300,
 	},
 
-	EnableBallistics = true, -- Should this munition use simple raycast or more advanced physics?
+	EnableBallistics = true,
 	BallisticConfig = {
-		Speed = 1300, -- Projectile speed studs per second
+		Speed = 1300,
 	},
 }

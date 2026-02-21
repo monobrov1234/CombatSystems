@@ -1,65 +1,100 @@
 --[[
-	Default config for every vehicle type
+	Default configuration for every vehicle type
 ]]
 
 return {
-	ConfigType = "" :: string, -- set internally, changing this wont do anything
+	-- Internal config identifier. Automatically set by the system. Do not change.
+	ConfigType = "" :: string,
 
-	MaxHealth = 20, -- vehicle max health TODO
-	Description = "Generic vehicle", -- for gui
-	ProtectedDriver = false, -- if true, driver will be in god mode as long as he's sitting in the vehicle
-	ProtectedPassenger = false, -- if true, passenger will be in god mode as long as he's sitting in the vehicle
-	HasDriverTurret = false, -- if vehicle have turret that can be controlled by driver - set it to true
+	-- Maximum health of the vehicle
+	MaxHealth = 20,
+	-- Short description shown in the vehicle HUD
+	Description = "Generic vehicle",
+	-- Makes the driver invulnerable while seated in the vehicle
+	ProtectedDriver = false,
+	-- Makes passengers invulnerable while seated in the vehicle
+	ProtectedPassenger = false,
+
+	-- Set to true if the vehicle has a turret without any seats, and you want the driver to control it
+	-- Will error if the turret cannot be found
+	HasDriverTurret = false,
 
 	SeatConfig = {
-		DriverPromptHoldDuration = 0.5, -- proximity prompt hold duration
-		DriverPromptDistance = 20, -- proximity prompt activation distance
+		-- Hold time (seconds) required to enter the driver seat via ProximityPrompt
+		DriverPromptHoldDuration = 0.5,
+		-- Maximum distance (studs) at which the driver prompt appears
+		DriverPromptDistance = 20,
+
+		-- Hold time (seconds) required to enter as passenger
 		PassengerPromptHoldDuration = 0.5,
+		-- Maximum distance (studs) at which the passenger prompt appears
 		PassengerPromptDistance = 15,
 
-		DriverGroupWhitelist = nil :: { number }?, -- driver will be required to be in any of these groups to drive the vehicle
-		DriverTeamWhitelist = nil :: { string }?, -- driver will be required to be in any of these teams to drive the vehicle
-		PassengerGroupWhitelist = nil :: { number }?, -- passenger will be required to be in any of these groups to enter the vehicle
-		PassengerTeamWhitelist = nil :: { string }?, -- passenger will be required to be in any of these teams to enter the vehicle
+		-- Player must be in at least one of these groups to drive (nil = no restriction)
+		DriverGroupWhitelist = nil :: { number }?,
+		-- Player must be in one of these teams to drive (nil = no restriction)
+		DriverTeamWhitelist = nil :: { string }?,
+
+		-- Player must be in at least one of these groups to ride as passenger
+		PassengerGroupWhitelist = nil :: { number }?,
+		-- Player must be in one of these teams to ride as passenger
+		PassengerTeamWhitelist = nil :: { string }?,
 	},
 
 	DecorConfig = {
 		SoundsConfig = {
-			Enter = script.Start :: Sound?, -- will be played when you will enter the vehicle through driver seat proximity prompt
-			Dismount = script.Stop :: Sound?, -- will be player when you will leave the vehicle (if you were driver)
-			EngineIdle = script.Active :: Sound?, -- will be playing continuously until you will leave the vehicle
-			EngineMove = script.Move :: Sound?, -- will be playing when you will press WASD to move the vehicle
+			-- Sound played when entering the driver seat
+			Enter = script.Start :: Sound?,
+			-- Sound played when dismounting from the vehicle
+			Dismount = script.Stop :: Sound?,
+			-- Looping idle engine sound
+			EngineIdle = script.Active :: Sound?,
+			-- Looping sound played while the vehicle is moving
+			EngineMove = script.Move :: Sound?,
 		},
 	},
 
-	PhysicalConfig = { -- vehicle physics and rig config
-		Mass = 1, -- This value will be multiplied by 1000 to calculate total mass
-		DefaultPhysicalProperties = PhysicalProperties.new(0.0001, 1, 0, 1, 0), -- Normally only one part will have mass, this is used to give the rest of the parts some weight to prevent bugs
-		AutoRig = true, -- If true, will auto weld and rig the vehicle, set to false if you want to make custom rig
-		AutoRigTurrets = true, -- If true, will auto rig and weld all turrets in the vehicle when its spawned
+	PhysicalConfig = {
+		-- Mass multiplier. Final vehicle mass = Mass × 1000
+		Mass = 1,
+		-- Physical properties applied to all parts, do not increase density much here
+		DefaultPhysicalProperties = PhysicalProperties.new(0.0001, 1, 0, 1, 0),
+		-- Automatically weld and rig the main vehicle model on spawn
+		AutoRig = true,
+		-- Automatically rig all turrets mounted on the vehicle on spawn
+		AutoRigTurrets = true,
 	},
 
-	MovementConfig = { -- Vehicle engine config
-		MaxSpeed = 40, -- Max speed of vehicle
-		Acceleration = 0.5, -- How fast vehicle will reach max speed
-		Braking = 1, -- How fast vehicle will decelerate
-		TorqueMultiplier = 130, -- Mass will be multiplied by this value to calculate torque
+	MovementConfig = {
+		-- Maximum vehicle speed in studs per second
+		MaxSpeed = 40,
+		-- Acceleration strength (higher = faster)
+		Acceleration = 0.5,
+		-- Braking strength (higher = faster)
+		Braking = 1,
+		-- Torque multiplier (Torque formula = Mass * TorqueMultiplier) TODO: rework
+		TorqueMultiplier = 130,
 	},
 
-	WheelConfig = { -- Vehicle wheel physics
-		PhysicalProperties = PhysicalProperties.new( -- Wheel physical properties
-			2, -- Density, higher = heavier wheels
-			1, -- Friction, max is 2
-			0, -- Elasticity, higher = more bounce, but can conflict with suspension
-			50, -- Friction weight, max is 100
-			0 -- ElasticityWeight
+	WheelConfig = {
+		-- Physical properties for all wheels
+		PhysicalProperties = PhysicalProperties.new(
+			2,   -- Density (0 to 100)
+			1,   -- Friction
+			0,   -- Elasticity
+			50,  -- FrictionWeight
+			0    -- ElasticityWeight
 		),
 	},
 
-	SuspensionConfig = { -- SpringConstraints configuration
-		FreeLength = 1.5, -- Resting length of spring
-		LowerLimit = 1, -- Final limit is calculated using FreeLength + LowerLimit
-		StiffnessMultiplier = 25, -- Mass will be multiplied by this value to calculate stiffness
-		DampingPercent = 5, -- Percent of stiffness to use as damping
+	SuspensionConfig = {
+		-- Natural resting length of the suspension spring (studs)
+		FreeLength = 1.5,
+		-- How much the suspension can extend below FreeLength
+		LowerLimit = 1,
+		-- Suspension stiffness multiplier (Stiffness formula = (Mass / WheelCount) * StiffnessMultiplier)
+		StiffnessMultiplier = 25,
+		-- Damping as a percentage of the stiffness value
+		DampingPercent = 5,
 	},
 }

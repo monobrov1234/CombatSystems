@@ -2,7 +2,7 @@ return {
 	Description = "Default gun",
 
 	DecorConfig = {
-		AnimationsFolder = nil :: Folder,
+		AnimationsFolder = (nil :: any) :: Folder,
 		SoundsConfig = {
 			FireSound = nil :: Sound?,
 			ReloadSound = nil :: Sound?,

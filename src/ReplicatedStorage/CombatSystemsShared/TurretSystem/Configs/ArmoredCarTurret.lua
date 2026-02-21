@@ -1,5 +1,5 @@
 return {
-	DropIndicatorType = "Manual", -- Automatic, Manual, None; will enable second cursor that will determine bullet drop
+	DropIndicatorType = "Manual",
 
 	DecorConfig = {
 		SoundsConfig = {
@@ -9,11 +9,12 @@ return {
 		},
 	},
 
-	GunConfig = { -- gun specs
-		FirerateRPM = 110, -- To calculate how much delay will be between shots, rounds per minute
-		ClipSize = 6, -- How much rounds turret can shoot before reloading
-		ReloadDuration = 5, -- How much time it takes to reload the turret in seconds
-		AmmoTypes = { -- How much rounds of each type are stored in main gun
+	GunConfig = {
+		FirerateRPM = 110,
+		ReloadDuration = 5,
+		ClipSize = 6,
+		
+		AmmoTypes = {
 			{ name = "20mm AP", stored = 100 },
 			{ name = "20mm HE", stored = 100 },
 		},
@@ -30,7 +31,7 @@ return {
 			LerpTime = 0.2,
 		},
 
-		EnableCoax = false, -- Coaxial machine gun
+		EnableCoax = false,
 	},
 
 	LimitsConfig = {

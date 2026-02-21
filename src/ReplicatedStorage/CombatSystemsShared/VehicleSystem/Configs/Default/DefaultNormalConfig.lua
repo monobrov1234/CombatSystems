@@ -5,7 +5,9 @@
 return {
 	ConfigType = "Normal",
 
-	MovementConfigNormal = { -- Normal vehicles special
-		WheelTurnAngle = 30, -- For how much degrees will be wheels rotated when steering vehicle
+	-- Normal vehicle type special
+	MovementConfigNormal = {
+		-- For how much degrees will wheels be rotated when steering the vehicle
+		WheelTurnAngle = 30,
 	},
 }

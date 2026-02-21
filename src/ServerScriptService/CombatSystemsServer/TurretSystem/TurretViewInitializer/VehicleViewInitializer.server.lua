@@ -23,7 +23,7 @@ function funcs.handleHumanoidSeated(player: Player, seat: BasePart)
 	-- find target turret model
 	local turretModel: Model
 	if seat == vehicleInfo.DriverSeat then
-		if not vehicleInfo.VehicleConfig.HasDriverTurret then return end -- player is just driver, no turret
+		if not vehicleInfo.VehicleConfig.HasDriverTurret then return end -- player is just a driver, no turret
 		-- player is operating driver turret
 		-- find driver gunner turret (turret without any seats)
 		local turrets: { Model } = TurretUtil.findDescendantTurrets(vehicleInfo.VehicleModel)

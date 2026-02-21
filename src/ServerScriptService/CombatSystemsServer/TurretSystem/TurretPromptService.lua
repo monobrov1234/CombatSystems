@@ -11,18 +11,19 @@ local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.Playe
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.VehicleSystemConfig)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
+local PlayerTeamCheckUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.PlayerTeamCheckUtil)
 
 -- IMPORTS INTERNAL
 local RigService = require(script.Parent.RigService.TurretRigService)
 
 -- handles prompt interaction
 function funcs.handleSeatPromptTriggered(player: Player, turretInfo: TurretUtil.TurretInfo, prompt: ProximityPrompt)
-	local groupWhitelist: { number }? = turretInfo.TurretConfig.SeatConfig.GroupWhitelist
-
 	local character = player.Character :: Model
 	local vehicleAccessTool: Tool? = character:FindFirstChildOfClass("Tool")
 	if not vehicleAccessTool or not vehicleAccessTool:HasTag(VehicleSystemConfig.VehicleAccessToolTag) then
-		if groupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, groupWhitelist) then return end
+		local seatConfig = turretInfo.TurretConfig.SeatConfig
+		if seatConfig.GroupWhitelist and not PlayerGroupService.isInAnyWhitelistedGroup(player, seatConfig.GroupWhitelist) then return end
+		if seatConfig.TeamWhitelist and not PlayerTeamCheckUtil.isInAnyWhitelistedTeam(player, seatConfig.TeamWhitelist) then return end
 	end
 
 	local seat: BasePart? = turretInfo.TurretSeat

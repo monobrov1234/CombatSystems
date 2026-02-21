@@ -1,10 +1,8 @@
 -- config for training rifles / turrets
 
 return {
-	-- DAMAGE
-	HumanoidDamage = 0, -- Damage to humanoids
+	HumanoidDamage = 0,
 
-	-- VISUALS
 	FXConfig = {
 		ShootFXHandler = {
 			HandlerModuleName = "FlashShootFXHandler",

@@ -1,8 +1,6 @@
 return {
-	-- DAMAGE
-	HumanoidDamage = 90, -- Damage to humanoids
+	HumanoidDamage = 90,
 
-	-- VISUALS
 	FXConfig = {
 		ShootFXHandler = {
 			HandlerModuleName = "FlashShootFXHandler",
@@ -16,11 +14,10 @@ return {
 		ImpactFXHandler = {
 			HandlerModuleName = "APDSImpactFXHandler",
 			HandlerConfig = {}
-		}, -- custom handler
+		},
 	},
 
-	-- TODO
-	ObjectDamageConfig = { -- How much damage this munition does to destructible objects that also can have armor
+	ObjectDamageConfig = {
 		["NoArmor"] = 50,
 		["BulletProofArmor"] = 30,
 		["LightArmor"] = 15,
@@ -48,16 +45,15 @@ return {
 		},
 	},
 
-	-- BALLISTICS
-	MaxDistance = 1500, -- Max distance this munition can travel in studs
+	MaxDistance = 1500,
 	EnableDropoff = true,
 	DropoffConfig = {
 		DropoffStartDistance = 100,
 		DropoffEndDistance = 300,
 	},
 
-	EnableBallistics = true, -- Should this munition use simple raycast or more advanced physics?
+	EnableBallistics = true,
 	BallisticConfig = {
-		Speed = 1300, -- Projectile speed studs per second
+		Speed = 1300,
 	},
 }

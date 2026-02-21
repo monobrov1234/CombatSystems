@@ -1,13 +1,11 @@
 -- config for general use in rifles (like D-19, BR-18)
 
 return {
-	-- DAMAGE
-	HumanoidDamage = 16, -- Damage to humanoids
+	HumanoidDamage = 16,
 	HeadshotMultiplier = 1.5,
 	CanDamageSelf = false,
 	CanDamageFriendly = false,
 
-	-- VISUALS
 	FXConfig = {
 		ShootFXHandler = {
 			HandlerModuleName = "FlashShootFXHandler",
@@ -24,8 +22,8 @@ return {
 		},
 	},
 
-	ObjectDamageConfig = { -- How much damage this munition does to destructible objects that also can have armor
-		["NoArmor"] = 5, -- Protected from small caliber bullets like pistol ammo - typical destructible objects armor
+	ObjectDamageConfig = {
+		["NoArmor"] = 5,
 	},
 
 	CanSuppress = true,
