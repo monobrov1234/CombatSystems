@@ -50,24 +50,22 @@ end
 function funcs.handleInputBegan(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then return end
 	if not gunInfo then return end
-	if input.KeyCode ~= GunSystemConfig.KeyBindings.PatrolKey then return end
 
-	local equipped = BackpackController.getEquippedGun()
-	if not equipped or equipped.Tool ~= gunInfo.Tool then return end
-	if MovementController.isSprinting() and humanoid.MoveDirection.Magnitude ~= 0 then return end
-	if GunFireController.isFiring() then return end
-	if GunReloadController.isReloading() then return end
-
-	if patrol then
-		funcs.setPatrol(false)
-	else
-		funcs.setPatrol(true)
+	if input.KeyCode == GunSystemConfig.KeyBindings.PatrolKey then 
+		if MovementController.isSprinting() and humanoid.MoveDirection.Magnitude ~= 0 then return end
+		if GunFireController.isFiring() then return end
+		if GunReloadController.isReloading() then return end
+	
+		if patrol then
+			funcs.setPatrol(false)
+		else
+			funcs.setPatrol(true)
+		end
 	end
 end
 
 function funcs.handleSprintStateChange(oldState: boolean, newState: boolean)
 	if not gunInfo then return end
-
 	funcs.setPatrol(false)
 
 	if not newState then
@@ -77,8 +75,7 @@ function funcs.handleSprintStateChange(oldState: boolean, newState: boolean)
 end
 
 function funcs.handleHumanoidMove()
-	local equipped = BackpackController.getEquippedGun()
-	if not equipped or not gunInfo or equipped.Tool ~= gunInfo.Tool then return end
+	if not gunInfo then return end
 	if not MovementController.isSprinting() then return end
 
 	if GunReloadController.isReloading() then

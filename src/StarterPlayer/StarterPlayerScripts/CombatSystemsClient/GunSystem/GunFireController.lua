@@ -108,7 +108,10 @@ function funcs.tryFireGun()
 	if not gunInfo then return end
 	local state: BackpackController.GunState? = BackpackController.getStateFor(gunInfo.Tool)
 	assert(state)
+	local raycastParams: RaycastParams? = GunController.getRaycastParams()
+	assert(raycastParams)
 
+	-- check if can shoot
 	if not funcs.canShoot() then
 		if state.SharedState.MagSize <= 0 then
 			GunReloadController.tryReloadGun()
@@ -116,32 +119,38 @@ function funcs.tryFireGun()
 		return
 	end
 
-	local raycastParams: RaycastParams? = GunController.getRaycastParams()
-	assert(raycastParams)
-
+	-- spread calculation
 	local spreadConfig = gunInfo.Config.GunConfig.SpreadConfig
-	local direction: Vector3 = mouse.Hit.Position - gunInfo.FiringPoint.CFrame.Position
+	local spreadMultiplier = 1
+	if humanoid.FloorMaterial == Enum.Material.Air then -- in air
+		spreadMultiplier = spreadConfig.InAirSpreadMultiplier
+	elseif MovementController.isCrouching() then -- crouching
+		spreadMultiplier = spreadConfig.CrouchingSpreadMultiplier
+	end
+
+	-- firing
 	MunitionController.fireMunition({
 		MunitionName = gunInfo.Config.GunConfig.AmmoType,
 		Origin = gunInfo.FiringPoint,
-		DirectionVec = direction,
+		DirectionVec = mouse.Hit.Position - gunInfo.FiringPoint.CFrame.Position,
 		RaycastParams = raycastParams,
-		SpreadYawDeg = spreadConfig.Yaw,
-		SpreadPitchDeg = spreadConfig.Pitch
+		SpreadYawDeg = spreadConfig.Yaw * spreadMultiplier,
+		SpreadPitchDeg = spreadConfig.Pitch * spreadMultiplier,
 	})
 
 	state.SharedState.MagSize = math.max(0, state.SharedState.MagSize - 1)
 	state.LastShootTime = os.clock()
 	module.FireGun:fire()
 
-	local shootAnim = BackpackController.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder:FindFirstChild("Recoil"))
-	assert(shootAnim, "No shoot animation for gun " .. gunInfo.Tool.Name)
-	shootAnim:Play()
-
+	-- recoil
 	local recoilConfig = gunInfo.Config.GunConfig.RecoilConfig
 	assert(recoilUtil)
 	recoilUtil:Kick(recoilConfig.Pitch, recoilConfig.Yaw, nil, recoilConfig.Strength, recoilConfig.LerpTime)
 
+	-- fx
+	local shootAnim = BackpackController.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder:FindFirstChild("Recoil"))
+	assert(shootAnim, "No shoot animation for gun " .. gunInfo.Tool.Name)
+	shootAnim:Play()
 	SoundUtil.play("Fire", gunInfo.FiringPoint)
 end
 
