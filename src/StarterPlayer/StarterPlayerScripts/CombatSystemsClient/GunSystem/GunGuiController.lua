@@ -32,7 +32,7 @@ type GunHudGui = ScreenGui & { Frame: GunHudFrame }
 type GunCursorGui = Frame & { ReloadBar: Frame }
 type ReloadBarFrame = Frame & { ReloadProgress: Frame }
 
-local cursorGui = gunSystemGui:WaitForChild("GunCursor") :: GunCursorGui
+local cursorGui = gunSystemGui:WaitForChild("GunCursorHud") :: GunCursorGui
 local hudGui = gunSystemGui:WaitForChild("GunHud") :: GunHudGui
 
 -- FINALS
@@ -126,7 +126,7 @@ player.CharacterAdded:Connect(function(newCharacter: Model)
 	_character = newCharacter
 	guiRoot = playerGui:WaitForChild("CombatSystemsGui") :: Instance
 	gunSystemGui = guiRoot:WaitForChild("GunSystemGui") :: Instance
-	cursorGui = gunSystemGui:WaitForChild("GunCursor") :: GunCursorGui
+	cursorGui = gunSystemGui:WaitForChild("GunCursorHud") :: GunCursorGui
 	hudGui = gunSystemGui:WaitForChild("GunHud") :: GunHudGui
 end)
 

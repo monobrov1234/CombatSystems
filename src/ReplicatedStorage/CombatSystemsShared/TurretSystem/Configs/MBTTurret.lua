@@ -38,7 +38,7 @@ return {
 		YawLeftLimit = 180,
 		YawRightLimit = 180,
 		PitchUpLimit = 25,
-		PitchDownLimit = 10,
+		PitchDownLimit = 7,
 		YawSpeed = 40,
 		PitchSpeed = 40,
 	},

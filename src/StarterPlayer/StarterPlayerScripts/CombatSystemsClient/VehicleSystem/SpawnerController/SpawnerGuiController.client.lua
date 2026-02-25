@@ -14,7 +14,7 @@ local playerGui = player.PlayerGui
 local _character = player.Character or player.CharacterAdded:Wait()
 
 -- gui
-local spawnerGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("VehicleSystemGui"):WaitForChild("SpawnerGui")
+local spawnerGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("VehicleSystemGui"):WaitForChild("Spawner"):WaitForChild("VehicleSpawnerGui")
 
 -- remotes
 local openGuiRemote: RemoteEvent = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Events.SpawnerService.ServerToClient.OpenSpawnerGui
@@ -70,5 +70,5 @@ openGuiRemote.OnClientEvent:Connect(funcs.handleOpenRemote)
 
 player.CharacterAdded:Connect(function(newCharacter: Model)
 	_character = newCharacter
-	spawnerGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("VehicleSystemGui"):WaitForChild("SpawnerGui")
+	spawnerGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("VehicleSystemGui"):WaitForChild("Spawner"):WaitForChild("VehicleSpawnerGui")
 end)

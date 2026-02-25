@@ -12,7 +12,7 @@ local CameraShakeInstance = require(ReplicatedStorage.CombatSystemsShared.Libs.C
 local player = Players.LocalPlayer :: Player
 local playerGui = player.PlayerGui
 local _character = player.Character or player.CharacterAdded:Wait()
-local suppressionHud = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("SuppressionHud")
+local suppressionHud = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("MunitionSystemGui"):WaitForChild("SuppressionOverlay")
 
 local camShake = CameraShaker.new(Enum.RenderPriority.Camera.Value, function(shakeCf: CFrame)
 	local camera = workspace.CurrentCamera
@@ -72,7 +72,7 @@ end
 
 player.CharacterAdded:Connect(function(newCharacter: Model)
 	_character = newCharacter
-	suppressionHud = playerGui:WaitForChild("CombatSystemsGui").GunSystemGui.SuppressionHud
+	suppressionHud = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("MunitionSystemGui"):WaitForChild("SuppressionOverlay")
 end)
 
 return module

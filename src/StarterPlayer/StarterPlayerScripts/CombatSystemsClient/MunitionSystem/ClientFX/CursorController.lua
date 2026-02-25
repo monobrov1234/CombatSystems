@@ -13,13 +13,14 @@ local CursorConfig = require(ReplicatedStorage.CombatSystemsShared.MunitionSyste
 
 -- ROBLOX OBJECTS
 local player = Players.LocalPlayer :: Player
+local playerGui = player:WaitForChild("PlayerGui")
 local mouse = player:GetMouse()
+
 local _character = player.Character or player.CharacterAdded:Wait()
-local playerGui = player:WaitForChild("PlayerGui") :: typeof(game:GetService("StarterGui"))
-local combatCursorGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("CombatCursorGui")
-local cursorChangeGui = combatCursorGui:WaitForChild("CursorChange")
+local combatCursorGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("MunitionSystemGui"):WaitForChild("Cursor")
 local cursorGui = combatCursorGui:WaitForChild("CombatCursor")
-local cursorImage = cursorGui:WaitForChild("Cursor")
+local cursorIcon = cursorGui:WaitForChild("CursorIcon")
+local cursorSelectionHud = combatCursorGui:WaitForChild("CursorSelectionHud")
 
 -- STATE
 local currentCursorId = CursorConfig.Cursors[CursorConfig.DefaultCursor]
@@ -42,7 +43,7 @@ end
 
 function module.setCursor(cursorId: number)
 	currentCursorId = cursorId
-	cursorImage.Image = "rbxassetid://" .. tostring(currentCursorId)
+	cursorIcon.Image = "rbxassetid://" .. tostring(currentCursorId)
 end
 
 -- INTERNAL FUNCTIONS
@@ -50,7 +51,7 @@ function funcs.handleInput(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then return end
 	if not enabled then return end
 
-	if input.KeyCode == CursorConfig.ChangeMenuKey then cursorChangeGui.Enabled = true end
+	if input.KeyCode == CursorConfig.ChangeMenuKey then cursorSelectionHud.Enabled = true end
 end
 
 function funcs.handleInputEnd(input: InputObject, gameProcessed: boolean)
@@ -61,7 +62,7 @@ end
 
 function funcs.handlePreRender()
 	if not enabled then return end
-	cursorImage.Position = UDim2.fromOffset(mouse.X, mouse.Y)
+	cursorIcon.Position = UDim2.fromOffset(mouse.X, mouse.Y)
 	cursorGui.Enabled = true
 
 	local hitPlayer: Player? = funcs.getPlayerAtMouseHit()
@@ -78,7 +79,7 @@ function funcs.handlePreRender()
 			currentTween:Cancel()
 			currentTween = nil
 		end
-		cursorImage.ImageColor3 = CursorConfig.DefaultColor
+		cursorIcon.ImageColor3 = CursorConfig.DefaultColor
 	end
 
 	prevPlayer = hitPlayer
@@ -86,7 +87,7 @@ end
 
 function funcs.tweenCursorColor(target: Color3)
 	local info = TweenInfo.new(CursorConfig.FadeTime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-	currentTween = TweenService:Create(cursorImage, info, { ImageColor3 = target })
+	currentTween = TweenService:Create(cursorIcon, info, { ImageColor3 = target })
 	assert(currentTween)
 	currentTween:Play()
 end
@@ -103,7 +104,7 @@ end
 
 function funcs.fillCursorChangeGui()
 	for _, cursorId in ipairs(CursorConfig.Cursors) do
-		local templateClone = cursorChangeGui.ScrollingFrame.CursorTemplate:Clone()
+		local templateClone = cursorSelectionHud.ScrollingFrame.CursorTemplate:Clone()
 		templateClone.ImageLabel.Image = "rbxassetid://" .. tostring(cursorId)
 		templateClone.InputBegan:Connect(function(input: InputObject)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -112,21 +113,20 @@ function funcs.fillCursorChangeGui()
 			end
 		end)
 		templateClone.Visible = true
-		templateClone.Parent = cursorChangeGui.ScrollingFrame
+		templateClone.Parent = cursorSelectionHud.ScrollingFrame
 	end
 end
 
 function funcs.closeCursorChangeGui()
-	cursorChangeGui.Enabled = false
+	cursorSelectionHud.Enabled = false
 end
 
 player.CharacterAdded:Connect(function(newCharacter: Model)
 	_character = newCharacter
-	playerGui = player:WaitForChild("PlayerGui") :: typeof(game:GetService("StarterGui"))
-	combatCursorGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("CombatCursorGui")
-	cursorChangeGui = combatCursorGui:WaitForChild("CursorChange")
+	combatCursorGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("MunitionSystemGui"):WaitForChild("Cursor")
+	cursorSelectionHud = combatCursorGui:WaitForChild("CursorSelectionHud")
 	cursorGui = combatCursorGui:WaitForChild("CombatCursor")
-	cursorImage = cursorGui:WaitForChild("Cursor")
+	cursorIcon = cursorGui:WaitForChild("CursorIcon")
 	funcs.fillCursorChangeGui()
 	module.setCursor(currentCursorId)
 end)

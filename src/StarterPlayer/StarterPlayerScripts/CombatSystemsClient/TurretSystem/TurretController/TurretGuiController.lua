@@ -27,11 +27,9 @@ local playerGUI = player.PlayerGui
 local mouse = player:GetMouse()
 local _character = player.Character or player.CharacterAdded:Wait()
 
-local guiRoot = playerGUI:WaitForChild("CombatSystemsGui")
-local gunSystemGui = guiRoot:WaitForChild("GunSystemGui")
-local turretViewGui = gunSystemGui:WaitForChild("TurretViewGui")
-local cursorGui = turretViewGui:WaitForChild("TurretCursor")
-local hudGui = turretViewGui:WaitForChild("TurretHud")
+local turretSystemGui = playerGUI:WaitForChild("CombatSystemsGui"):WaitForChild("TurretSystemGui")
+local hudGui = turretSystemGui:WaitForChild("TurretHud")
+local cursorHudGui = turretSystemGui:WaitForChild("TurretCursorHud")
 
 -- FINALS
 local reloadBarMargin = 0.04
@@ -47,10 +45,10 @@ function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo)
 	turretInfo = newTurretInfo
 
 	hudGui.Enabled = true
-	cursorGui.Cursor.Visible = false
-	cursorGui.DropIndicator.Visible = false
-	cursorGui.DistanceBar.Visible = false
-	cursorGui.Enabled = true
+	cursorHudGui.Cursor.Visible = false
+	cursorHudGui.DropIndicator.Visible = false
+	cursorHudGui.DistanceBar.Visible = false
+	cursorHudGui.Enabled = true
 
 	cleaner:add(RunService.PreRender:Connect(funcs.handleUpdateHud))
 	cleaner:add(RunService.Heartbeat:Connect(funcs.handleUpdateCursor))
@@ -61,7 +59,7 @@ function funcs.handleTurretViewCleared()
 
 	funcs.hideDropIndicator()
 	hudGui.Enabled = false
-	cursorGui.Enabled = false
+	cursorHudGui.Enabled = false
 	if reloadBarClone then
 		reloadBarClone:Destroy()
 		reloadBarClone = nil
@@ -99,11 +97,11 @@ function funcs.handleUpdateHud(deltaTime: number)
 end
 
 function funcs.startReload(duration: number)
-	local barClone = cursorGui.ReloadBar:Clone()
+	local barClone = cursorHudGui.ReloadBar:Clone()
 	reloadBarClone = barClone
 	local inset = GuiService:GetGuiInset()
 	barClone.Position = UDim2.new(0, mouse.X + inset.X, reloadBarMargin, mouse.Y + inset.Y)
-	barClone.Parent = cursorGui
+	barClone.Parent = cursorHudGui
 
 	local startTime = os.clock()
 	local connection: RBXScriptConnection
@@ -134,7 +132,7 @@ function funcs.handleUpdateCursor()
 
 	local firingPoint: BasePart? = turretState.UsingMainGun and turretInfo.FiringPoint or turretInfo.FiringPointCoax
 	if not firingPoint then
-		cursorGui.Cursor.Visible = false
+		cursorHudGui.Cursor.Visible = false
 		return
 	end
 
@@ -150,10 +148,10 @@ function funcs.handleUpdateCursor()
 	local viewportPoint, onScreen = camera:WorldToViewportPoint(hitPosition)
 	if onScreen then
 		local vpSize = camera.ViewportSize
-		cursorGui.Cursor.Position = UDim2.new(viewportPoint.X / vpSize.X, 0, viewportPoint.Y / vpSize.Y, 0)
-		cursorGui.Cursor.Visible = true
+		cursorHudGui.Cursor.Position = UDim2.new(viewportPoint.X / vpSize.X, 0, viewportPoint.Y / vpSize.Y, 0)
+		cursorHudGui.Cursor.Visible = true
 	else
-		cursorGui.Cursor.Visible = false
+		cursorHudGui.Cursor.Visible = false
 	end
 end
 
@@ -181,8 +179,8 @@ function funcs.updateDropIndicator(munitionName: string)
 	local viewportPoint: Vector3, onScreen: boolean = camera:WorldToViewportPoint(hitPosition)
 	if onScreen then
 		local vpSize: Vector2 = camera.ViewportSize
-		cursorGui.DropIndicator.Position = UDim2.new(viewportPoint.X / vpSize.X, 0, viewportPoint.Y / vpSize.Y, 0)
-		cursorGui.DropIndicator.Visible = true
+		cursorHudGui.DropIndicator.Position = UDim2.new(viewportPoint.X / vpSize.X, 0, viewportPoint.Y / vpSize.Y, 0)
+		cursorHudGui.DropIndicator.Visible = true
 	else
 		funcs.hideDropIndicator()
 	end
@@ -190,9 +188,9 @@ end
 
 function funcs.calculateDrop(calcDuration: number, stayDuration: number, munitionName: string)
 	if not turretInfo then return end
-	local barClone = cursorGui.DistanceBar:Clone()
+	local barClone = cursorHudGui.DistanceBar:Clone()
 	distanceBarClone = barClone
-	barClone.Parent = cursorGui
+	barClone.Parent = cursorHudGui
 
 	local startTime = os.clock()
 	local connection: RBXScriptConnection
@@ -222,7 +220,7 @@ function funcs.calculateDrop(calcDuration: number, stayDuration: number, munitio
 end
 
 function funcs.hideDropIndicator()
-	cursorGui.DropIndicator.Visible = false
+	cursorHudGui.DropIndicator.Visible = false
 end
 
 -- SUBSCRIPTIONS
@@ -235,11 +233,9 @@ TurretDropIndicatorController.DropIndicatorHideRequested:connect(funcs.handleDro
 
 player.CharacterAdded:Connect(function(newCharacter: Model)
 	_character = newCharacter
-	guiRoot = playerGUI:WaitForChild("CombatSystemsGui")
-	gunSystemGui = guiRoot:WaitForChild("GunSystemGui")
-	turretViewGui = gunSystemGui:WaitForChild("TurretViewGui")
-	cursorGui = turretViewGui:WaitForChild("TurretCursor")
-	hudGui = turretViewGui:WaitForChild("TurretHud")
+	turretSystemGui = playerGUI:WaitForChild("CombatSystemsGui"):WaitForChild("TurretSystemGui")
+	cursorHudGui = turretSystemGui:WaitForChild("TurretCursorHud")
+	hudGui = turretSystemGui:WaitForChild("TurretHud")
 end)
 
 return module

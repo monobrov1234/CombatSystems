@@ -18,7 +18,7 @@ local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSys
 local playerGui = player.PlayerGui
 local mouse = player:GetMouse()
 local _character: Model = player.Character or player.CharacterAdded:Wait()
-local hitmarkGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("HitmarkGui"):WaitForChild("Hitmark")
+local hitmarkGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("MunitionSystemGui"):WaitForChild("Hitmark")
 local damageContainer = hitmarkGui:WaitForChild("DamageContainer")
 
 local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
@@ -123,6 +123,6 @@ explosionHitmark.OnClientEvent:Connect(funcs.handleExplosionHitmark)
 
 player.CharacterAdded:Connect(function(newCharacter: Model)
 	_character = newCharacter
-	hitmarkGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("GunSystemGui"):WaitForChild("HitmarkGui"):WaitForChild("Hitmark")
+	hitmarkGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("MunitionSystemGui"):WaitForChild("Hitmark")
 	damageContainer = hitmarkGui:WaitForChild("DamageContainer")
 end)
