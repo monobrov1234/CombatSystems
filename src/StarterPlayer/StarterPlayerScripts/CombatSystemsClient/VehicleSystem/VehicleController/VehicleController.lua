@@ -7,6 +7,7 @@
 	TODO: documentation about vehicle rig
 ]]
 
+local module = {}
 local funcs = {}
 
 -- IMPORTS
@@ -25,8 +26,7 @@ local TurretViewController = require(PlayerScripts.CombatSystemsClient.TurretSys
 local MovementController = require(PlayerScripts.CombatSystemsClient.MovementSystem.MovementController)
 
 -- IMPORTS INTERNAL
-local VehicleViewController = require(script.VehicleViewController)
-local _GuiController = require(script.GuiController)
+local VehicleViewController = require(script.Parent.VehicleViewController)
 
 -- ROBLOX OBJECTS
 local character = player.Character or player.CharacterAdded:Wait()
@@ -45,12 +45,12 @@ type VehicleController = {
 	handleDismount: () -> (),
 }
 local controllerMapping: { [string]: VehicleController } = {
-	["Normal"] = require(script.Parent.Implementations.NormalVehicleController),
-	["Tracked"] = require(script.Parent.Implementations.TrackedVehicleController),
+	["Normal"] = require(script.Parent.TypeControllers.NormalVehicleController),
+	["Tracked"] = require(script.Parent.TypeControllers.TrackedVehicleController),
 }
 
 local vehicleInfo: VehicleUtil.VehicleInfo
-local currentSeat = nil :: Seat | VehicleSeat
+local currentSeat = (nil :: any) :: Seat | VehicleSeat
 local vehicleController: VehicleController
 local driveLoopConnection: RBXScriptConnection
 local turretModel: Model?
@@ -120,7 +120,7 @@ function funcs.clearVehicle()
 		VehicleSystemConfig.ShowToolsCallback(character, humanoid)
 	end
 
-	vehicleInfo = nil
+	vehicleInfo = nil :: any
 	ProximityPromptService.Enabled = true
 	log:debug("State cleared successfully")
 end
@@ -155,3 +155,5 @@ player.CharacterAdded:Connect(function(newCharacter)
 	humanoid = character:WaitForChild("Humanoid")
 	connect()
 end)
+
+return module
