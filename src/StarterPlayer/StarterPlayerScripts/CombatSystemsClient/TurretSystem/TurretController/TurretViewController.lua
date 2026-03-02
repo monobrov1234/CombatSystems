@@ -67,6 +67,7 @@ end
 function funcs.handleSetTurretState(newTurretState: TurretUtil.TurretStateInfo)
 	turretState = newTurretState
 	module.TurretStateChanged:fire(newTurretState)
+	log:debug("Local turret state set")
 end
 
 -- SUBSCRIPTIONS

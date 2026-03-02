@@ -14,11 +14,13 @@ local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Mo
 local MunitionConfigUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.MunitionConfigUtil)
 local PredictProjectile = require(ReplicatedStorage.CombatSystemsShared.Libs.PredictProjectile)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
+local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 
 -- IMPORTS INTERNAL
 local TurretViewController = require(script.Parent.TurretViewController)
 local TurretReloadController = require(script.Parent.TurretReloadController)
 local TurretDropIndicatorController = require(script.Parent.TurretDropIndicatorController)
+local TurretFireController = require(script.Parent.TurretFireController)
 local TurretStateController = require(script.Parent.TurretStateController)
 
 -- ROBLOX OBJECTS
@@ -28,10 +30,12 @@ local mouse = player:GetMouse()
 local _character = player.Character or player.CharacterAdded:Wait()
 
 local turretSystemGui = playerGUI:WaitForChild("CombatSystemsGui"):WaitForChild("TurretSystemGui")
-local hudGui = turretSystemGui:WaitForChild("TurretHud")
+local turretHudGui = turretSystemGui:WaitForChild("TurretHud")
 local cursorHudGui = turretSystemGui:WaitForChild("TurretCursorHud")
 
 -- FINALS
+local log: Logger.SelfObject = Logger.new("TurretGuiController")
+
 local reloadBarMargin = 0.04
 local cleaner = ConnectionCleaner.new()
 
@@ -44,13 +48,13 @@ local distanceBarClone: typeof(StarterGui.CombatSystemsGui.GunSystemGui.TurretVi
 function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo)
 	turretInfo = newTurretInfo
 
-	hudGui.Enabled = true
+	turretHudGui.Enabled = true
 	cursorHudGui.Cursor.Visible = false
 	cursorHudGui.DropIndicator.Visible = false
 	cursorHudGui.DistanceBar.Visible = false
 	cursorHudGui.Enabled = true
 
-	cleaner:add(RunService.PreRender:Connect(funcs.handleUpdateHud))
+	funcs.rebuildHotbar()
 	cleaner:add(RunService.Heartbeat:Connect(funcs.handleUpdateCursor))
 end
 
@@ -58,7 +62,7 @@ function funcs.handleTurretViewCleared()
 	cleaner:disconnectAll()
 
 	funcs.hideDropIndicator()
-	hudGui.Enabled = false
+	turretHudGui.Enabled = false
 	cursorHudGui.Enabled = false
 	if reloadBarClone then
 		reloadBarClone:Destroy()
@@ -88,12 +92,85 @@ function funcs.handleDropIndicatorHideRequested()
 	funcs.hideDropIndicator()
 end
 
-function funcs.handleUpdateHud(deltaTime: number)
+function funcs.handleTurretFire()
+end
+
+function funcs.handleTurretStateChanged()
 	if not turretInfo then return end
-	local selected: string? = TurretStateController.getCurrentSelectedMunition()
-	hudGui.Frame.AmmoType.Text = selected
-	hudGui.Frame.ClipSize.Text = tostring(TurretStateController.getCurrentClipSize())
-	hudGui.Frame.AmmoSize.Text = tostring(TurretStateController.getCurrentStoredAmmo())
+	funcs.rebuildHotbar()
+end
+
+function funcs.updateHotbar()
+	assert(turretInfo)
+	local hotbar = turretHudGui:FindFirstChild("Hotbar")
+	assert(hotbar)
+	local template = hotbar:FindFirstChild("HotbarTemplateItem")
+	assert(template)
+
+	local state: TurretUtil.TurretStateInfo? = TurretViewController.getCurrentTurretState()
+	assert(state)
+
+	if state.UsingMainGun then
+		for _, item: Instance in ipairs(hotbar:GetChildren()) do
+			local found = false
+			for _, munition in ipairs(turretInfo.TurretConfig.GunConfig.AmmoTypes) do
+				if item.Name == munition.name then
+					found = true
+					break
+				end
+			end
+			
+			if not found then continue end
+
+			local item = item :: any
+			item.Count.Text = tostring(state.MunitionStorage[item.Name])
+			item.Icon.SelectedOutline.Transparency = (state.SelectedMunition == item.Name) and 0 or 1
+		end
+	else 
+		for _, item: Instance in ipairs(hotbar:GetChildren()) do
+			if item.Name == turretInfo.TurretConfig.GunConfig.CoaxConfig.AmmoType then
+				local item = item :: any
+				item.Count.Text = tostring(state.CoaxAmmoSize)
+				item.Icon.SelectedOutline.Transparency = 1
+			end
+		end
+	end
+end
+
+function funcs.rebuildHotbar()
+	assert(turretInfo)
+	local hotbar = turretHudGui:FindFirstChild("Hotbar")
+	assert(hotbar)
+	local template = hotbar:FindFirstChild("HotbarTemplateItem")
+	assert(template)
+
+	local state: TurretUtil.TurretStateInfo? = TurretViewController.getCurrentTurretState()
+	assert(state)
+
+	for _, child: Instance in ipairs(hotbar:GetChildren()) do
+		if child.Name ~= "HotbarTemplateItem" and child:IsA("Frame") then
+			child:Destroy()
+		end
+	end
+
+	if state.UsingMainGun then
+		for i: number, munition in ipairs(turretInfo.TurretConfig.GunConfig.AmmoTypes) do
+			local item = template:Clone()
+			item.Name = munition.name
+			item.Title.Text = item.Name
+			item.LayoutOrder = i
+			item.Visible = true
+			item.Parent = hotbar
+		end
+	else
+		local item = template:Clone()
+		item.Name = turretInfo.TurretConfig.GunConfig.CoaxConfig.AmmoType
+		item.Title.Text = item.Name
+		item.Visible = true
+		item.Parent = hotbar
+	end
+
+	funcs.updateHotbar()
 end
 
 function funcs.startReload(duration: number)
@@ -226,6 +303,8 @@ end
 -- SUBSCRIPTIONS
 TurretViewController.TurretViewSet:connect(funcs.handleTurretViewSet)
 TurretViewController.TurretViewCleared:connect(funcs.handleTurretViewCleared)
+TurretViewController.TurretStateChanged:connect(funcs.handleTurretStateChanged)
+TurretFireController.TurretFired:connect(funcs.handleTurretFire)
 TurretReloadController.ReloadStarted:connect(funcs.handleReloadStarted)
 TurretDropIndicatorController.DropCalculationRequested:connect(funcs.handleDropCalculationRequested)
 TurretDropIndicatorController.DropIndicatorRequested:connect(funcs.handleDropIndicatorRequested)
@@ -235,7 +314,7 @@ player.CharacterAdded:Connect(function(newCharacter: Model)
 	_character = newCharacter
 	turretSystemGui = playerGUI:WaitForChild("CombatSystemsGui"):WaitForChild("TurretSystemGui")
 	cursorHudGui = turretSystemGui:WaitForChild("TurretCursorHud")
-	hudGui = turretSystemGui:WaitForChild("TurretHud")
+	turretHudGui = turretSystemGui:WaitForChild("TurretHud")
 end)
 
 return module

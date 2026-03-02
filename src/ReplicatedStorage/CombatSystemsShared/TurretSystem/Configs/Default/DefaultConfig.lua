@@ -1,3 +1,8 @@
+export type AmmoStoreType = {
+	name: string,
+	stored: number,
+}
+
 return {
 	-- Bullet drop / range indicator style
 	-- • "None"       → no drop indicator at all
@@ -54,8 +59,8 @@ return {
 		ClipSize = 1,
 
 		-- Ammunition types and quantities stored for the main gun
-		-- Leave empty here (in default config) if you don't want all the turrets default to use same ammo type (cannot be overwritten in turret config)
-		AmmoTypes = {} :: { { name: string, stored: number } },
+		-- Leave empty here (in default config) if you don't want all the turrets default to use same ammo type (cannot be overwritten in upper turret configs)
+		AmmoTypes = { --[[ { name: string, stored: number } ]] } :: { AmmoStoreType },
 
 		SpreadConfig = {
 			-- Base horizontal (yaw) dispersion in degrees

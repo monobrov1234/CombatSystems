@@ -14,6 +14,7 @@ local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Mo
 local RecoilUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.CameraRecoilUtil)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionController)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
+local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
 -- IMPORTS INTERNAL
 local TurretReloadController = require(script.Parent.TurretReloadController)
@@ -34,6 +35,9 @@ local isFiring = false
 local autoFireConnection: RBXScriptConnection?
 local lastShootTime = 0
 local lastShootTimeCoax = 0
+
+-- PUBLIC EVENTS
+module.TurretFired = Signal.new() -- ()
 
 -- INTERNAL FUNCTIONS
 function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo, customRayFilters: { Instance }?)
@@ -130,6 +134,7 @@ function funcs.fireTurret()
 	recoilUtil:Kick(recoilConfig.Pitch, recoilConfig.Yaw, nil, recoilConfig.Strength, recoilConfig.LerpTime)
 
 	TurretSoundController.play(turretState.UsingMainGun and "Fire" or "FireCoax", firingPart)
+	module.TurretFired:fire()
 end
 
 function funcs.reset()

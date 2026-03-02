@@ -10,6 +10,7 @@ local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Mo
 local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
+local Connection = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal.Connection)
 
 -- IMPORTS INTERNAL
 local TurretSoundController = require(script.Parent.TurretSoundController)
