@@ -7,8 +7,12 @@ return {
 	-- Number of rounds that can be fired before a reload is required
 	-- Typical values: 1 (large cannons), 4–15 (autocannons), 200–250 (MGs)
 	ClipSize = 100,
-	AmmoType = "7.62mm AP",
+	-- Initial turret ammo count
 	AmmoSize = 500,
+
+	-- Info about munition that turret will fire
+	AmmoType = "7.62mm AP",
+	AmmoIconId = nil,
 
 	SpreadConfig = {
 		-- Base horizontal (yaw) dispersion in degrees

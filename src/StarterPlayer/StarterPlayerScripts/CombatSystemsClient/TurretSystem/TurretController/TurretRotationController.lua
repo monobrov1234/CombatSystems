@@ -10,6 +10,7 @@ local PlayerScripts = player.PlayerScripts :: typeof(game:GetService("StarterPla
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GuiService = game:GetService("GuiService")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local TurretStateController = require(script.Parent.TurretStateController)
 local CursorController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.ClientFX.CursorController)
 local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
@@ -39,6 +40,18 @@ local debugRayPart: Part?
 local lastYawRotation = Vector3.new(math.huge, math.huge, math.huge)
 local lastPitchRotation = Vector3.new(math.huge, math.huge, math.huge)
 local timeAccumulator = 0.0
+local turretLock = false
+
+-- PUBLIC API
+function module.getElevation(): number
+	assert(turretInfo)
+	local x, _y, _z = turretInfo.PitchMotor.C0:ToOrientation()
+	return math.deg(x)
+end
+
+function module.isTurretLocked(): boolean
+	return turretLock
+end
 
 -- INTERNAL FUNCTIONS
 function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo)
@@ -84,11 +97,21 @@ function funcs.handleTurretViewCleared()
 	lastYawRotation = Vector3.new(math.huge, math.huge, math.huge)
 	lastPitchRotation = Vector3.new(math.huge, math.huge, math.huge)
 	timeAccumulator = 0
+	turretLock = false
+end
+
+function funcs.handleInput(inputObject: InputObject, gameProcessed: boolean)
+	if gameProcessed then return end
+	if not turretInfo then return end
+	if inputObject.KeyCode ==TurretSystemConfig.KeyBindings.LockTurretKey then
+		turretLock = not turretLock
+	end
 end
 
 function funcs.updateTurretRotation(deltaTime: number)
 	if not turretInfo or not raycastParams or not rotationUtil or not traverseUtil then return end
 	if not turretInfo.TurretModel.Parent then return end
+	if turretLock then return end
 
 	local camera = workspace.CurrentCamera
 	local inset: Vector2 = GuiService:GetGuiInset()
@@ -160,5 +183,6 @@ end
 -- SUBSCRIPTIONS
 TurretViewController.TurretViewSet:connect(funcs.handleTurretViewSet)
 TurretViewController.TurretViewCleared:connect(funcs.handleTurretViewCleared)
+UserInputService.InputBegan:Connect(funcs.handleInput)
 
 return module

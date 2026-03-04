@@ -83,7 +83,7 @@ function module:rotateTurret(goal: Vector3, deltaTime: number)
 
 			local fullCircle = math.abs(limitsConfig.PitchDownLimit) == 180 and math.abs(limitsConfig.PitchUpLimit) == 180
 			if not fullCircle then -- ignore if limits full range (this should not happen for pitch)
-				clampedMotorPitchDeg = funcs.clampAroundCenter(worldPitchDeg, limitsConfig.PitchCenter, limitsConfig.PitchUpLimit, limitsConfig.PitchDownLimit)
+				clampedMotorPitchDeg = funcs.clampAroundCenter(worldPitchDeg, limitsConfig.PitchCenter, limitsConfig.PitchDownLimit, limitsConfig.PitchUpLimit)
 			end
 
 			local x, y, z = me.currentPitchC0:ToOrientation()
@@ -93,8 +93,8 @@ function module:rotateTurret(goal: Vector3, deltaTime: number)
 				clampedMotorPitchDeg,
 				limitsConfig.PitchSpeed,
 				limitsConfig.PitchCenter,
-				limitsConfig.PitchUpLimit,
 				limitsConfig.PitchDownLimit,
+				limitsConfig.PitchUpLimit,
 				fullCircle,
 				deltaTime
 			)

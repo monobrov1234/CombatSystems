@@ -21,6 +21,7 @@ local TurretViewController = require(script.Parent.TurretViewController)
 local TurretReloadController = require(script.Parent.TurretReloadController)
 local TurretDropIndicatorController = require(script.Parent.TurretDropIndicatorController)
 local TurretFireController = require(script.Parent.TurretFireController)
+local TurretRotationController = require(script.Parent.TurretRotationController)
 local TurretStateController = require(script.Parent.TurretStateController)
 
 -- ROBLOX OBJECTS
@@ -36,7 +37,7 @@ local cursorHudGui = turretSystemGui:WaitForChild("TurretCursorHud")
 -- FINALS
 local log: Logger.SelfObject = Logger.new("TurretGuiController")
 
-local reloadBarMargin = 0.04
+local reloadBarYOffset = 40
 local cleaner = ConnectionCleaner.new()
 
 -- STATE
@@ -56,6 +57,7 @@ function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo)
 
 	funcs.rebuildHotbar()
 	cleaner:add(RunService.Heartbeat:Connect(funcs.handleUpdateCursor))
+	cleaner:add(RunService.Heartbeat:Connect(funcs.handleUpdateCursorHud))
 end
 
 function funcs.handleTurretViewCleared()
@@ -93,6 +95,7 @@ function funcs.handleDropIndicatorHideRequested()
 end
 
 function funcs.handleTurretFire()
+	-- TODO
 end
 
 function funcs.handleTurretStateChanged()
@@ -100,11 +103,46 @@ function funcs.handleTurretStateChanged()
 	funcs.rebuildHotbar()
 end
 
+function funcs.handleUpdateCursorHud()
+	assert(turretInfo)
+	local centerHud = turretHudGui:FindFirstChild("CenterHud") :: any
+	assert(centerHud)
+
+	centerHud.LockIndicator.Visible = TurretRotationController.isTurretLocked()
+
+	local state: TurretUtil.TurretStateInfo? = TurretViewController.getCurrentTurretState()
+	if state then
+		local maxClipSize = state.UsingMainGun and turretInfo.TurretConfig.GunConfig.ClipSize or turretInfo.TurretConfig.GunConfig.CoaxConfig.ClipSize
+		centerHud.ClipSize.Text = "Clip: " .. tostring(TurretStateController.getCurrentClipSize()) .. "/" .. tostring(maxClipSize)	
+		centerHud.CoaxIndicator.Visible = not state.UsingMainGun
+	end
+
+	if TurretReloadController.isReloading() or TurretReloadController.isReloadingCoax() then
+		local reloadEndTime = TurretReloadController.getReloadEndTime()
+		local remaining = reloadEndTime - os.clock()
+		centerHud.ReloadTimer.Text = string.format("%.1f", remaining):gsub("%.", ",")
+	else
+		centerHud.ReloadTimer.Text = "0,0"
+	end
+
+	if TurretReloadController.isReloading() then
+		centerHud.StatusIndicator.Text = "MAIN GUN RELOADING..."
+		centerHud.StatusIndicator.Visible = true
+	elseif TurretReloadController.isReloadingCoax() then
+		centerHud.StatusIndicator.Text = "COAX GUN RELOADING..."
+		centerHud.StatusIndicator.Visible = true
+	else
+		centerHud.StatusIndicator.Visible = false
+	end
+
+	centerHud.ElevationIndicator.Text = "ELEV: " .. tostring(math.round(TurretRotationController.getElevation())) .. "°"
+end
+
 function funcs.updateHotbar()
 	assert(turretInfo)
-	local hotbar = turretHudGui:FindFirstChild("Hotbar")
+	local hotbar = turretHudGui:FindFirstChild("Hotbar") :: Frame
 	assert(hotbar)
-	local template = hotbar:FindFirstChild("HotbarTemplateItem")
+	local template = hotbar:FindFirstChild("HotbarTemplateItem") :: Frame
 	assert(template)
 
 	local state: TurretUtil.TurretStateInfo? = TurretViewController.getCurrentTurretState()
@@ -131,7 +169,7 @@ function funcs.updateHotbar()
 			if item.Name == turretInfo.TurretConfig.GunConfig.CoaxConfig.AmmoType then
 				local item = item :: any
 				item.Count.Text = tostring(state.CoaxAmmoSize)
-				item.Icon.SelectedOutline.Transparency = 1
+				item.Icon.SelectedOutline.Transparency = 0
 			end
 		end
 	end
@@ -139,9 +177,9 @@ end
 
 function funcs.rebuildHotbar()
 	assert(turretInfo)
-	local hotbar = turretHudGui:FindFirstChild("Hotbar")
+	local hotbar = turretHudGui:FindFirstChild("Hotbar") :: Frame
 	assert(hotbar)
-	local template = hotbar:FindFirstChild("HotbarTemplateItem")
+	local template = hotbar:FindFirstChild("HotbarTemplateItem") :: Frame
 	assert(template)
 
 	local state: TurretUtil.TurretStateInfo? = TurretViewController.getCurrentTurretState()
@@ -153,21 +191,31 @@ function funcs.rebuildHotbar()
 		end
 	end
 
+	local function initItem(item: Instance, name: string, icon: number?)
+		item.Name = name
+		local item = item :: any
+		item.Title.Text = name
+
+		if icon then
+			item.Icon.Image = "rbxassetid://" .. tostring(icon)
+		else
+			--item.Icon.Image = "rbxassetid://110521765631413"
+		end
+
+		item.Visible = true
+		item.Parent = hotbar
+	end
+
 	if state.UsingMainGun then
 		for i: number, munition in ipairs(turretInfo.TurretConfig.GunConfig.AmmoTypes) do
 			local item = template:Clone()
-			item.Name = munition.name
-			item.Title.Text = item.Name
+			initItem(item, munition.name, munition.iconId)
 			item.LayoutOrder = i
-			item.Visible = true
-			item.Parent = hotbar
 		end
 	else
 		local item = template:Clone()
-		item.Name = turretInfo.TurretConfig.GunConfig.CoaxConfig.AmmoType
-		item.Title.Text = item.Name
-		item.Visible = true
-		item.Parent = hotbar
+		local coaxConfig = turretInfo.TurretConfig.GunConfig.CoaxConfig
+		initItem(item, coaxConfig.AmmoType, coaxConfig.AmmoIconId)
 	end
 
 	funcs.updateHotbar()
@@ -177,7 +225,7 @@ function funcs.startReload(duration: number)
 	local barClone = cursorHudGui.ReloadBar:Clone()
 	reloadBarClone = barClone
 	local inset = GuiService:GetGuiInset()
-	barClone.Position = UDim2.new(0, mouse.X + inset.X, reloadBarMargin, mouse.Y + inset.Y)
+	barClone.Position = UDim2.new(0, mouse.X + inset.X, 0, mouse.Y + inset.Y + reloadBarYOffset)
 	barClone.Parent = cursorHudGui
 
 	local startTime = os.clock()
@@ -185,7 +233,7 @@ function funcs.startReload(duration: number)
 	connection = cleaner:add(RunService.PreSimulation:Connect(function()
 		local progress = math.clamp((os.clock() - startTime) / duration, 0, 1)
 		if progress < 1 then
-			barClone.Position = UDim2.new(0, mouse.X + inset.X, reloadBarMargin, mouse.Y + inset.Y)
+			barClone.Position = UDim2.new(0, mouse.X + inset.X, 0, mouse.Y + inset.Y + reloadBarYOffset)
 			barClone.ReloadProgress.Size = UDim2.new(progress, 0, 1, 0)
 			barClone.ReloadProgress.Visible = true
 			barClone.Visible = true

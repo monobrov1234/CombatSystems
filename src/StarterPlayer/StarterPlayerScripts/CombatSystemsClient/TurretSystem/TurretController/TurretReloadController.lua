@@ -33,6 +33,7 @@ local turretInfo: TurretUtil.TurretInfo?
 local turretState: TurretUtil.TurretStateInfo?
 local reloading = false
 local reloadingCoax = false
+local reloadEndTime = 0
 
 -- PUBLIC EVENTS
 module.ReloadStarted = Signal.new() -- (duration: number)
@@ -45,6 +46,10 @@ end
 
 function module.isReloadingCoax()
 	return reloadingCoax
+end
+
+function module.getReloadEndTime(): number
+	return reloadEndTime
 end
 
 -- INTERNAL FUNCTIONS
@@ -121,6 +126,7 @@ function funcs.reloadTurret(usingMain: boolean)
 		end
 		reloadRemote:FireServer(usingMain)
 	end))
+	reloadEndTime = os.clock() + reloadDuration
 
 	TurretSoundController.play(turretState.UsingMainGun and "Reload" or "ReloadCoax", turretInfo.PitchMotor.Part1 :: BasePart)
 	replicateReloadRemote:FireServer(false, turretState.UsingMainGun)
@@ -140,6 +146,7 @@ function funcs.switchShells()
 		reloading = false
 		switchShellsRemote:FireServer()
 	end))
+	reloadEndTime = os.clock() + reloadDuration
 
 	TurretSoundController.play("Switch", turretInfo.PitchMotor.Part1 :: BasePart)
 	replicateReloadRemote:FireServer(true, turretState.UsingMainGun)

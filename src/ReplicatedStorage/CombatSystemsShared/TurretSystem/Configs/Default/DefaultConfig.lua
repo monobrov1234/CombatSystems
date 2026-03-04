@@ -1,6 +1,7 @@
 export type AmmoStoreType = {
 	name: string,
 	stored: number,
+	iconId: number
 }
 
 return {
@@ -47,12 +48,11 @@ return {
 		},
 	},
 
-
 	GunConfig = {
 		-- Rate of fire in Rounds Per Minute (RPM)
 		-- Examples: 6 → very slow cannon, 120 → autocannon, 600–900 → machine gun
 		FirerateRPM = 1,
-		-- Full reload duration (seconds)
+		-- Full reload and switch shell duration (seconds)
 		ReloadDuration = 3,
 		-- Number of rounds that can be fired before a reload is required
 		-- Typical values: 1 (large cannons), 4–15 (autocannons), 200–250 (MGs)
@@ -60,7 +60,7 @@ return {
 
 		-- Ammunition types and quantities stored for the main gun
 		-- Leave empty here (in default config) if you don't want all the turrets default to use same ammo type (cannot be overwritten in upper turret configs)
-		AmmoTypes = { --[[ { name: string, stored: number } ]] } :: { AmmoStoreType },
+		AmmoTypes = { --[[ { name: string, stored: number, iconId: number } ]] } :: { AmmoStoreType },
 
 		SpreadConfig = {
 			-- Base horizontal (yaw) dispersion in degrees
@@ -86,7 +86,6 @@ return {
 		CoaxConfig = require(script.Parent.Parent.Coax["Tank 7.62mm"]),
 	},
 
-
 	ZoomConfig = {
 		-- Available zoom levels in first-person view (FOV reduction percentages)
 		-- 0    → no zoom
@@ -94,7 +93,6 @@ return {
 		-- 40+  → telescopic / high-magnification sight
 		ZoomSteps = { 0, 20, 40 } :: { number },
 	},
-
 
 	LimitsConfig = {
 		-- Maximum turret traverse speed (degrees per second)

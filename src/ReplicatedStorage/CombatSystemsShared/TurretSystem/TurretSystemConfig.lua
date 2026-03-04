@@ -23,8 +23,9 @@ return {
 
 		MainGunKey = Enum.KeyCode.One,
 		CoaxGunKey = Enum.KeyCode.Two,
-		CalculateDropKey = Enum.KeyCode.P,
 		ReloadKey = Enum.KeyCode.R,
 		SwitchShellsKey = Enum.KeyCode.V,
+		LockTurretKey = Enum.KeyCode.L,
+		CalculateDropKey = Enum.KeyCode.P,
 	},
 }

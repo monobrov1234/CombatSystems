@@ -19,7 +19,7 @@ local VehicleViewController = require(script.Parent.VehicleViewController)
 local player = Players.LocalPlayer :: Player
 local playerGui = player.PlayerGui
 local hudGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("VehicleSystemGui"):WaitForChild("VehicleHud") :: ScreenGui
-local container = hudGui:WaitForChild("Container") :: Frame
+local container = hudGui:WaitForChild("Container") :: any
 
 -- FINALS
 local cleaner = ConnectionCleaner.new()
@@ -30,12 +30,22 @@ module.VehicleHudDisabled = Signal.new()
 
 -- INTERNAL FUNCTIONS
 function funcs.onVehicleViewSet(vehicleInfo: VehicleUtil.VehicleInfo)
-	local topInfoBar = container.VehicleInfo.TopInfoBar :: Frame
+	local vehicleInfoFrame = container.VehicleInfo :: any
+	local topInfoBar = vehicleInfoFrame.TopInfoBar
 	topInfoBar.VehicleName.Text = vehicleInfo.VehicleModel.Name
 	topInfoBar.VehicleDescription.Text = vehicleInfo.VehicleConfig.Description
 
-	local healthBar = container.VehicleInfo.HealthBar :: Frame
+	local healthBar = vehicleInfoFrame.HealthBar
 	local function updateHealthBar()
+		local remainingHealthPercentage = vehicleInfo.VehicleObject:getHealth() / vehicleInfo.VehicleObject:getMaxHealth()
+		if remainingHealthPercentage > 0.6 then
+			healthBar.Value.BackgroundColor3 = healthBar.Value.HighHealth.Value
+		elseif remainingHealthPercentage > 0.3 then
+			healthBar.Value.BackgroundColor3 = healthBar.Value.MediumHealth.Value
+		else
+			healthBar.Value.BackgroundColor3 = healthBar.Value.LowHealth.Value
+		end
+
 		healthBar.HealthText.Text = tostring(math.round(vehicleInfo.VehicleObject:getHealth() * 10) / 10) .. "/" .. tostring(vehicleInfo.VehicleObject:getMaxHealth())
 		healthBar.Value.Size = UDim2.fromScale(vehicleInfo.VehicleObject:getHealth() / vehicleInfo.VehicleObject:getMaxHealth(), 1)
 	end
@@ -46,7 +56,7 @@ function funcs.onVehicleViewSet(vehicleInfo: VehicleUtil.VehicleInfo)
 	end))
 
 	cleaner:add(RunService.RenderStepped:Connect(function()
-		container.VehicleInfo.Speed.Text = "SPD: " .. tostring(math.round(vehicleInfo.DriverSeat.AssemblyLinearVelocity.Magnitude)) .. " / " .. tostring(vehicleInfo.VehicleConfig.MovementConfig.MaxSpeed) .. " sps"
+		vehicleInfoFrame.Speed.Text = "SPD: " .. tostring(math.round(vehicleInfo.DriverSeat.AssemblyLinearVelocity.Magnitude)) .. " / " .. tostring(vehicleInfo.VehicleConfig.MovementConfig.MaxSpeed) .. " sps"
 	end))
 
 	hudGui.Enabled = true
