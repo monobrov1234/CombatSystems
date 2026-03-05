@@ -27,6 +27,15 @@ module.FireMunition = Signal.new() -- (ray: RayTypeService.RayInfo)
 module.PreHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull)
 
 -- PUBLIC API
+function module.processMunitionFire(ray: RayTypeService.RayInfo)
+	module.FireMunition:fire(ray)
+end
+
+function module.processMunitionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
+	if not hit.Hit then return end
+	module.PreHit:fire(ray, hit)
+end
+
 function module.validateRayFire(ray: RayTypeService.RayInfoNonValid): RayTypeService.RayInfo
 	assert(ray.Player, "Ambiguous validateRay call on a ray without player field")
 
@@ -50,15 +59,6 @@ end
 
 function module.registerFireValidator(validator: ValidatorCallback)
 	table.insert(validatorPipeline, validator)
-end
-
-function module.processMunitionFire(ray: RayTypeService.RayInfo)
-	module.FireMunition:fire(ray)
-end
-
-function module.processMunitionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.Common)
-	if not hit.Hit then return end
-	module.PreHit:fire(ray, hit)
 end
 
 return module
