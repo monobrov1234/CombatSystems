@@ -24,7 +24,7 @@ return {
 		},
 
 		RecoilConfig = {
-			Yaw = -40,
+			Yaw = -30,
 			Pitch = 20,
 			Strength = 1,
 			LerpTime = 0.2,

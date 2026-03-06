@@ -18,7 +18,7 @@ function funcs.handleTypeRigRequested(vehicle: Model, vehicleConfig: VehicleConf
 	if vehicleConfig.ConfigType ~= "Normal" then return end
 
 	local wheelsModel = vehicle:FindFirstChild("Wheels")
-	assert(wheelsModel, "Wheels model not found")
+	assert(wheelsModel, "Wheels model not found. All wheels should be in a model named 'Wheels' in the root of the vehicle model")
 	RigUtil.clearWelds(wheelsModel)
 
 	local wheels: { BasePart } = {}

@@ -13,7 +13,9 @@ return {
 
 		ImpactFXHandler = {
 			HandlerModuleName = "HEImpactFXHandler",
-			HandlerConfig = {}
+			HandlerConfig = {
+				ExplosionType = "Normal"
+			}
 		},
 	},
 

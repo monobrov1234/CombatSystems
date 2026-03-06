@@ -1,6 +1,6 @@
 return {
 	ConfigType = "Normal",
-	Description = "Utility Vehicle",
+	Description = "Firefighting Vehicle",
 	MaxHealth = 20,
 
 	PhysicalConfig = {
@@ -9,7 +9,7 @@ return {
 
 	MovementConfig = {
 		MaxSpeed = 50,
-		Acceleration = 0.25,
+		Acceleration = 0.3,
 		Braking = 0.5,
 		TorqueMultiplier = 130,
 	},
@@ -19,9 +19,9 @@ return {
 	},
 
 	SuspensionConfig = {
-		FreeLength = 1.7,
+		FreeLength = 1.4,
 		LowerLimit = 0.1,
-		StiffnessMultiplier = 250,
-		DampingPercent = 10,
+		StiffnessMultiplier = 300,
+		DampingPercent = 9,
 	},
 }

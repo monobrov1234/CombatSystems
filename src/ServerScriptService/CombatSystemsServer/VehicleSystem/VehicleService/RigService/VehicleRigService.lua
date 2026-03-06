@@ -76,7 +76,8 @@ function module.rigVehicle(vehicleInfo: VehicleUtil.VehicleInfoNotRigged): Vehic
 		module.TypeRigRequested:fire(vehicle, config, chassis, totalMass)
 
 		local wheels: { BasePart } = module.findWheels(vehicle)
-		for _, wheel in ipairs(wheels) do
+		assert(#wheels > 0, "Vehicle has no wheels. Each wheel must be tagged with 'Wheel' tag and be a BasePart")
+		for _, wheel: BasePart in ipairs(wheels) do
 			wheel.CollisionGroup = "Wheel"
 		end
 
@@ -146,7 +147,7 @@ function module.findWheels(vehicleModel: Model): { BasePart }
 	local wheels = {} :: { BasePart }
 
 	for _, wheel: Instance in ipairs(vehicleModel:GetDescendants()) do
-		if wheel:IsA("BasePart") and wheel:HasTag("Wheel") then table.insert(wheels, wheel :: BasePart) end
+		if wheel:IsA("BasePart") and wheel:HasTag("Wheel") then table.insert(wheels, wheel) end
 	end
 
 	return wheels
