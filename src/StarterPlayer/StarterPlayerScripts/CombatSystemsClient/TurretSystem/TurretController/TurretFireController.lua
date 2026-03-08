@@ -55,7 +55,7 @@ function funcs.handleTurretViewCleared()
 	turretState = nil
 end
 
-function funcs.handleTurretStateChanged(newTurretState: TurretUtil.TurretStateInfo)
+function funcs.handleTurretStateChanged(newTurretState: TurretUtil.TurretStateInfo?)
 	turretState = newTurretState
 end
 

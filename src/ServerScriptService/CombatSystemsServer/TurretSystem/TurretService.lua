@@ -19,10 +19,11 @@ local TurretStateService = require(script.Parent.TurretStateService)
 -- S->C
 local setTurretStateRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ServerToClient.SetState
 -- C->S
-local reloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.ReloadTurret
 local switchShellsRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchShells
 local switchGunRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchGun
 -- SHARED
+-- C->S: used to request mag reload from server; S->C used to tell client that reload has been finished and he can unlock his reload state
+local reloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.ReloadTurret
 local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateReload
 local replicationRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateState
 
@@ -93,6 +94,7 @@ function funcs.handleReloadTurret(player: Player, isMain: boolean)
 	end
 
 	setTurretStateRemote:FireClient(player, stateInfo)
+	reloadRemote:FireClient(player)
 end
 
 -- handles reload replication (reload sound)

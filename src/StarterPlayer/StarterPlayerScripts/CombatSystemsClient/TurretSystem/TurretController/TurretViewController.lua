@@ -29,7 +29,7 @@ local turretState: TurretUtil.TurretStateInfo?
 -- PUBLIC EVENTS
 module.TurretViewSet = Signal.new()
 module.TurretViewCleared = Signal.new()
-module.TurretStateChanged = Signal.new()
+module.TurretStateChanged = Signal.new() -- (newTurretState: TurretUtil.TurretStateInfo?)
 
 -- PUBLIC API
 function module.setTurretView(turretModel: Model?, customRayFilters: { Instance }?)
@@ -45,6 +45,11 @@ function module.setTurretView(turretModel: Model?, customRayFilters: { Instance 
 
 	module.TurretViewSet:fire(turretInfo, customRayFilters)
 	log:debug("Local turret view set")
+end
+
+function module.invalidateTurretState()
+	turretState = nil
+	module.TurretStateChanged:fire(turretState)
 end
 
 function module.getCurrentTurretInfo(): TurretUtil.TurretInfo?

@@ -10,7 +10,6 @@ local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Mo
 local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
-local Connection = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal.Connection)
 
 -- IMPORTS INTERNAL
 local TurretSoundController = require(script.Parent.TurretSoundController)
@@ -19,10 +18,11 @@ local TurretViewController = require(script.Parent.TurretViewController)
 
 -- ROBLOX OBJECTS
 -- C->S
-local reloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.ReloadTurret
 local switchShellsRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchShells
 local switchGunRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.SwitchGun
 -- SHARED
+-- C->S: used to request mag reload from server; S->C used to tell client that reload has been finished and he can unlock his reload state
+local reloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.ReloadTurret
 local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateReload
 
 -- FINALS
@@ -63,9 +63,10 @@ function funcs.handleTurretViewCleared()
 	turretState = nil
 	reloading = false
 	reloadingCoax = false
+	reloadEndTime = 0
 end
 
-function funcs.handleTurretStateChanged(newTurretState: TurretUtil.TurretStateInfo)
+function funcs.handleTurretStateChanged(newTurretState: TurretUtil.TurretStateInfo?)
 	turretState = newTurretState
 end
 
@@ -87,7 +88,6 @@ function funcs.handleInputBegan(input: InputObject, gameProcessed: boolean)
 	end
 
 	if reloading or reloadingCoax then return end
-
 	local clipSize: number? = TurretStateController.getCurrentClipSize()
 	assert(clipSize)
 
@@ -98,10 +98,14 @@ function funcs.handleInputBegan(input: InputObject, gameProcessed: boolean)
 	end
 end
 
+function funcs.handleReloadFinished()
+	reloading = false
+	reloadingCoax = false
+end
+
 function funcs.reloadTurret(usingMain: boolean)
+	if reloading or reloadingCoax then return end
 	assert(turretInfo and turretState)
-	if usingMain and reloading then return end
-	if not usingMain and reloadingCoax then return end
 
 	local currentClipSize: number? = TurretStateController.getCurrentClipSize()
 	local currentStoredAmmo: number? = TurretStateController.getCurrentStoredAmmo()
@@ -119,11 +123,6 @@ function funcs.reloadTurret(usingMain: boolean)
 	module.ReloadStarted:fire(reloadDuration)
 
 	cleaner:add(task.delay(reloadDuration, function()
-		if usingMain then
-			reloading = false
-		else
-			reloadingCoax = false
-		end
 		reloadRemote:FireServer(usingMain)
 	end))
 	reloadEndTime = os.clock() + reloadDuration
@@ -143,7 +142,6 @@ function funcs.switchShells()
 	module.ReloadStarted:fire(reloadDuration)
 
 	cleaner:add(task.delay(reloadDuration, function()
-		reloading = false
 		switchShellsRemote:FireServer()
 	end))
 	reloadEndTime = os.clock() + reloadDuration
@@ -176,5 +174,6 @@ UserInputService.InputBegan:Connect(funcs.handleInputBegan)
 TurretViewController.TurretViewSet:connect(funcs.handleTurretViewSet)
 TurretViewController.TurretViewCleared:connect(funcs.handleTurretViewCleared)
 TurretViewController.TurretStateChanged:connect(funcs.handleTurretStateChanged)
+reloadRemote.OnClientEvent:Connect(funcs.handleReloadFinished)
 
 return module

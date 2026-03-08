@@ -42,6 +42,7 @@ local cleaner = ConnectionCleaner.new()
 
 -- STATE
 local turretInfo: TurretUtil.TurretInfo?
+local turretState: TurretUtil.TurretStateInfo?
 local reloadBarClone: typeof(StarterGui.CombatSystemsGui.GunSystemGui.TurretViewGui.TurretCursor.ReloadBar)?
 local distanceBarClone: typeof(StarterGui.CombatSystemsGui.GunSystemGui.TurretViewGui.TurretCursor.DistanceBar)?
 
@@ -78,6 +79,15 @@ function funcs.handleTurretViewCleared()
 	turretInfo = nil
 end
 
+function funcs.handleTurretStateChanged(newTurretState: TurretUtil.TurretStateInfo?)
+	if newTurretState then -- keep old value if the state is erased
+		turretState = newTurretState
+	end
+
+	if not turretInfo then return end
+	funcs.rebuildHotbar()
+end
+
 function funcs.handleReloadStarted(duration: number)
 	funcs.startReload(duration)
 end
@@ -98,11 +108,6 @@ function funcs.handleTurretFire()
 	-- TODO
 end
 
-function funcs.handleTurretStateChanged()
-	if not turretInfo then return end
-	funcs.rebuildHotbar()
-end
-
 function funcs.handleUpdateCursorHud()
 	assert(turretInfo)
 	local centerHud = turretHudGui:FindFirstChild("CenterHud") :: any
@@ -110,11 +115,10 @@ function funcs.handleUpdateCursorHud()
 
 	centerHud.LockIndicator.Visible = TurretRotationController.isTurretLocked()
 
-	local state: TurretUtil.TurretStateInfo? = TurretViewController.getCurrentTurretState()
-	if state then
-		local maxClipSize = state.UsingMainGun and turretInfo.TurretConfig.GunConfig.ClipSize or turretInfo.TurretConfig.GunConfig.CoaxConfig.ClipSize
+	if turretState then
+		local maxClipSize = turretState.UsingMainGun and turretInfo.TurretConfig.GunConfig.ClipSize or turretInfo.TurretConfig.GunConfig.CoaxConfig.ClipSize
 		centerHud.ClipSize.Text = "Clip: " .. tostring(TurretStateController.getCurrentClipSize()) .. "/" .. tostring(maxClipSize)	
-		centerHud.CoaxIndicator.Visible = not state.UsingMainGun
+		centerHud.CoaxIndicator.Visible = not turretState.UsingMainGun
 	end
 
 	if TurretReloadController.isReloading() or TurretReloadController.isReloadingCoax() then
@@ -139,16 +143,13 @@ function funcs.handleUpdateCursorHud()
 end
 
 function funcs.updateHotbar()
-	assert(turretInfo)
+	assert(turretInfo and turretState)
 	local hotbar = turretHudGui:FindFirstChild("Hotbar") :: Frame
 	assert(hotbar)
 	local template = hotbar:FindFirstChild("HotbarTemplateItem") :: Frame
 	assert(template)
 
-	local state: TurretUtil.TurretStateInfo? = TurretViewController.getCurrentTurretState()
-	assert(state)
-
-	if state.UsingMainGun then
+	if turretState.UsingMainGun then
 		for _, item: Instance in ipairs(hotbar:GetChildren()) do
 			local found = false
 			for _, munition in ipairs(turretInfo.TurretConfig.GunConfig.AmmoTypes) do
@@ -161,14 +162,14 @@ function funcs.updateHotbar()
 			if not found then continue end
 
 			local item = item :: any
-			item.Count.Text = tostring(state.MunitionStorage[item.Name])
-			item.Icon.SelectedOutline.Transparency = (state.SelectedMunition == item.Name) and 0 or 1
+			item.Count.Text = tostring(turretState.MunitionStorage[item.Name])
+			item.Icon.SelectedOutline.Transparency = (turretState.SelectedMunition == item.Name) and 0 or 1
 		end
 	else 
 		for _, item: Instance in ipairs(hotbar:GetChildren()) do
 			if item.Name == turretInfo.TurretConfig.GunConfig.CoaxConfig.AmmoType then
 				local item = item :: any
-				item.Count.Text = tostring(state.CoaxAmmoSize)
+				item.Count.Text = tostring(turretState.CoaxAmmoSize)
 				item.Icon.SelectedOutline.Transparency = 0
 			end
 		end
@@ -176,14 +177,11 @@ function funcs.updateHotbar()
 end
 
 function funcs.rebuildHotbar()
-	assert(turretInfo)
+	assert(turretInfo and turretState)
 	local hotbar = turretHudGui:FindFirstChild("Hotbar") :: Frame
 	assert(hotbar)
 	local template = hotbar:FindFirstChild("HotbarTemplateItem") :: Frame
 	assert(template)
-
-	local state: TurretUtil.TurretStateInfo? = TurretViewController.getCurrentTurretState()
-	assert(state)
 
 	for _, child: Instance in ipairs(hotbar:GetChildren()) do
 		if child.Name ~= "HotbarTemplateItem" and child:IsA("Frame") then
@@ -206,7 +204,7 @@ function funcs.rebuildHotbar()
 		item.Parent = hotbar
 	end
 
-	if state.UsingMainGun then
+	if turretState.UsingMainGun then
 		for i: number, munition in ipairs(turretInfo.TurretConfig.GunConfig.AmmoTypes) do
 			local item = template:Clone()
 			initItem(item, munition.name, munition.iconId)

@@ -1,5 +1,5 @@
 return {
-	HumanoidDamage = 10,
+	HumanoidDamage = 12,
 
 	FXConfig = {
 		ShootFXHandler = {
