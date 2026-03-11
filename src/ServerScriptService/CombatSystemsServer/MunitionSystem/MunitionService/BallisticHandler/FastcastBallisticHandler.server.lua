@@ -59,6 +59,7 @@ function funcs.handleFireMunitionBallistic(player: Player, rayRequest: MunitionR
 		Origin = rayRequest.Origin,
 		Body = rayRequest.Body
 	}
+	
 	for _, pl in ipairs(Players:GetPlayers()) do
 		if pl == player then continue end
 		replicationBallisticRemote:FireClient(pl, replicatedRay)

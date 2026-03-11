@@ -41,9 +41,18 @@ function funcs.handleFireMunitionRaycast(player: Player, rayRequest: MunitionRay
 	end
 
 	-- replicate fire
+	local serverReplication: MunitionRayInfo.ServerReplication = {
+		Player = player,
+		Team = player.Team,
+		RayId = rayRequest.RayId,
+		MunitionName = rayRequest.MunitionName,
+		Origin = rayRequest.Origin,
+		Body = rayRequest.Body
+	}
+
 	for _, pl in ipairs(Players:GetPlayers()) do
 		if pl == player then continue end
-		replicationRemote:FireClient(pl, hit)
+		replicationRemote:FireClient(pl, serverReplication, hit)
 	end
 end
 
