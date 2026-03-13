@@ -43,7 +43,7 @@ function module.tryReloadGun()
 
 	local state: BackpackController.GunState? = BackpackController.getStateFor(gunInfo.Tool)
 	assert(state)
-	if state.SharedState.MagSize >= gunInfo.Config.GunConfig.MagSize then return end
+	if state.SharedState.MagSize >= gunInfo.Config.MagSize then return end
 	if state.SharedState.AmmoSize <= 0 then return end
 	if state.Dirty then return end
 	reloading = true
@@ -52,7 +52,7 @@ function module.tryReloadGun()
 	assert(reloadAnim, "No reload anim for gun " .. gunInfo.Tool.Name)
 	reloadAnim:Play()
 
-	cleaner:add(task.delay(gunInfo.Config.GunConfig.ReloadDuration, function()
+	cleaner:add(task.delay(gunInfo.Config.ReloadDuration, function()
 		reloadRemote:FireServer(gunInfo.Tool)
 		reloadAnim:Stop()
 		reloading = false
@@ -63,7 +63,7 @@ function module.tryReloadGun()
 	SoundUtil.play("Reload", gunInfo.AnimPart)
 	replicateReloadRemote:FireServer()
 
-	module.ReloadStarted:fire(gunInfo.Config.GunConfig.ReloadDuration)
+	module.ReloadStarted:fire(gunInfo.Config.ReloadDuration)
 	log:debug("Reloading gun...")
 end
 
@@ -85,6 +85,7 @@ end
 function funcs.handleInputBegan(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then return end
 	if not gunInfo then return end
+	
 	local equipped = BackpackController.getEquippedGun()
 	if not equipped or equipped.Tool ~= gunInfo.Tool then return end
 

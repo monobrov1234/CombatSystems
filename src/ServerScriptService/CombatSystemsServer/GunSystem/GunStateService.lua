@@ -63,8 +63,8 @@ function funcs.handleGunAdded(player: Player, gunTool: Tool)
 
 	stateTable[gunTool] = {
 		SharedState = {
-			MagSize = gunInfo.Config.GunConfig.MagSize,
-			AmmoSize = gunInfo.Config.GunConfig.AmmoSize,
+			MagSize = gunInfo.Config.MagSize,
+			AmmoSize = gunInfo.Config.AmmoSize,
 		},
 		LastShootTime = 0,
 	}

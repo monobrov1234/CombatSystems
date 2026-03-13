@@ -5,6 +5,7 @@ return {
 	-- bindings
 	KeyBindings = {
 		ReloadKey = Enum.KeyCode.R,
+		ZoomKey = Enum.KeyCode.Q,
 		PatrolKey = Enum.KeyCode.T,
 	},
 }

@@ -32,9 +32,9 @@ function funcs.handleGunReload(player: Player, gunTool: Tool)
 
 	local ammoSize = state.SharedState.AmmoSize
 	local magSize = state.SharedState.MagSize
-	local neededAmmo = config.GunConfig.MagSize - magSize
+	local neededAmmo = config.MagSize - magSize
 	if ammoSize >= neededAmmo then
-		state.SharedState.MagSize = config.GunConfig.MagSize
+		state.SharedState.MagSize = config.MagSize
 		state.SharedState.AmmoSize -= neededAmmo
 	else
 		state.SharedState.MagSize += ammoSize

@@ -22,6 +22,7 @@ local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSys
 local GunController = require(script.Parent.GunController)
 local BackpackController = require(script.Parent.BackpackController)
 local GunReloadController = require(script.Parent.GunReloadController)
+local GunZoomService = require(script.Parent.GunZoomService)
 local MovementController = require(PlayerScripts.CombatSystemsClient.MovementSystem.MovementController)
 
 -- ROBLOX OBJECTS
@@ -120,17 +121,19 @@ function funcs.tryFireGun()
 	end
 
 	-- spread calculation
-	local spreadConfig = gunInfo.Config.GunConfig.SpreadConfig
+	local spreadConfig = gunInfo.Config.SpreadConfig
 	local spreadMultiplier = 1
 	if humanoid.FloorMaterial == Enum.Material.Air then -- in air
 		spreadMultiplier = spreadConfig.InAirSpreadMultiplier
 	elseif MovementController.isCrouching() then -- crouching
 		spreadMultiplier = spreadConfig.CrouchingSpreadMultiplier
+	elseif GunZoomService.isZoomed() then -- zoomed
+		spreadMultiplier = spreadConfig.ZoomSpreadMultiplier
 	end
 
 	-- firing
 	MunitionController.fireMunition({
-		MunitionName = gunInfo.Config.GunConfig.AmmoType,
+		MunitionName = gunInfo.Config.AmmoType,
 		Origin = gunInfo.FiringPoint,
 		DirectionVec = mouse.Hit.Position - gunInfo.FiringPoint.CFrame.Position,
 		RaycastParams = raycastParams,
@@ -143,7 +146,7 @@ function funcs.tryFireGun()
 	module.FireGun:fire()
 
 	-- recoil
-	local recoilConfig = gunInfo.Config.GunConfig.RecoilConfig
+	local recoilConfig = gunInfo.Config.RecoilConfig
 	assert(recoilUtil)
 	recoilUtil:Kick(recoilConfig.Pitch, recoilConfig.Yaw, nil, recoilConfig.Strength, recoilConfig.LerpTime)
 
@@ -164,7 +167,7 @@ function funcs.canShoot(): boolean
 	if state.SharedState.MagSize <= 0 then return false end
 
 	local clock = os.clock()
-	if clock - state.LastShootTime < 60 / gunInfo.Config.GunConfig.FirerateRPM then return false end
+	if clock - state.LastShootTime < 60 / gunInfo.Config.FirerateRPM then return false end
 
 	return true
 end

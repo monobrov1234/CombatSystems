@@ -30,7 +30,7 @@ function funcs.validateGunFire(ray: RayTypeService.RayInfoNonValid): RaycastPara
 
 	local gunInfo = GunUtil.parseGunInfo(tool)
     -- verify that the munition we are firing is the config munition
-	assert(gunInfo.Config.GunConfig.AmmoType == ray.MunitionConfig.MunitionName)
+	assert(gunInfo.Config.AmmoType == ray.MunitionConfig.MunitionName)
 
 	local raycastParams = RaycastParams.new()
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
