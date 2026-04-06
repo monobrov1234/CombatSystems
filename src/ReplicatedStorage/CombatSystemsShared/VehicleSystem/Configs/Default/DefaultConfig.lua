@@ -96,5 +96,7 @@ return {
 		StiffnessMultiplier = 25,
 		-- Damping as a percentage of the stiffness value
 		DampingPercent = 5,
+		-- Max spring force
+		MaxForce = math.huge
 	},
 }

@@ -71,8 +71,20 @@ end
 
 function funcs.handleInputBegan(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then return end
+	if not gunInfo then return end
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then 
-		if not funcs.canShoot() then return end
+		if not funcs.canShoot() then
+			local state: BackpackController.GunState? = BackpackController.getStateFor(gunInfo.Tool)
+			assert(state)
+
+			-- check if need reload
+			if state.SharedState.MagSize <= 0 then
+				GunReloadController.tryReloadGun()
+			end
+			
+			return
+		end
+
 		funcs.startAutoFire()
 	end
 end
@@ -107,18 +119,12 @@ end
 
 function funcs.tryFireGun()
 	if not gunInfo then return end
+	if not funcs.canShoot() then return end
+
 	local state: BackpackController.GunState? = BackpackController.getStateFor(gunInfo.Tool)
 	assert(state)
 	local raycastParams: RaycastParams? = GunController.getRaycastParams()
 	assert(raycastParams)
-
-	-- check if can shoot
-	if not funcs.canShoot() then
-		if state.SharedState.MagSize <= 0 then
-			GunReloadController.tryReloadGun()
-		end
-		return
-	end
 
 	-- spread calculation
 	local spreadConfig = gunInfo.Config.SpreadConfig
@@ -155,6 +161,15 @@ function funcs.tryFireGun()
 	assert(shootAnim, "No shoot animation for gun " .. gunInfo.Tool.Name)
 	shootAnim:Play()
 	SoundUtil.play("Fire", gunInfo.FiringPoint)
+
+	-- check if need reload
+	if not funcs.canShoot() and state.SharedState.MagSize <= 0 then
+		GunReloadController.tryReloadGun()
+	end
+
+	if not gunInfo.Config.AutoFire then
+		funcs.stopAutoFire()
+	end
 end
 
 function funcs.canShoot(): boolean

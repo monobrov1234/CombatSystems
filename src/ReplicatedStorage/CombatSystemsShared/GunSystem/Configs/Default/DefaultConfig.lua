@@ -2,6 +2,7 @@ return {
 	Description = "Default gun", -- Description of the gun, displayed in the gun HUD
 
 	FirerateRPM = 650, -- Rate of fire in rounds per minute
+	AutoFire = true, -- Gun will automatically fire when the player is holding the fire button
 	ReloadDuration = 3, -- Duration of the reload in seconds
 	MagSize = 30, -- Size of the magazine
 	AmmoSize = 250, -- Size of the ammo

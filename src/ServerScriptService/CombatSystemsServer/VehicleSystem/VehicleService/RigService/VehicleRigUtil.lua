@@ -41,6 +41,7 @@ function module.constraintWheel(vehicleConfig: VehicleConfigUtil.DefaultType, ch
 	spring.FreeLength = vehicleConfig.SuspensionConfig.FreeLength
 	spring.Stiffness = (totalMass / wheelCount) * vehicleConfig.SuspensionConfig.StiffnessMultiplier
 	spring.Damping = (spring.Stiffness / 100) * vehicleConfig.SuspensionConfig.DampingPercent
+	spring.MaxForce = vehicleConfig.SuspensionConfig.MaxForce
 	spring.Parent = wheel
 
 	local motor = Instance.new("CylindricalConstraint")
