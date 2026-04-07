@@ -1,3 +1,5 @@
+local assets = game:GetService("ReplicatedStorage").CombatSystemsShared.MovementSystem.Assets
+
 return {
 	-- Enable the movement system (sprint and crouch)
 	Enabled = true,
@@ -7,8 +9,8 @@ return {
 	CrouchKey = Enum.KeyCode.C,
 
 	-- Animation links
-	SprintAnimation = script.Sprint,
-	CrouchAnimation = script.Crouch,
+	SprintAnimation = assets.SprintAnim,
+	CrouchAnimation = assets.CrouchAnim,
 
 	-- Behavior
 	DefaultWalkSpeed = 16,

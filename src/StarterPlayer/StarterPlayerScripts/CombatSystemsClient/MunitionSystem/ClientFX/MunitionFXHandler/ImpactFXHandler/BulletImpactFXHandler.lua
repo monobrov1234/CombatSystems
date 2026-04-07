@@ -12,6 +12,9 @@ local MunitionSystemConfig = require(ReplicatedStorage.CombatSystemsShared.Munit
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local MunitionController = require(PlayerScripts.CombatSystemsClient.MunitionSystem.MunitionController)
 
+-- ROBLOX OBJECTS
+local assets = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Assets.ClientFXHandler.ImpactFXHandler[script.Name]
+
 -- FINALS
 export type Config = {
 	Color: ColorSequence,
@@ -23,7 +26,7 @@ MunitionController.RayEnded:connect(function(ray: MunitionController.RayInfo, hi
 
 	-- this is from trek
 	local config = handler.HandlerConfig :: Config
-	local particle = script.Particle:Clone()
+	local particle = assets.Particle:Clone()
 	particle.Position = hit.HitPos
 	particle.Parent = MunitionSystemConfig.ProjectileFolder
 

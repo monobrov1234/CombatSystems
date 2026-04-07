@@ -1,6 +1,8 @@
 local CollectionService = game:GetService("CollectionService")
 local StarterGui = game:GetService("StarterGui")
 
+local assets = game:GetService("ReplicatedStorage").CombatSystemsShared.VehicleSystem.Assets
+
 local config = {
 	FolderTag = "SpawnableVehicles", -- can be any instance, all vehicles that can be spawned should be there
 	Folder = (nil :: any) :: Folder, -- will be set internally to a folder resolved by the FolderTag attribute
@@ -25,7 +27,7 @@ local config = {
 		StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.Backpack, true)
 	end,
 
-	BasePrompt = script.BasePrompt, -- this will be used for all vehicle system prompts (spawner prompts, driver prompts, passenger prompts, etc.)
+	BasePrompt = assets.VehicleBasePrompt, -- this will be used for all vehicle system prompts (spawner prompts, driver prompts, passenger prompts, etc.)
 }
 
 -- find and set the config folder

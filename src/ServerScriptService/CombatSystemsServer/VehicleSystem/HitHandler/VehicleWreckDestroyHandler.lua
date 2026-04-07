@@ -16,6 +16,9 @@ local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionS
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local DObjectHitService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.DObjectService.DObjectHitService)
 
+-- ROBLOX OBJECTS
+local assets = ReplicatedStorage.CombatSystemsShared.VehicleSystem.Assets.VehicleWreckDestroyHandler
+
 -- FINALS
 local _log: Logger.SelfObject = Logger.new("VehicleWreckDestroyHandler")
 
@@ -51,11 +54,11 @@ function funcs.handleHit(ray: RayTypeService.RayInfo, rayHit: MunitionRayHitInfo
 		vehicle:Destroy()
 	end)
 
-	local sound: Sound = script.PipeSound:Clone()
+	local sound: Sound = assets.PipeSound:Clone()
 	sound.Parent = vehicle.PrimaryPart
 	sound:Play()
 
-	local sound2: Sound = script.ExplosionSound:Clone()
+	local sound2: Sound = assets.ExplosionSound:Clone()
 	sound2.Parent = vehicle.PrimaryPart
 	sound2:Play()
 

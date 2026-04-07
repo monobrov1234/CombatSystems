@@ -2,6 +2,8 @@
 	Default configuration for every vehicle type
 ]]
 
+local assets = game:GetService("ReplicatedStorage").CombatSystemsShared.VehicleSystem.Assets.Configs._Default
+
 return {
 	-- Internal config identifier. Automatically set by the system. Do not change.
 	ConfigType = "" :: string,
@@ -44,13 +46,13 @@ return {
 	DecorConfig = {
 		SoundsConfig = {
 			-- Sound played when entering the driver seat
-			Enter = script.Start :: Sound?,
+			Enter = assets.Start :: Sound?,
 			-- Sound played when dismounting from the vehicle
-			Dismount = script.Stop :: Sound?,
+			Dismount = assets.Stop :: Sound?,
 			-- Looping idle engine sound
-			EngineIdle = script.Active :: Sound?,
+			EngineIdle = assets.Active :: Sound?,
 			-- Looping sound played while the vehicle is moving
-			EngineMove = script.Move :: Sound?,
+			EngineMove = assets.Move :: Sound?,
 		},
 	},
 

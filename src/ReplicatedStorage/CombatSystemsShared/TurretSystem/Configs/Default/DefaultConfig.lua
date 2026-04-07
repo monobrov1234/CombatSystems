@@ -1,3 +1,5 @@
+local assets = game:GetService("ReplicatedStorage").CombatSystemsShared.TurretSystem.Assets.Configs._Default
+
 export type AmmoStoreType = {
 	name: string,
 	stored: number,
@@ -38,13 +40,13 @@ return {
 			SwitchSound = nil :: Sound?,
 
 			-- Sound played when selecting the coaxial machine gun
-			CoaxSelectSound = script.CoaxSelect :: Sound?,
+			CoaxSelectSound = assets.CoaxSelect :: Sound?,
 			-- Short sound played when turret traversal starts (hydraulics/electric whine)
-			TraverseStartSound = script.Start :: Sound?,
+			TraverseStartSound = assets.Start :: Sound?,
 			-- Looping traversal sound
-			TraverseSound = script.Traverse :: Sound?,
+			TraverseSound = assets.Traverse :: Sound?,
 			-- Sound played when turret stops rotating
-			TraverseEndSound = script.End :: Sound?,
+			TraverseEndSound = assets.End :: Sound?,
 		},
 	},
 
@@ -83,7 +85,7 @@ return {
 		-- Whether a coaxial machine gun is available
 		EnableCoax = false,
 		-- Configuration module for the coaxial weapon
-		CoaxConfig = require(script.Parent.Parent.Coax["Tank 7.62mm"]),
+		CoaxConfig = require(script.Parent.Parent.Coax["Tank 7.62mm"] :: nil),
 	},
 
 	ZoomConfig = {
