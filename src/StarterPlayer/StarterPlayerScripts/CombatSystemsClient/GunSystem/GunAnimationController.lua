@@ -132,6 +132,7 @@ function funcs.setPatrol(value: boolean)
 
 	local patrolAnim: AnimationTrack? = BackpackController.resolveAnim(gunInfo.Tool, gunInfo.Config.DecorConfig.AnimationsFolder:FindFirstChild("Patrol"))
 	if not patrolAnim then return end
+	patrolAnim.Priority = Enum.AnimationPriority.Action2
 
 	patrol = value
 	if value then patrolAnim:Play()
