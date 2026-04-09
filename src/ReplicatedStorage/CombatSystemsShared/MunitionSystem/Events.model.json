@@ -1,0 +1,59 @@
+{
+    "ClassName": "Folder",
+    "Children": [
+        {
+            "ClassName": "Folder",
+            "Name": "ClientFX",
+            "Children": [
+                {
+                    "ClassName": "Folder",
+                    "Name": "ServerToClient",
+                    "Children": [
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "ExplosionHitmark"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "ClassName": "Folder",
+            "Name": "Core",
+            "Children": [
+                {
+                    "ClassName": "Folder",
+                    "Name": "ClientToServer",
+                    "Children": [
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "FireMunition"
+                        },
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "FireMunitionBallistic"
+                        },
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "VerifyHitBallistic"
+                        }
+                    ]
+                },
+                {
+                    "ClassName": "Folder",
+                    "Name": "ServerToClient",
+                    "Children": [
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "ReplicateFireMunition"
+                        },
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "ReplicateFireMunitionBallistic"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

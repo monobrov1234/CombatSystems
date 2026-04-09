@@ -1,0 +1,61 @@
+{
+    "ClassName": "Folder",
+    "Children": [
+        {
+            "ClassName": "Folder",
+            "Name": "AdminTools",
+            "Children": [
+                {
+                    "ClassName": "Folder",
+                    "Name": "ClientToServer",
+                    "Children": [
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "DeleteVehicle"
+                        },
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "SpawnVehicle"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "ClassName": "Folder",
+            "Name": "ClientToServer",
+            "Children": [
+                {
+                    "ClassName": "RemoteEvent",
+                    "Name": "SetVehicleOwnership"
+                }
+            ]
+        },
+        {
+            "ClassName": "Folder",
+            "Name": "SpawnerService",
+            "Children": [
+                {
+                    "ClassName": "Folder",
+                    "Name": "ClientToServer",
+                    "Children": [
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "UseSpawner"
+                        }
+                    ]
+                },
+                {
+                    "ClassName": "Folder",
+                    "Name": "ServerToClient",
+                    "Children": [
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "OpenSpawnerGui"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

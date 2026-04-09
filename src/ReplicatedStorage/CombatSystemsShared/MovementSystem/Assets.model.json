@@ -1,0 +1,19 @@
+{
+    "ClassName": "Folder",
+    "Children": [
+        {
+            "ClassName": "Animation",
+            "Name": "CrouchAnim",
+            "Properties": {
+                "AnimationId": "rbxassetid://139320269568044"
+            }
+        },
+        {
+            "ClassName": "Animation",
+            "Name": "SprintAnim",
+            "Properties": {
+                "AnimationId": "rbxassetid://88801032432549"
+            }
+        }
+    ]
+}

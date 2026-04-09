@@ -4,8 +4,10 @@
 local Logger = {}
 Logger.__index = Logger
 
-export type Level = "OFF" | "INFO" | "DEBUG" | "TRACE"
-Logger.Level = "TRACE" :: Level
+-- IMPORTS
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CombatSystemsConfig = require(ReplicatedStorage.CombatSystemsShared.CombatSystemsConfig)
+Logger.Level = CombatSystemsConfig.LogLevel
 
 export type SelfObject = typeof(setmetatable({}, Logger)) & {
 	name: string,

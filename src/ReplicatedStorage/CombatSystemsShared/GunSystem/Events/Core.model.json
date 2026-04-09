@@ -1,0 +1,33 @@
+{
+    "ClassName": "Folder",
+    "Children": [
+        {
+            "ClassName": "Folder",
+            "Name": "ClientToServer",
+            "Children": [
+                {
+                    "ClassName": "RemoteEvent",
+                    "Name": "ReloadGun"
+                }
+            ]
+        },
+        {
+            "ClassName": "Folder",
+            "Name": "ServerToClient",
+            "Children": [
+                {
+                    "ClassName": "RemoteEvent",
+                    "Name": "ReplicateFireGun"
+                },
+                {
+                    "ClassName": "RemoteEvent",
+                    "Name": "SetGunState"
+                }
+            ]
+        },
+        {
+            "ClassName": "RemoteEvent",
+            "Name": "ReplicateReloadGun"
+        }
+    ]
+}

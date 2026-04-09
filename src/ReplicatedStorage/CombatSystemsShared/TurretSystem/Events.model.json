@@ -1,0 +1,55 @@
+{
+    "ClassName": "Folder",
+    "Children": [
+        {
+            "ClassName": "Folder",
+            "Name": "Core",
+            "Children": [
+                {
+                    "ClassName": "Folder",
+                    "Name": "ClientToServer",
+                    "Children": [
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "ReloadTurret"
+                        },
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "SwitchGun"
+                        },
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "SwitchShells"
+                        }
+                    ]
+                },
+                {
+                    "ClassName": "Folder",
+                    "Name": "ServerToClient",
+                    "Children": [
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "ClearTurretView"
+                        },
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "ReplicateFire"
+                        },
+                        {
+                            "ClassName": "RemoteEvent",
+                            "Name": "SetState"
+                        }
+                    ]
+                },
+                {
+                    "ClassName": "RemoteEvent",
+                    "Name": "ReplicateReload"
+                },
+                {
+                    "ClassName": "RemoteEvent",
+                    "Name": "ReplicateState"
+                }
+            ]
+        }
+    ]
+}
