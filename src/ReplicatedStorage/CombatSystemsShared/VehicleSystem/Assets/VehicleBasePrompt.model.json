@@ -1,3 +1,6 @@
 {
-    "ClassName": "ProximityPrompt"
+    "ClassName": "ProximityPrompt",
+    "Properties": {
+        "RequiresLineOfSight": false
+    }
 }
