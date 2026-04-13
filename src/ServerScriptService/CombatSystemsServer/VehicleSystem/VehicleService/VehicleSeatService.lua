@@ -67,11 +67,9 @@ function funcs.handlePromptGeneric(player: Player, vehicleInfo: VehicleUtil.Vehi
 	cleaner:add(humanoid.Seated:Connect(function(active: boolean)
 		if not active then resetPrompt() end
 	end))
-
 	cleaner:add(player.CharacterRemoving:Connect(function()
 		resetPrompt()
 	end))
-
 	cleaner:add(Players.PlayerRemoving:Connect(function(playerRemoving: Player)
 		if playerRemoving == player then resetPrompt() end
 	end))

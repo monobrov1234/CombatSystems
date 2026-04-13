@@ -40,6 +40,7 @@ function funcs.handleSeatPromptTriggered(player: Player, turretInfo: TurretUtil.
 			cleaned = true
 			prompt.Enabled = true
 			cleaner:disconnectAll()
+			funcs.handleDismount(player, seat)
 		end
 
 		-- recheck memory leaks
@@ -53,6 +54,19 @@ function funcs.handleSeatPromptTriggered(player: Player, turretInfo: TurretUtil.
 		cleaner:add(Players.PlayerRemoving:Connect(function(playerRemoving: Player)
 			if playerRemoving == player then resetPrompt() end
 		end))
+	end
+end
+
+function funcs.handleDismount(player: Player, seat: BasePart)
+	local dismountPart = seat:FindFirstChild("DismountPart") :: BasePart?
+	if dismountPart and dismountPart:IsA("BasePart") then
+		local character: Model? = player.Character
+		if character then
+			local humanoidRootPart = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+			if humanoidRootPart and humanoidRootPart:IsA("BasePart") then 
+				humanoidRootPart:PivotTo(dismountPart.CFrame) 
+			end
+		end
 	end
 end
 
