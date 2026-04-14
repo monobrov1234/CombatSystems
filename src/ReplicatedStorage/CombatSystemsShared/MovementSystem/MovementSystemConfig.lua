@@ -8,9 +8,9 @@ return {
 	SprintKey = Enum.KeyCode.F,
 	CrouchKey = Enum.KeyCode.C,
 
-	-- Animation links
-	SprintAnimation = assets.SprintAnim,
-	CrouchAnimation = assets.CrouchAnim,
+	-- Animation links, set to nil if you don't want custom animations
+	SprintAnimation = assets.SprintAnim :: Animation?,
+	CrouchAnimation = assets.CrouchAnim :: Animation?,
 
 	-- Behavior
 	DefaultWalkSpeed = 16,

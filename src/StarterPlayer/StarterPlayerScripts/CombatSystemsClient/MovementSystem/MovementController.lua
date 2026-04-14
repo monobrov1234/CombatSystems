@@ -15,9 +15,8 @@ local character = player.Character or player.CharacterAdded:Wait()
 local humanoid = character:WaitForChild("Humanoid") :: Humanoid
 local animator = humanoid:WaitForChild("Animator") :: Animator
 
-local sprintAnim = animator:LoadAnimation(Config.SprintAnimation)
-sprintAnim.Looped = true
-local crouchAnim = animator:LoadAnimation(Config.CrouchAnimation)
+local sprintAnim: AnimationTrack?
+local crouchAnim: AnimationTrack?
 
 -- STATE
 local sprinting = false
@@ -63,7 +62,9 @@ function funcs.toggleSprint()
 	if sprinting then
 		sprinting = false
 		humanoid.WalkSpeed = Config.DefaultWalkSpeed
-		sprintAnim:Stop()
+		if sprintAnim then
+			sprintAnim:Stop()
+		end
 	else
 		sprinting = true
 		humanoid.WalkSpeed = Config.SprintWalkSpeed
@@ -80,12 +81,14 @@ function funcs.toggleCrouch()
 		crouching = false
 		humanoid.WalkSpeed = Config.DefaultWalkSpeed
 		humanoid.HipHeight = 0
-		crouchAnim:Stop()
+		if crouchAnim then
+			crouchAnim:Stop()
+		end
 	else
 		crouching = true
 		humanoid.WalkSpeed = Config.CrouchWalkSpeed
 		humanoid.HipHeight = Config.CrouchHipHeight
-		if funcs.canPlayAnimations() then crouchAnim:Play() end
+		if crouchAnim and funcs.canPlayAnimations() then crouchAnim:Play() end
 	end
 
 	module.CrouchingStateChanged:fire(oldState, crouching)
@@ -93,9 +96,9 @@ end
 
 function funcs.updateAnimations()
 	if not funcs.canPlayAnimations() then
-		if sprintAnim.IsPlaying then
+		if sprintAnim and sprintAnim.IsPlaying then
 			sprintAnim:Stop()
-		elseif crouchAnim.IsPlaying then
+		elseif crouchAnim and crouchAnim.IsPlaying then
 			crouchAnim:Stop()
 		end
 
@@ -104,14 +107,20 @@ function funcs.updateAnimations()
 
 	if humanoid.MoveDirection.Magnitude == 0 then
 		-- player not moving
-		if sprinting and sprintAnim.IsPlaying then sprintAnim:Stop() end
+		if sprinting and sprintAnim and sprintAnim.IsPlaying then 
+			sprintAnim:Stop()
+		 end
 
-		if crouching then crouchAnim:AdjustSpeed(0) end
+		if crouching and crouchAnim then 
+			crouchAnim:AdjustSpeed(0) 
+		end
 	else
 		-- player moving
-		if sprinting and not sprintAnim.IsPlaying then sprintAnim:Play() end
+		if sprinting and sprintAnim and not sprintAnim.IsPlaying then 
+			sprintAnim:Play() 
+		end
 
-		if crouching then
+		if crouching and crouchAnim then
 			if not crouchAnim.IsPlaying then
 				crouchAnim:Play()
 			elseif crouchAnim.Speed == 0 then
@@ -129,6 +138,20 @@ function funcs.canPlayAnimations()
 		and state ~= Enum.HumanoidStateType.Dead
 end
 
+function funcs.loadAnimations()
+	if Config.SprintAnimation then
+		sprintAnim = animator:LoadAnimation(Config.SprintAnimation)
+		assert(sprintAnim)
+		sprintAnim.Looped = true
+	end
+	
+	if Config.SprintAnimation then
+		crouchAnim = animator:LoadAnimation(Config.CrouchAnimation)
+	end
+end
+
+funcs.loadAnimations()
+
 UserInputService.InputBegan:Connect(funcs.handleInput)
 RunService.Heartbeat:Connect(funcs.updateAnimations)
 
@@ -137,11 +160,9 @@ player.CharacterAdded:Connect(function(newCharacter: Model)
 	humanoid = character:WaitForChild("Humanoid")
 	animator = humanoid:WaitForChild("Animator")
 
-	sprintAnim:Destroy()
-	crouchAnim:Destroy()
-	sprintAnim = animator:LoadAnimation(Config.SprintAnimation)
-	sprintAnim.Looped = true
-	crouchAnim = animator:LoadAnimation(Config.CrouchAnimation)
+	if sprintAnim then sprintAnim:Destroy() end
+	if crouchAnim then crouchAnim:Destroy() end
+	funcs.loadAnimations()
 end)
 
 return module
