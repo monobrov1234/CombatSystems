@@ -65,9 +65,14 @@ function module.rigVehicle(vehicleInfo: VehicleUtil.VehicleInfoNotRigged): Vehic
 		local totalMass = config.PhysicalConfig.Mass * 1000
 		for _, part: Instance in ipairs(vehicle:GetDescendants()) do
 			if not part:IsA("BasePart") then continue end
-			part.CustomPhysicalProperties = part:HasTag("Wheel") and config.WheelConfig.PhysicalProperties or config.PhysicalConfig.DefaultPhysicalProperties
-			part.Massless = false
-			totalMass += part.Mass
+			if part:HasTag("Wheel") then
+				part.CustomPhysicalProperties = config.WheelConfig.PhysicalProperties
+				part.Massless = false
+				totalMass += part.Mass
+			else
+				part.CustomPhysicalProperties = config.PhysicalConfig.DefaultPhysicalProperties
+				part.Massless = true
+			end
 		end
 
 		log:debug("Vehicle total mass: {}", totalMass)

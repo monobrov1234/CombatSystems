@@ -53,13 +53,33 @@ function funcs.start()
         local center = sum / #wheelParts
         local cf = chassis.CFrame
         chassis.CFrame = CFrame.new(center) * (cf - cf.Position)
+        -- move a bit up
+        chassis.CFrame *= CFrame.new(Vector3.new(0, 2, 0))
 		
 		vehicle:AddTag("VehicleControl")
 		vehicle:SetAttribute("DObjectArmor", "BulletProofArmor")
 		vehicle.PrimaryPart = chassis
 
         -- move the vehicle to the ported vehicles folder
-        vehicle.Parent = portedVehiclesFolder
+        if vehicle:FindFirstChild("Tracks") then
+            local trackedFolder = portedVehiclesFolder:FindFirstChild("TrackedVehicles") :: Folder?
+            if not trackedFolder then
+                trackedFolder = Instance.new("Folder", portedVehiclesFolder)
+                assert(trackedFolder)
+                trackedFolder.Name = "TrackedVehicles" 
+            end
+
+            vehicle.Parent = trackedFolder
+        else
+            local wheeledFolder = portedVehiclesFolder:FindFirstChild("WheeledVehicles") :: Folder?
+            if not wheeledFolder then
+                wheeledFolder = Instance.new("Folder", portedVehiclesFolder)
+                assert(wheeledFolder)
+                wheeledFolder.Name = "WheeledVehicles" 
+            end
+
+            vehicle.Parent = wheeledFolder
+        end
 
         log:info("Successfully ported vehicle {}", vehicle.Name)
     end
@@ -184,15 +204,30 @@ function funcs.translateWheels(vehicle: Model): boolean -- step 4
     else
         local tracks = vehicle:FindFirstChild("Tracks") :: Model?
         if not tracks or not tracks:IsA("Model") then
-            log:error("Vehicle {} doesn't have any wheels nor tracks", vehicle.Name)
+            log:error("Vehicle {} doesn't have any wheels or tracks", vehicle.Name)
             return false
         end
 
+        local tracksDecor = vehicle:FindFirstChild("TracksDecor") :: Model?
+        if tracksDecor and tracksDecor:IsA("Model") then
+            -- disable collision for decor tracks
+            for _, descendant: Instance in ipairs(tracksDecor:GetDescendants()) do
+                if not descendant:IsA("BasePart") then continue end
+                descendant.CanCollide = false
+            end
+        end
+
+        local baseWheelY: number? = nil
         for _, trackModel: Instance in ipairs(tracks:GetChildren()) do
             if not trackModel:IsA("Model") then continue end
 
             for _, wheel: Instance in ipairs(trackModel:GetChildren()) do
                 if not wheel:IsA("BasePart") then continue end
+                if not baseWheelY then
+                    baseWheelY = wheel.Position.Y
+                else
+                    wheel.Position = Vector3.new(wheel.Position.X, baseWheelY, wheel.Position.Z)
+                end
             
                 if trackModel.Name == "L" then
                     wheel:SetAttribute("TrackSide", "L")
@@ -200,6 +235,20 @@ function funcs.translateWheels(vehicle: Model): boolean -- step 4
                     wheel:SetAttribute("TrackSide", "R")
                 end
                 wheel:AddTag("Wheel")
+
+                -- adjust wheels for suspension
+                if wheel:IsA("MeshPart") then
+                    wheel:ApplyMesh(workspace.SphericMesh) -- sphere
+                end
+
+                wheel.CFrame *= CFrame.new(Vector3.new(0, 1.5, 0))
+                wheel.Size = Vector3.new(4.8, 4.8, 4.8)
+
+                if trackModel.Name == "L" then
+                    wheel.CFrame *= CFrame.new(1, 0, 0)
+                elseif trackModel.Name == "R" then
+                    wheel.CFrame *= CFrame.new(-1, 0, 0)
+                end
             end
         end
     end
@@ -226,7 +275,7 @@ function funcs.translateTurret(vehicle: Model): boolean
     end
 
     local turretModel = Instance.new("Model")
-    turretModel.Name = "PlaceholderTurret"
+    turretModel.Name = "MediumTankTurret"
     turretModel.Parent = vehicle
 
     -- move body and gun
@@ -246,16 +295,22 @@ function funcs.translateTurret(vehicle: Model): boolean
     -- pitch base, yaw base
     local yawBase = turretBase
     yawBase.Name = "YawBase"
+    yawBase.CFrame = CFrame.new(yawBase.Position) -- reset orientation
     yawBase.Parent = turretModel
+
     local yawTarget = turret
     yawTarget.Name = "BodyRoot"
+    yawTarget.CFrame = CFrame.new(yawTarget.Position) * CFrame.fromOrientation(0, math.rad(-90), 0)
     turretBody.PrimaryPart = yawTarget
     
     local pitchBase = gunBase
     pitchBase.Name = "PitchBase"
+    pitchBase.CFrame = CFrame.new(pitchBase.Position) -- reset orientation
     pitchBase.Parent = turretModel
+
     local pitchTarget = gun
     pitchTarget.Name = "GunRoot"
+    pitchTarget.CFrame = CFrame.new(pitchTarget.Position) * CFrame.fromOrientation(0, math.rad(-90), 0)
     turretGun.PrimaryPart = pitchTarget
     
     -- firing point
