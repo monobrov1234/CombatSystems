@@ -12,6 +12,7 @@ local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Mo
 local MunitionService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.MunitionService)
 local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.RayTypeService)
 
+-- INTERNAL FUNCTIONS
 function funcs.validateTurretFire(rayInfo: RayTypeService.RayInfoNonValid): RaycastParams?
     if not rayInfo.Player then return nil end -- should have player to get a turret he is manning
     

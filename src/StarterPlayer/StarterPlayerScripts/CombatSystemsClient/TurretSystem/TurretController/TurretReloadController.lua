@@ -9,6 +9,7 @@ local UserInputService = game:GetService("UserInputService")
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
 local ConnectionCleaner = require(ReplicatedStorage.CombatSystemsShared.Utils.ConnectionCleaner)
+local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
 -- IMPORTS INTERNAL
@@ -23,9 +24,10 @@ local switchGunRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Event
 -- SHARED
 -- C->S: used to request mag reload from server; S->C used to tell client that reload has been finished and he can unlock his reload state
 local reloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.ReloadTurret
-local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateReload
+local replicateReloadSoundRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateReloadSound
 
 -- FINALS
+local log: Logger.SelfObject = Logger.new("TurretReloadController")
 local cleaner = ConnectionCleaner.new()
 
 -- STATE
@@ -121,14 +123,16 @@ function funcs.reloadTurret(usingMain: boolean)
 
 	local reloadDuration: number = funcs.getReloadDuration()
 	module.ReloadStarted:fire(reloadDuration)
+	log:debug("Client reload timer started")
 
 	cleaner:add(task.delay(reloadDuration, function()
 		reloadRemote:FireServer(usingMain)
+		log:debug("Server reload finished event called")
 	end))
 	reloadEndTime = os.clock() + reloadDuration
 
 	TurretSoundController.play(turretState.UsingMainGun and "Reload" or "ReloadCoax", turretInfo.PitchMotor.Part1 :: BasePart)
-	replicateReloadRemote:FireServer(false, turretState.UsingMainGun)
+	replicateReloadSoundRemote:FireServer(false, turretState.UsingMainGun)
 end
 
 function funcs.switchShells()
@@ -147,7 +151,7 @@ function funcs.switchShells()
 	reloadEndTime = os.clock() + reloadDuration
 
 	TurretSoundController.play("Switch", turretInfo.PitchMotor.Part1 :: BasePart)
-	replicateReloadRemote:FireServer(true, turretState.UsingMainGun)
+	replicateReloadSoundRemote:FireServer(true, turretState.UsingMainGun)
 end
 
 function funcs.switchGun(usingMainGun: boolean)

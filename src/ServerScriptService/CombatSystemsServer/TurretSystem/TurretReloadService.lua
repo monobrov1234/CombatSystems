@@ -4,13 +4,9 @@ local module = {}
 local funcs = {}
 
 -- IMPORTS
-local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
-local MunitionService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.MunitionService)
-local RayTypeService = require(ServerScriptService.CombatSystemsServer.MunitionSystem.MunitionService.RayTypeService)
 local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
-local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
 
 -- IMPORTS INTERNAL
 local TurretStateService = require(script.Parent.TurretStateService)
@@ -24,44 +20,12 @@ local switchGunRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Event
 -- SHARED
 -- C->S: used to request mag reload from server; S->C used to tell client that reload has been finished and he can unlock his reload state
 local reloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ClientToServer.ReloadTurret
-local replicateReloadRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateReload
-local replicationRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateState
+local replicateReloadSoundRemote = ReplicatedStorage.CombatSystemsShared.TurretSystem.Events.Core.ReplicateReloadSound
 
 -- FINALS
-local _log: Logger.SelfObject = Logger.new("TurretService")
+local log: Logger.SelfObject = Logger.new("TurretReloadService")
 
 -- INTERNAL FUNCTIONS
-
--- handles turret replication from the client to othe clients, server knows nothing - only validates turret state
-function funcs.handleReplicateTurretState(player: Player, yawRotationC0: Vector3, pitchRotationC0: Vector3)
-	assert(typeof(yawRotationC0) == "Vector3" and typeof(pitchRotationC0) == "Vector3")
-	local turretInfo = TurretStateService.getPlayerCurrentTurret(player)
-	if not turretInfo or not turretInfo.TurretModel.Parent then return end --assert(turretInfo) will flood console
-	turretInfo.YawMotor.C0 = CFrame.new(turretInfo.YawMotor.C0.Position) * CFrame.fromOrientation(yawRotationC0.X, yawRotationC0.Y, yawRotationC0.Z)
-	turretInfo.PitchMotor.C0 = CFrame.new(turretInfo.PitchMotor.C0.Position) * CFrame.fromOrientation(pitchRotationC0.X, pitchRotationC0.Y, pitchRotationC0.Z)
-end
-
--- handles turret munition fire after validation
-function funcs.handleTurretFire(rayInfo: RayTypeService.RayInfo)
-	local player: Player? = rayInfo.Player
-	if not player then return end
-	local character: Model? = player.Character
-	if not character then return end
-
-	local turretInfo: TurretUtil.TurretInfo? = TurretStateService.getPlayerCurrentTurret(player)
-	if not turretInfo then return end
-	local stateInfo = TurretStateService.getTurretState(turretInfo)
-	assert(stateInfo)
-
-	local munitionName = rayInfo.MunitionConfig.MunitionName
-	if stateInfo.UsingMainGun then
-		assert(stateInfo.ClipSizeStorage[munitionName] > 0)
-		stateInfo.ClipSizeStorage[munitionName] -= 1
-	else
-		assert(stateInfo.CoaxClipSize > 0)
-		stateInfo.CoaxClipSize -= 1
-	end
-end
 
 -- TODO: reload anticheat, capture time when player fired last munition
 -- handles turret reload, and sends new turret state info
@@ -93,19 +57,20 @@ function funcs.handleReloadTurret(player: Player, isMain: boolean)
 		stateInfo.CoaxAmmoSize = newStored
 	end
 
+	log:debug("Turret reloaded for player {}", player.Name)
+
 	setTurretStateRemote:FireClient(player, stateInfo)
 	reloadRemote:FireClient(player)
 end
 
--- handles reload replication (reload sound)
-function funcs.handleReplicateReload(player: Player, switch: boolean, usingMainGun: boolean)
+function funcs.handleReplicateReloadSound(player: Player, switch: boolean, usingMainGun: boolean)
 	assert(typeof(switch) == "boolean" and typeof(usingMainGun) == "boolean")
 	local turretInfo = TurretStateService.getPlayerCurrentTurret(player)
 	assert(turretInfo)
 
 	for _, pl: Player in ipairs(Players:GetPlayers()) do
 		if pl == player then continue end
-		replicateReloadRemote:FireClient(pl, turretInfo.PitchMotor.Part1, switch, usingMainGun)
+		replicateReloadSoundRemote:FireClient(pl, turretInfo.PitchMotor.Part1, switch, usingMainGun)
 	end
 end
 
@@ -146,10 +111,6 @@ end
 reloadRemote.OnServerEvent:Connect(funcs.handleReloadTurret)
 switchShellsRemote.OnServerEvent:Connect(funcs.handleSwitchShells)
 switchGunRemote.OnServerEvent:Connect(funcs.handleSwitchGun)
-replicateReloadRemote.OnServerEvent:Connect(funcs.handleReplicateReload)
-replicationRemote.OnServerEvent:Connect(funcs.handleReplicateTurretState)
-
--- custom
-MunitionService.FireMunition:connect(funcs.handleTurretFire)
+replicateReloadSoundRemote.OnServerEvent:Connect(funcs.handleReplicateReloadSound)
 
 return module

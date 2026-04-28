@@ -33,7 +33,7 @@
                         },
                         {
                             "ClassName": "RemoteEvent",
-                            "Name": "ReplicateFire"
+                            "Name": "ReplicateFireSound"
                         },
                         {
                             "ClassName": "RemoteEvent",
@@ -43,7 +43,7 @@
                 },
                 {
                     "ClassName": "RemoteEvent",
-                    "Name": "ReplicateReload"
+                    "Name": "ReplicateReloadSound"
                 },
                 {
                     "ClassName": "RemoteEvent",

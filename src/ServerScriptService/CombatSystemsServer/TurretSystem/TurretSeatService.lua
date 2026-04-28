@@ -89,4 +89,5 @@ function funcs.trySitPlayer(player: Player, seat: BasePart): boolean
 end
 
 RigService.SeatPromptTriggered:connect(funcs.handleSeatPromptTriggered)
+
 return module
