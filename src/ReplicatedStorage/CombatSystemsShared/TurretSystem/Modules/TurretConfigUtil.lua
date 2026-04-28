@@ -11,8 +11,8 @@ local defaultConfig = require(turretConfigs.Default.DefaultConfig)
 export type DefaultType = typeof(defaultConfig)
 
 -- STATE
-local inheritConfigs: { [string]: {} } = {}
-for _, config in ipairs(turretConfigs:GetChildren()) do
+local inheritConfigs =  {} :: { [string]: DefaultType }
+for _, config in ipairs(turretConfigs:GetDescendants()) do
 	if not config:IsA("ModuleScript") then continue end
 	inheritConfigs[config.Name] = TableInheritUtil.inheritConfig({ require(config), defaultConfig })
 end
