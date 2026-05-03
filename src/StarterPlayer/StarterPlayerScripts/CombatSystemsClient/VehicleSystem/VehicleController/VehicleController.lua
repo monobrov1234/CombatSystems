@@ -81,7 +81,8 @@ function funcs.handleHumanoidSeated(active: boolean, seat: Seat | VehicleSeat)
 
 		driveLoopConnection = RunService.PostSimulation:Connect(vehicleController.driveLoop)
 		ownershipRemote:FireServer()
-		workspace.CurrentCamera.CameraSubject = info.Camera
+		
+		workspace.CurrentCamera.CameraSubject = info.Camera or humanoid
 
 		if info.VehicleConfig.HasDriverTurret then
 			-- find driver gunner turret (turret without any seats)

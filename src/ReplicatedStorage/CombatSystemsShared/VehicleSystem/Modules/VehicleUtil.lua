@@ -17,7 +17,7 @@ export type VehicleInfoNotRigged = {
 	SystemParts: Model,
 	EnginePart: BasePart,
 	DismountPart: BasePart,
-	Camera: BasePart,
+	Camera: BasePart?,
 }
 export type VehicleInfo = VehicleInfoNotRigged & {
 	VehicleObject: DestructibleObject.SelfObject,
@@ -69,12 +69,12 @@ function module.parseVehicleInfoNonRig(vehicleModel: Model): VehicleInfoNotRigge
 	assert(enginePart and enginePart:IsA("BasePart"), "Vehicle doesn't have Engine part")
 
 	-- find dismount part
-	local dismountPart: BasePart? = vehicleModel:FindFirstChild("DismountPart") :: BasePart?
+	local dismountPart = vehicleModel:FindFirstChild("DismountPart") :: BasePart?
 	assert(dismountPart and dismountPart:IsA("BasePart"), "Vehicle doesn't have DismountPart")
 
 	-- find Camera part
-	local camera: BasePart? = vehicleModel:FindFirstChild("Camera") :: BasePart?
-	assert(camera and camera:IsA("BasePart"), "Vehicle doesn't have Camera part")
+	local camera = vehicleModel:FindFirstChild("Camera") :: BasePart?
+	assert(not camera or camera:IsA("BasePart"), "Vehicle camera part is not a BasePart")
 
 	return {
 		VehicleModel = vehicleModel,
