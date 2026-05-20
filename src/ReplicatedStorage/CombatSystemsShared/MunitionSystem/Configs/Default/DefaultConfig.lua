@@ -6,6 +6,9 @@ export type FXHandlerType = {
 return {
 	-- Name of this munition type. Automatically set by the system. Do not change manually.
 	MunitionName = "",
+	
+	-- Display name in gui if its supported (e.g TurretSystem), will be set to script name if nil
+	DisplayName = nil :: string?,
 
 	-- Base damage dealt to Humanoids on direct hit
 	HumanoidDamage = 0,
@@ -43,10 +46,11 @@ return {
 		["SuperHeavyArmor"] = 0,
 	},
 
+	-- Whether the munition explodes on impact
+	CanExplode = false,
+
 	-- Explosion configuration for HE shells, rockets, grenades etc.
 	ExplosionConfig = {
-		-- Whether the munition explodes on impact
-		CanExplode = false,
 		-- Explosion damage dealt to Humanoids
 		HumanoidDamage = 0,
 		-- Maximum explosion radius in studs

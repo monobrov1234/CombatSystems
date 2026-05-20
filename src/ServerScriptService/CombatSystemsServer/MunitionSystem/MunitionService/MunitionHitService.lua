@@ -29,7 +29,7 @@ module.ExplosionHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: Munitio
 
 function funcs.handleHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull)
 	if not hit.Hit then return end
-	if ray.MunitionConfig.ExplosionConfig.CanExplode then
+	if ray.MunitionConfig.CanExplode then
 		module.ExplosionHit:fire(ray, hit, funcs.calculateExplosionHits(ray, hit))
 	end
 

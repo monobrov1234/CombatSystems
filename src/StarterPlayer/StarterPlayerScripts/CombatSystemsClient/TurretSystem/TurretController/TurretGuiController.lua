@@ -142,6 +142,52 @@ function funcs.handleUpdateCursorHud()
 	centerHud.ElevationIndicator.Text = "ELEV: " .. tostring(math.round(TurretRotationController.getElevation())) .. "°"
 end
 
+function funcs.rebuildHotbar()
+	assert(turretInfo and turretState)
+	local hotbar = turretHudGui:FindFirstChild("Hotbar") :: Frame
+	assert(hotbar)
+	local template = hotbar:FindFirstChild("HotbarTemplateItem") :: Frame
+	assert(template)
+
+	for _, child: Instance in ipairs(hotbar:GetChildren()) do
+		if child.Name ~= "HotbarTemplateItem" and child:IsA("Frame") then
+			child:Destroy()
+		end
+	end
+
+	local function initMunitionItem(item: Instance, name: string, icon: number?)
+		local config: MunitionConfigUtil.DefaultType = MunitionConfigUtil.getConfig(name)
+		assert(config, "Munition doesn't have config (should not happen)")
+
+		item.Name = name
+		local item = item :: any
+		item.Title.Text = config.DisplayName or name
+
+		if icon then
+			item.Icon.Image = "rbxassetid://" .. tostring(icon)
+		else
+			--item.Icon.Image = "rbxassetid://110521765631413"
+		end
+
+		item.Visible = true
+		item.Parent = hotbar
+	end
+
+	if turretState.UsingMainGun then
+		for i: number, munition in ipairs(turretInfo.TurretConfig.GunConfig.AmmoTypes) do
+			local item = template:Clone()
+			initMunitionItem(item, munition.name, munition.iconId)
+			item.LayoutOrder = i
+		end
+	else
+		local item = template:Clone()
+		local coaxConfig = turretInfo.TurretConfig.GunConfig.CoaxConfig
+		initMunitionItem(item, coaxConfig.AmmoType, coaxConfig.AmmoIconId)
+	end
+
+	funcs.updateHotbar()
+end
+
 function funcs.updateHotbar()
 	assert(turretInfo and turretState)
 	local hotbar = turretHudGui:FindFirstChild("Hotbar") :: Frame
@@ -174,49 +220,6 @@ function funcs.updateHotbar()
 			end
 		end
 	end
-end
-
-function funcs.rebuildHotbar()
-	assert(turretInfo and turretState)
-	local hotbar = turretHudGui:FindFirstChild("Hotbar") :: Frame
-	assert(hotbar)
-	local template = hotbar:FindFirstChild("HotbarTemplateItem") :: Frame
-	assert(template)
-
-	for _, child: Instance in ipairs(hotbar:GetChildren()) do
-		if child.Name ~= "HotbarTemplateItem" and child:IsA("Frame") then
-			child:Destroy()
-		end
-	end
-
-	local function initItem(item: Instance, name: string, icon: number?)
-		item.Name = name
-		local item = item :: any
-		item.Title.Text = name
-
-		if icon then
-			item.Icon.Image = "rbxassetid://" .. tostring(icon)
-		else
-			--item.Icon.Image = "rbxassetid://110521765631413"
-		end
-
-		item.Visible = true
-		item.Parent = hotbar
-	end
-
-	if turretState.UsingMainGun then
-		for i: number, munition in ipairs(turretInfo.TurretConfig.GunConfig.AmmoTypes) do
-			local item = template:Clone()
-			initItem(item, munition.name, munition.iconId)
-			item.LayoutOrder = i
-		end
-	else
-		local item = template:Clone()
-		local coaxConfig = turretInfo.TurretConfig.GunConfig.CoaxConfig
-		initItem(item, coaxConfig.AmmoType, coaxConfig.AmmoIconId)
-	end
-
-	funcs.updateHotbar()
 end
 
 function funcs.startReload(duration: number)

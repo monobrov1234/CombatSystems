@@ -9,7 +9,6 @@ return {
 		"BulletProofArmor", -- Protected from standard caliber bullets - typical vehicle armor
 		"LightArmor", -- Protected from high caliber bullets, explosions, HE shells - typical armored car armor (also tanks rear can have light armor)
 		"MediumArmor", -- Protected from small caliber AP shells (typically armored cars use those) - typical tank armor
-		"MediumHeavyArmor", -- Takes less damage from standard caliber AP shells than medium armor, for usage in tank front lower plates
 		"HeavyArmor", -- Protected from standard caliber AP shells - typical tank armor infront
 		"SuperHeavyArmor", -- Protected from everything except powerful shells (tank destroyer, direct hit from artillery, ATGM) - typical armor for overpowered shit
 	},
