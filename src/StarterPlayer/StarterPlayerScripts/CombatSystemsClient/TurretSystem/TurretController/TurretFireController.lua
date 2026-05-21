@@ -61,7 +61,7 @@ end
 
 function funcs.handleInputBegan(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then return end
-	if not turretInfo then return end
+	if not turretInfo or not turretState then return end
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		funcs.startAutoFire()
 	end
@@ -69,7 +69,7 @@ end
 
 function funcs.handleInputEnded(input: InputObject, gameProcessed: boolean)
 	if gameProcessed then return end
-	if not turretInfo then return end
+	if not turretInfo or not turretState then return end
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		funcs.stopAutoFire()
 	end

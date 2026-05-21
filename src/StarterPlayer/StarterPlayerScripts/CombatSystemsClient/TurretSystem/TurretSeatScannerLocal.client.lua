@@ -31,7 +31,7 @@ local currentSeat: BasePart?
 -- INTERNAL FUNCTIONS
 function funcs.handleHumanoidSeated(active: boolean, seat: BasePart)
 	if not active and currentSeat then
-		log:debug("Handling dismount event on stationary turret")
+		log:debug("Handling dismount event on turret")
 		TurretViewController.setTurretView(nil, nil)
 		currentSeat = nil
 		VehicleSystemConfig.ShowToolsCallback(character, humanoid)
@@ -39,17 +39,12 @@ function funcs.handleHumanoidSeated(active: boolean, seat: BasePart)
 		return
 	end
 
-	if not seat then
-		return
-	end
+	if not seat then return end
 	local turretModel = seat.Parent :: Model?
-	if not turretModel or not turretModel:IsA("Model") then
-		return
-	end
-	if not TurretUtil.validateTurret(turretModel) then
-		return
-	end
-	log:debug("Handling seated event on stationary turret {}", turretModel.Name)
+	if not turretModel or not turretModel:IsA("Model") then return end
+	if not TurretUtil.validateTurret(turretModel) then return end
+	
+	log:debug("Handling seated event on turret {}", turretModel.Name)
 
 	local customRayFilters: { Instance }?
 	local vehicleInfo = VehicleUtil.findPlayerCurrentVehicle(player)

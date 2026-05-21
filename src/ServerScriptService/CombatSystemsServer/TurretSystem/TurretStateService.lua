@@ -31,6 +31,7 @@ local playerTurrets = {} :: { [Player]: PlayerTurretInfo? }
 -- PUBLIC API
 
 -- used by turret view initializers
+-- raycastBlacklist: character, all projectiles, and the turret model is included by default
 function module.setPlayerTurretView(player: Player, turretInfo: TurretUtil.TurretInfo?, raycastBlacklist: { Instance }?)
 	if not turretInfo then
 		playerTurrets[player] = nil

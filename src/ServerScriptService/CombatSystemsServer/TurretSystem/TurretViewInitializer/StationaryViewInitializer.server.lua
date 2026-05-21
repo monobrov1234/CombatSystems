@@ -1,45 +1,34 @@
 local funcs = {}
 
 -- IMPORTS
+local CollectionService = game:GetService("CollectionService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local TurretStateService = require(ServerScriptService.CombatSystemsServer.TurretSystem.TurretStateService)
-local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
+local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
 
 function funcs.handleHumanoidSeated(player: Player, seat: BasePart?)
-	if not seat then return end
+    if not seat then return end
 	if TurretStateService.getPlayerCurrentTurret(player) then return end
 
-	-- find player current vehicle
-	local vehicleInfo: VehicleUtil.VehicleInfo? = VehicleUtil.findPlayerCurrentVehicle(player)
-	if not vehicleInfo then return end
+    -- find target turret model
+    if not seat.Parent or not seat.Parent:IsA("Model") then return end
+	local turretModel: Model = seat.Parent
 
-	-- find target turret model
-	local turretModel: Model
-	if seat == vehicleInfo.DriverSeat then
-		if not vehicleInfo.VehicleConfig.HasDriverTurret then return end -- player is just a driver, no turret
-		-- player is operating driver turret
-		-- find driver gunner turret (turret without any seats)
-		local turrets: { Model } = TurretUtil.findDescendantTurrets(vehicleInfo.VehicleModel)
-		for _, turret: Model in ipairs(turrets) do
-			if TurretUtil.findTurretSeat(turret) then continue end
-			turretModel = turret
-			break
-		end
-	elseif TurretUtil.validateTurret(seat.Parent :: Model) then
-		-- player is operating mounted turret with a seat
-		turretModel = seat.Parent :: Model
-	else
-		-- player is vehicle passenger, return
-		return
-	end
-
-	assert(turretModel) -- should not happen
+    -- verify that it's stationary
+    local stationary = false
+    for _, folder: Instance in ipairs(CollectionService:GetTagged(TurretSystemConfig.StationaryFolderTag)) do
+        if folder:IsAncestorOf(turretModel) then
+            stationary = true
+            break
+        end
+    end
+    if not stationary then return end
 
 	local turretInfo: TurretUtil.TurretInfo = TurretUtil.parseTurretInfo(turretModel)
-	TurretStateService.setPlayerTurretView(player, turretInfo, { vehicleInfo.VehicleModel })
+	TurretStateService.setPlayerTurretView(player, turretInfo)
 end
 
 local function hookSeated(player: Player)

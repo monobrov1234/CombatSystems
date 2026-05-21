@@ -52,7 +52,6 @@ local controllerMapping: { [string]: VehicleController } = {
 local vehicleInfo: VehicleUtil.VehicleInfo
 local currentSeat = (nil :: any) :: Seat | VehicleSeat
 local vehicleController: VehicleController
-local driveLoopConnection: RBXScriptConnection
 local turretModel: Model?
 
 function funcs.handleHumanoidSeated(active: boolean, seat: Seat | VehicleSeat)
@@ -79,7 +78,7 @@ function funcs.handleHumanoidSeated(active: boolean, seat: Seat | VehicleSeat)
 		vehicleController = controller
 		vehicleController.handleSeated(info)
 
-		driveLoopConnection = RunService.PostSimulation:Connect(vehicleController.driveLoop)
+		cleaner:add(RunService.PostSimulation:Connect(vehicleController.driveLoop))
 		ownershipRemote:FireServer()
 		
 		workspace.CurrentCamera.CameraSubject = info.Camera or humanoid
@@ -117,7 +116,7 @@ function funcs.clearVehicle()
 			turretModel = nil
 		end
 
-		driveLoopConnection:Disconnect()
+		cleaner:disconnectAll()
 		VehicleSystemConfig.ShowToolsCallback(character, humanoid)
 	end
 
@@ -144,7 +143,7 @@ function funcs.dismountPlayer()
 end
 
 local function connect()
-	cleaner:add(humanoid.Seated:Connect(funcs.handleHumanoidSeated))
+	humanoid.Seated:Connect(funcs.handleHumanoidSeated)
 end
 connect()
 

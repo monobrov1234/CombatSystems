@@ -3,12 +3,14 @@
 local module = {}
 
 -- IMPORTS
+local CollectionService = game:GetService("CollectionService")
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RigUtil = require(ServerScriptService.CombatSystemsServer.Utils.RigUtil)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.VehicleSystemConfig)
 local TurretConfigUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretConfigUtil)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
+local TurretSystemConfig = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.TurretSystemConfig)
 local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
 -- INTERNAL API
@@ -171,6 +173,18 @@ function module.rigTurret(turret: Model)
 		-- weld FiringPointCoax to gunRoot
 		RigUtil.weld(firingPointCoax, gunRoot)
 	end
+
+	-- unanchor everything
+	for _, descendant: Instance in ipairs(turret:GetDescendants()) do
+		if not descendant:IsA("BasePart") then continue end
+		descendant.Anchored = false
+	end
+end
+
+-- rig stationary turrets
+for _, folder: Instance in ipairs(CollectionService:GetTagged(TurretSystemConfig.StationaryFolderTag)) do
+	module.rigTurrets(folder)
+	module.promptTurrets(folder)
 end
 
 return module

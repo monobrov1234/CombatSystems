@@ -56,7 +56,6 @@ function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo)
 	cursorHudGui.DistanceBar.Visible = false
 	cursorHudGui.Enabled = true
 
-	funcs.rebuildHotbar()
 	cleaner:add(RunService.Heartbeat:Connect(funcs.handleUpdateCursor))
 	cleaner:add(RunService.Heartbeat:Connect(funcs.handleUpdateCursorHud))
 end

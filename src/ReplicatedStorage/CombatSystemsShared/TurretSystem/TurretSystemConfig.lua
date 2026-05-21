@@ -1,6 +1,7 @@
 return {
 	Tag = "TurretControl", -- will mark that this object is a TurretView compatible
 	NameAttribute = "TurretName", -- turret name for finding matching config
+	StationaryFolderTag = "StationaryTurrets", -- for stationary turrets, every turret in this folder should be anchored and will be unanchored & rigged at server start
 
 	Debug = false, -- will render a ray from the turret
 	ReplicationResolution = 1 / 20, -- (20fps) how fast client sends replication packets to server

@@ -7,6 +7,7 @@ local funcs = {}
 local ServerScriptService = game:GetService("ServerScriptService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local PlayerGroupService = require(ServerScriptService.CombatSystemsServer.PlayerGroupService)
 local VehicleSystemConfig = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.VehicleSystemConfig)
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
@@ -16,8 +17,13 @@ local PlayerTeamCheckUtil = require(ReplicatedStorage.CombatSystemsShared.Utils.
 -- IMPORTS INTERNAL
 local RigService = require(script.Parent.RigService.TurretRigService)
 
+-- FINALS
+local log: Logger.SelfObject = Logger.new("TurretSeatService")
+
 -- handles prompt interaction
 function funcs.handleSeatPromptTriggered(player: Player, turretInfo: TurretUtil.TurretInfo, prompt: ProximityPrompt)
+	log:debug("Handling turret prompt seat triggered for {} on {}", player.Name, turretInfo.TurretModel.Name)
+
 	local character = player.Character :: Model
 	local vehicleAccessTool: Tool? = character:FindFirstChildOfClass("Tool")
 	if not vehicleAccessTool or not vehicleAccessTool:HasTag(VehicleSystemConfig.VehicleAccessToolTag) then
@@ -29,6 +35,8 @@ function funcs.handleSeatPromptTriggered(player: Player, turretInfo: TurretUtil.
 	local seat: BasePart? = turretInfo.TurretSeat
 	assert(seat) -- should never happen
 	if funcs.trySitPlayer(player, seat) then
+		log:debug("Sit success for {}", player.Name)
+
 		prompt.Enabled = false
 		local humanoid: Humanoid? = character:FindFirstChildOfClass("Humanoid")
 		assert(humanoid)
@@ -58,6 +66,8 @@ function funcs.handleSeatPromptTriggered(player: Player, turretInfo: TurretUtil.
 end
 
 function funcs.handleDismount(player: Player, seat: BasePart)
+	log:debug("Handling turret seat dismount for {}", player.Name)
+
 	local dismountPart = seat:FindFirstChild("DismountPart") :: BasePart?
 	if dismountPart and dismountPart:IsA("BasePart") then
 		local character: Model? = player.Character

@@ -33,6 +33,8 @@ module.TurretStateChanged = Signal.new() -- (newTurretState: TurretUtil.TurretSt
 
 -- PUBLIC API
 function module.setTurretView(turretModel: Model?, customRayFilters: { Instance }?)
+	log:debug("Set turret view called for turret {}", turretModel and turretModel.Name or nil)
+
 	if not turretModel then
 		funcs.clearTurretView()
 		return
