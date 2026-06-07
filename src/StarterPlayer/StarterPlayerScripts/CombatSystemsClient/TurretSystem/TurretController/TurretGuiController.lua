@@ -58,6 +58,10 @@ function funcs.handleTurretViewSet(newTurretInfo: TurretUtil.TurretInfo)
 
 	cleaner:add(RunService.Heartbeat:Connect(funcs.handleUpdateCursor))
 	cleaner:add(RunService.Heartbeat:Connect(funcs.handleUpdateCursorHud))
+
+	if turretState then
+		funcs.rebuildHotbar()
+	end
 end
 
 function funcs.handleTurretViewCleared()
@@ -83,8 +87,9 @@ function funcs.handleTurretStateChanged(newTurretState: TurretUtil.TurretStateIn
 		turretState = newTurretState
 	end
 
-	if not turretInfo then return end
-	funcs.rebuildHotbar()
+	if turretInfo then
+		funcs.rebuildHotbar()
+	end
 end
 
 function funcs.handleReloadStarted(duration: number)

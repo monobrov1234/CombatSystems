@@ -54,7 +54,11 @@ function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayH
 		local damage = funcs.calculateExplosionDamage(ray, explosionHit)
 		log:debug("Calculated explosion damage {} for part {}", damage, explosionHit.Part)
 
-		if SharedDamageService.canDamageHit(ray.Player, ray.Team, hit, ray.MunitionConfig) then 
+		local explosionHitInfo: MunitionRayHitInfo.CommonFull = {
+			HitPos = explosionHit.Part.Position,
+			Hit = explosionHit.Part,
+		}
+		if SharedDamageService.canDamageHit(ray.Player, ray.Team, explosionHitInfo, ray.MunitionConfig) then 
 			funcs.damageHumanoid(character, humanoid, damage)
 			totalDamage += damage
 		end

@@ -10,7 +10,7 @@ local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local GunStateService = require(script.Parent.GunStateService)
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("GunService")
+local log: Logger.SelfObject = Logger.new("GunHandlingService")
 
 function funcs.handleGunEquipped(player: Player, gunInfo: GunUtil.GunInfo)
 	local character = player.Character
