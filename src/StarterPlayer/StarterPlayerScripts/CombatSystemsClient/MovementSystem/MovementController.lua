@@ -145,7 +145,7 @@ function funcs.loadAnimations()
 		sprintAnim.Looped = true
 	end
 	
-	if Config.SprintAnimation then
+	if Config.CrouchAnimation then
 		crouchAnim = animator:LoadAnimation(Config.CrouchAnimation)
 	end
 end
