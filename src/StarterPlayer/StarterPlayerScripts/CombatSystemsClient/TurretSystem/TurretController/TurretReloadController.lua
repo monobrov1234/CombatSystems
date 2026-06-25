@@ -4,6 +4,8 @@ local module = {}
 local funcs = {}
 
 -- IMPORTS
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer :: Player
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 local TurretUtil = require(ReplicatedStorage.CombatSystemsShared.TurretSystem.Modules.TurretUtil)
@@ -107,8 +109,9 @@ end
 
 function funcs.reloadTurret(usingMain: boolean)
 	if reloading or reloadingCoax then return end
-	assert(turretInfo and turretState)
+	if not player.Character or (not player.Character:FindFirstChild("Right Arm") and not player.Character:FindFirstChild("Left Arm")) then return end
 
+	assert(turretInfo and turretState)
 	local currentClipSize: number? = TurretStateController.getCurrentClipSize()
 	local currentStoredAmmo: number? = TurretStateController.getCurrentStoredAmmo()
 	assert(currentClipSize and currentStoredAmmo)
@@ -136,8 +139,10 @@ function funcs.reloadTurret(usingMain: boolean)
 end
 
 function funcs.switchShells()
-	assert(turretInfo and turretState)
 	if reloading then return end
+	if not player.Character or (not player.Character:FindFirstChild("Right Arm") and not player.Character:FindFirstChild("Left Arm")) then return end
+
+	assert(turretInfo and turretState)
 	if not turretState.UsingMainGun then return end
 	if #turretInfo.TurretConfig.GunConfig.AmmoTypes == 1 then return end
 	reloading = true

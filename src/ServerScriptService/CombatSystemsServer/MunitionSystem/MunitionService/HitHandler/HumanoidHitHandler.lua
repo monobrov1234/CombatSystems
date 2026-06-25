@@ -12,12 +12,17 @@ local Logger = require(ReplicatedStorage.CombatSystemsShared.Utils.LoggerUtil)
 local DropoffUtil = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.DropoffUtil)
 local MunitionRayHitInfo = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedEntities.RayInfo.MunitionRayHitInfo)
 local SharedDamageService = require(ReplicatedStorage.CombatSystemsShared.MunitionSystem.Modules.SharedServices.DamageService.SharedDamageService)
+local Signal = require(ReplicatedStorage.CombatSystemsShared.Utils.Signal)
 
 -- ROBLOX OBJECTS
 local explosionHitmark: RemoteEvent = ReplicatedStorage.CombatSystemsShared.MunitionSystem.Events.ClientFX.ServerToClient.ExplosionHitmark
 
 -- FINALS
 local log: Logger.SelfObject = Logger.new("HumanoidHitHandler")
+
+-- PUBLIC EVENTS
+module.DirectHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull, humanoid: Humanoid)
+module.ExplosionHit = Signal.new() -- (ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull, humanoid: Humanoid)
 
 function funcs.handleDirectHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull)
 	local character: Model? = hit.Hit:FindFirstAncestorOfClass("Model")
@@ -28,7 +33,9 @@ function funcs.handleDirectHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitI
 	if not SharedDamageService.canDamageHit(ray.Player, ray.Team, hit, ray.MunitionConfig) then return end
 	local damage: number? = SharedDamageService.calculateDirectDamage(ray.Body, hit, ray.MunitionConfig)
 	assert(damage)
+
 	funcs.damageHumanoid(character, humanoid, damage)
+	module.DirectHit:fire(ray, hit, humanoid)
 end
 
 function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayHitInfo.CommonFull, hitParts: MunitionHitService.ExplosionHits)
@@ -61,6 +68,7 @@ function funcs.handleExplosionHit(ray: RayTypeService.RayInfo, hit: MunitionRayH
 		if SharedDamageService.canDamageHit(ray.Player, ray.Team, explosionHitInfo, ray.MunitionConfig) then 
 			funcs.damageHumanoid(character, humanoid, damage)
 			totalDamage += damage
+			module.ExplosionHit:fire(ray, explosionHitInfo, humanoid)
 		end
 	end
 

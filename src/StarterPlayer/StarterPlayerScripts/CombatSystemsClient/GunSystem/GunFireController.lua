@@ -175,6 +175,7 @@ end
 function funcs.canShoot(): boolean
 	if not gunInfo then return false end
 	if humanoid:GetState() == Enum.HumanoidStateType.Dead then return false end
+	if not character:FindFirstChild("Right Arm") then return false end
 	if GunReloadController.isReloading() then return false end
 
 	local state: BackpackController.GunState? = BackpackController.getStateFor(gunInfo.Tool)

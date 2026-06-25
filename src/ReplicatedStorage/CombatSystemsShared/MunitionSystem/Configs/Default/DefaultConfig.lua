@@ -18,6 +18,8 @@ return {
 	CanDamageSelf = false,
 	-- Whether this munition can damage friendly players or vehicles
 	CanDamageFriendly = false,
+	-- Chance in percent of destroying player limbs on hit
+	LimbDestroyChance = 0,
 
 	FXConfig = {
 		-- Controls firing effects (muzzle flash, smoke, shell ejection etc.)

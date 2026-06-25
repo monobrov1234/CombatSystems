@@ -96,6 +96,7 @@ end
 
 function funcs.fireTurret()
 	if not turretInfo or not turretState then return end
+	if not player.Character or (not player.Character:FindFirstChild("Right Arm") and not player.Character:FindFirstChild("Left Arm")) then return end
 	if TurretStateController.getCurrentClipSize() <= 0 then return end
 	if turretState.UsingMainGun and TurretReloadController.isReloading() then return end
 	if not turretState.UsingMainGun and TurretReloadController.isReloadingCoax() then return end

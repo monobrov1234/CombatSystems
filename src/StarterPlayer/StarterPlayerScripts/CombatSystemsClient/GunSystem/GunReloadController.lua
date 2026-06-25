@@ -5,7 +5,7 @@ local funcs = {}
 
 -- IMPORTS
 local Players = game:GetService("Players")
-local _player = Players.LocalPlayer :: Player
+local player = Players.LocalPlayer :: Player
 local UserInputService = game:GetService("UserInputService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -40,6 +40,7 @@ module.ReloadStarted = Signal.new()
 function module.tryReloadGun()
 	if not gunInfo then return end
 	if reloading then return end
+	if not player.Character or not player.Character:FindFirstChild("Left Arm") then return end
 
 	local state: BackpackController.GunState? = BackpackController.getStateFor(gunInfo.Tool)
 	assert(state)
