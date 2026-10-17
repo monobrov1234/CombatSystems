@@ -36,13 +36,15 @@ MunitionController.RayEnded:connect(function(ray: MunitionController.RayInfo, hi
 	local originPos = (ray.Origin and ray.Origin.Position) or ray.Body.InitOriginPos
 	local direction = hit.HitPos - originPos
 	local distance = direction.Magnitude
-	local dirUnit = direction / distance
-	bullet.CFrame = CFrame.new(originPos, originPos + dirUnit)
 
 	if distance <= 0.001 then
+		bullet.CFrame = CFrame.new(hit.HitPos)
 		Debris:AddItem(bullet, 0.05)
 		return
 	end
+
+	local dirUnit = direction / distance
+	bullet.CFrame = CFrame.new(originPos, originPos + dirUnit)
 
 	local traveled = 0
 	local connection: RBXScriptConnection

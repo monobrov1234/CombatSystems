@@ -117,7 +117,7 @@ function module.rigVehicle(vehicleInfo: VehicleUtil.VehicleInfoNotRigged): Vehic
 	driverPrompt.ActionText = "Drive"
 	driverPrompt.RequiresLineOfSight = false
 	driverPrompt.HoldDuration = info.VehicleConfig.SeatConfig.DriverPromptHoldDuration
-	driverPrompt.MaxActivationDistance = info.VehicleConfig.SeatConfig.PassengerPromptDistance
+	driverPrompt.MaxActivationDistance = info.VehicleConfig.SeatConfig.DriverPromptDistance
 	driverPrompt.Triggered:Connect(function(player: Player)
 		module.DriverPromptTriggered:fire(player, info, driverPrompt)
 	end)

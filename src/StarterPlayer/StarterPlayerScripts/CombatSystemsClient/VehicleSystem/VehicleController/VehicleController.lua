@@ -86,14 +86,16 @@ function funcs.handleHumanoidSeated(active: boolean, seat: Seat | VehicleSeat)
 		if info.VehicleConfig.HasDriverTurret then
 			-- find driver gunner turret (turret without any seats)
 			local turrets: { Model } = TurretUtil.findDescendantTurrets(info.VehicleModel)
+			local foundDriverTurret = false
 			for _, turret: Model in ipairs(turrets) do
 				if TurretUtil.findTurretSeat(turret) then continue end -- is a stationary turret, skip
 				turretModel = turret
 				TurretViewController.setTurretView(turret, { info.VehicleModel })
+				foundDriverTurret = true
 				break
 			end
 
-			assert(true, "Vehicle config have HasDriverTurret set to true, but no driver turret has been found")
+			assert(foundDriverTurret, "Vehicle config has HasDriverTurret set to true, but no driver turret was found")
 		end
 
 		VehicleSystemConfig.HideToolsCallback(character, humanoid)
