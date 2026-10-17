@@ -8,9 +8,8 @@ Run these commands from the repository root:
 
 ```powershell
 aftman install
-Push-Location tests
+cd tests
 wally install
-Pop-Location
 ```
 
 ## Build and run
@@ -21,14 +20,10 @@ From the repository root, build the test place:
 rojo build tests/default.project.json -o tests/build.rbxlx
 ```
 
-Open `tests/build.rbxlx` in Roblox Studio. Stay in edit mode (do not press **F8**), open **View → Command Bar**, and run:
+Open `tests/build.rbxlx` in Roblox Studio. Open **Script → Output**, and run:
 
 ```lua
-require(game.ServerScriptService.TestRunner.RunTests)()
+require(game.ReplicatedStorage.runner).run()
 ```
 
-Check the Studio Output for the Jest results and `CombatSystems tests passed`.
-
-Jest reads test ModuleScript source while discovering and loading suites. Roblox only permits that from Studio's Command Bar or Open Cloud, so the runner cannot run as a normal server Script in Play/Run mode.
-
-The current placeholder test intentionally contains no assertions. Replace or supplement it with real tests as coverage is added.
+Check the Studio Output for the Jest results.
