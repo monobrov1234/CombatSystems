@@ -143,32 +143,27 @@ function Logger.new(name: string): SelfObject
 	return self
 end
 
-function Logger:info(message: string, ...: any)
-	local self = self :: SelfObject
+function Logger.info(self: SelfObject, message: string, ...: any)
 	if not shouldLog("INFO") then return end
 	emit("INFO", self.name, formatTemplate(message, ...), false)
 end
 
-function Logger:warn(message: string, ...: any)
-	local self = self :: SelfObject
+function Logger.warn(self: SelfObject, message: string, ...: any)
 	if not shouldLog("INFO") then return end
 	emit("WARN", self.name, formatTemplate(message, ...), true)
 end
 
-function Logger:error(message: string, ...: any)
-	local self = self :: SelfObject
+function Logger.error(self: SelfObject, message: string, ...: any)
 	if not shouldLog("INFO") then return end
 	emit("ERROR", self.name, formatTemplate(message, ...), true)
 end
 
-function Logger:debug(message: string, ...: any)
-	local self = self :: SelfObject
+function Logger.debug(self: SelfObject, message: string, ...: any)
 	if not shouldLog("DEBUG") then return end
 	emit("DEBUG", self.name, formatTemplate(message, ...), false)
 end
 
-function Logger:trace(message: string, ...: any)
-	local self = self :: SelfObject
+function Logger.trace(self: SelfObject, message: string, ...: any)
 	if not shouldLog("TRACE") then return end
 	emit("TRACE", self.name, formatTemplate(message, ...), false)
 end

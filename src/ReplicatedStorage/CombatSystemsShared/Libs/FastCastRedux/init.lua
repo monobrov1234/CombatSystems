@@ -63,19 +63,19 @@ FastCast.HighFidelityBehavior = {
 -----------------------------------------------------------
 local ActiveCastStatic = require(script.ActiveCast)
 local Signal = require(script.Signal)
-local table = require(script.Table)
+local _table = require(script.Table)
 
 -- Format params: methodName, ctorName
-local ERR_NOT_INSTANCE = "Cannot statically invoke method '%s' - It is an instance method. Call it on an instance of this class created via %s"
+local _ERR_NOT_INSTANCE = "Cannot statically invoke method '%s' - It is an instance method. Call it on an instance of this class created via %s"
 
 -- Format params: paramName, expectedType, actualType
-local ERR_INVALID_TYPE = "Invalid type for parameter '%s' (Expected %s, got %s)"
+local _ERR_INVALID_TYPE = "Invalid type for parameter '%s' (Expected %s, got %s)"
 
 -- The name of the folder containing the 3D GUI elements for visualizing casts.
-local FC_VIS_OBJ_NAME = "FastCastVisualizationObjects"
+local _FC_VIS_OBJ_NAME = "FastCastVisualizationObjects"
 
 -- Format params: N/A
-local ERR_OBJECT_DISPOSED = "This Caster has been disposed. It can no longer be used."
+local _ERR_OBJECT_DISPOSED = "This Caster has been disposed. It can no longer be used."
 
 -----------------------------------------------------------
 --------------------- TYPE DEFINITION ---------------------

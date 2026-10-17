@@ -22,10 +22,9 @@ MunitionController.RayFired:connect(function(ray: MunitionController.RayInfo)
 		if not v:IsA("ParticleEmitter") then continue end
 
 		local amount = 1
-		if v:FindFirstChild("Amount") then
-			amount = v.Amount.Value
-		elseif v:FindFirstChild("EmitSize") then
-			amount = v.EmitSize.Value
+		local amountValue = v:FindFirstChild("Amount") or v:FindFirstChild("EmitSize")
+		if amountValue and (amountValue:IsA("NumberValue") or amountValue:IsA("IntValue")) then
+			amount = (amountValue :: NumberValue | IntValue).Value
 		end
 
 		v:Emit(amount)

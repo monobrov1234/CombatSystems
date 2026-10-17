@@ -50,7 +50,7 @@ local CF_REALLY_FAR_AWAY = CFrame.new(0, 10e8, 0)
 local ERR_NOT_INSTANCE = "Cannot statically invoke method '%s' - It is an instance method. Call it on an instance of this class created via %s"
 
 -- Format params: paramName, expectedType, actualType
-local ERR_INVALID_TYPE = "Invalid type for parameter '%s' (Expected %s, got %s)"
+local _ERR_INVALID_TYPE = "Invalid type for parameter '%s' (Expected %s, got %s)"
 
 -----------------------------------------------------------
 ------------------------ UTILITIES ------------------------
@@ -108,7 +108,7 @@ function PartCacheStatic.new(template: BasePart, numPrecreatedParts: number?, cu
 	end
 	object.Template.Parent = nil
 
-	return object
+	return (object :: any) :: PartCache
 	-- ^ Ignore mismatch here too
 end
 

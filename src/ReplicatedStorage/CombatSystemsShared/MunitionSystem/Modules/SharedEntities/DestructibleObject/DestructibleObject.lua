@@ -52,34 +52,28 @@ function DestructibleObject.validateObject(dObject: Instance)
 	return dObject:HasTag(DestructibleObjectConfig.Tag)
 end
 
-function DestructibleObject:takeDamage(amount: number)
-	local self = self :: SelfObject
+function DestructibleObject.takeDamage(self: SelfObject, amount: number)
 	local health = self:getHealth()
 	self:setHealth(math.max(0, health - amount))
 end
 
-function DestructibleObject:isDestroyed()
-	local self = self :: SelfObject
+function DestructibleObject.isDestroyed(self: SelfObject)
 	return self:getHealth() <= 0
 end
 
-function DestructibleObject:getMaxHealth(): number
-	local self = self :: SelfObject
+function DestructibleObject.getMaxHealth(self: SelfObject): number
 	return self.object:GetAttribute(DestructibleObjectConfig.MaxHealthAttribute) :: number
 end
 
-function DestructibleObject:getHealth(): number
-	local self = self :: SelfObject
+function DestructibleObject.getHealth(self: SelfObject): number
 	return self.object:GetAttribute(DestructibleObjectConfig.HealthAttribute) :: number
 end
 
-function DestructibleObject:setMaxHealth(maxHealth: number)
-	local self = self :: SelfObject
+function DestructibleObject.setMaxHealth(self: SelfObject, maxHealth: number)
 	return self.object:SetAttribute(DestructibleObjectConfig.MaxHealthAttribute, maxHealth)
 end
 
-function DestructibleObject:setHealth(health: number)
-	local self = self :: SelfObject
+function DestructibleObject.setHealth(self: SelfObject, health: number)
 	return self.object:SetAttribute(DestructibleObjectConfig.HealthAttribute, health)
 end
 

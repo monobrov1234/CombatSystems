@@ -18,9 +18,9 @@ local mouse = player:GetMouse()
 
 local _character = player.Character or player.CharacterAdded:Wait()
 local combatCursorGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("MunitionSystemGui"):WaitForChild("Cursor")
-local cursorGui = combatCursorGui:WaitForChild("CombatCursor")
-local cursorIcon = cursorGui:WaitForChild("CursorIcon")
-local cursorSelectionHud = combatCursorGui:WaitForChild("CursorSelectionHud")
+local cursorGui = combatCursorGui:WaitForChild("CombatCursor") :: ScreenGui
+local cursorIcon = cursorGui:WaitForChild("CursorIcon") :: ImageLabel
+local cursorSelectionHud = combatCursorGui:WaitForChild("CursorSelectionHud") :: ScreenGui
 
 -- STATE
 local currentCursorId = CursorConfig.Cursors[CursorConfig.DefaultCursor]
@@ -103,17 +103,24 @@ function funcs.getPlayerAtMouseHit(): Player?
 end
 
 function funcs.fillCursorChangeGui()
+	local scrollingFrame = cursorSelectionHud:WaitForChild("ScrollingFrame") :: ScrollingFrame
+	local cursorTemplate = scrollingFrame:WaitForChild("CursorTemplate") :: GuiObject
+
 	for _, cursorId in ipairs(CursorConfig.Cursors) do
-		local templateClone = cursorSelectionHud.ScrollingFrame.CursorTemplate:Clone()
-		templateClone.ImageLabel.Image = "rbxassetid://" .. tostring(cursorId)
+		local templateClone = cursorTemplate:Clone()
+		local imageLabel = templateClone:WaitForChild("ImageLabel") :: ImageLabel
+
+		imageLabel.Image = "rbxassetid://" .. tostring(cursorId)
+
 		templateClone.InputBegan:Connect(function(input: InputObject)
 			if input.UserInputType == Enum.UserInputType.MouseButton1 then
 				module.setCursor(cursorId)
 				funcs.closeCursorChangeGui()
 			end
 		end)
+
 		templateClone.Visible = true
-		templateClone.Parent = cursorSelectionHud.ScrollingFrame
+		templateClone.Parent = scrollingFrame
 	end
 end
 
@@ -124,9 +131,9 @@ end
 player.CharacterAdded:Connect(function(newCharacter: Model)
 	_character = newCharacter
 	combatCursorGui = playerGui:WaitForChild("CombatSystemsGui"):WaitForChild("MunitionSystemGui"):WaitForChild("Cursor")
-	cursorSelectionHud = combatCursorGui:WaitForChild("CursorSelectionHud")
-	cursorGui = combatCursorGui:WaitForChild("CombatCursor")
-	cursorIcon = cursorGui:WaitForChild("CursorIcon")
+	cursorSelectionHud = combatCursorGui:WaitForChild("CursorSelectionHud") :: ScreenGui
+	cursorGui = combatCursorGui:WaitForChild("CombatCursor") :: ScreenGui
+	cursorIcon = cursorGui:WaitForChild("CursorIcon") :: ImageLabel
 	funcs.fillCursorChangeGui()
 	module.setCursor(currentCursorId)
 end)

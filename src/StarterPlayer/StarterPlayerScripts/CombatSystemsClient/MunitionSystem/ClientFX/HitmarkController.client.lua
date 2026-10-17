@@ -35,8 +35,8 @@ local endYMargin = -35
 local xMarginRandomness = 10
 local yMarginRandomness = 10
 
-local tween = function(object: Instance, goal, tt: number?, es: string, ed: string)
-	return TweenService:Create(object, TweenInfo.new(tt, Enum.EasingStyle[es], Enum.EasingDirection[ed], 0, false, 0), goal)
+local tween = function(object: Instance, goal, tt: number?, es: Enum.EasingStyle, ed: Enum.EasingDirection)
+	return TweenService:Create(object, TweenInfo.new(tt or 0, es, ed, 0, false, 0), goal)
 end
 
 function funcs.handleRayEnded(ray: MunitionController.RayInfo, hit: MunitionRayHitInfo.Common)
@@ -68,8 +68,8 @@ function funcs.handleExplosionHitmark(totalDamage: number, armored: boolean)
 	box.Visible = true
 	box.Parent = damageContainer
 
-	tween(box, { Size = UDim2.new(0, 80, 0, 80) }, 0.25, "Cubic", "Out"):Play()
-	tween(box.UIStroke, { Transparency = 1 }, 0.25, "Linear", "Out"):Play()
+	tween(box, { Size = UDim2.new(0, 80, 0, 80) }, 0.25, Enum.EasingStyle.Cubic, Enum.EasingDirection.Out):Play()
+	tween(box.UIStroke, { Transparency = 1 }, 0.25, Enum.EasingStyle.Linear, Enum.EasingDirection.Out):Play()
 	Debris:AddItem(box, 0.5)
 
 	funcs.showHitmark(totalDamage, color, armored and dObjectTweenInfo or humanoidTweenInfo)

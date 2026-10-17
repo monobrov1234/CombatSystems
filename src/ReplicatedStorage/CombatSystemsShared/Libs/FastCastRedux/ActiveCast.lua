@@ -40,7 +40,7 @@ local FastCast = nil -- Static reference to the FastCast static module.
 local ERR_NOT_INSTANCE = "Cannot statically invoke method '%s' - It is an instance method. Call it on an instance of this class created via %s"
 
 -- Format params: paramName, expectedType, actualType
-local ERR_INVALID_TYPE = "Invalid type for parameter '%s' (Expected %s, got %s)"
+local _ERR_INVALID_TYPE = "Invalid type for parameter '%s' (Expected %s, got %s)"
 
 -- The name of the folder containing the 3D GUI elements for visualizing casts in debug mode.
 local FC_VIS_OBJ_NAME = "FastCastVisualizationObjects"
@@ -183,7 +183,7 @@ local function SimulateCast(cast: ActiveCast, delta: number, expectingShortCall:
 	local acceleration = latestTrajectory.Acceleration
 
 	local lastPoint = GetPositionAtTime(totalDelta, origin, initialVelocity, acceleration)
-	local lastVelocity = GetVelocityAtTime(totalDelta, initialVelocity, acceleration)
+	local _lastVelocity = GetVelocityAtTime(totalDelta, initialVelocity, acceleration)
 	local lastDelta = cast.StateInfo.TotalRuntime - latestTrajectory.StartTime
 
 	cast.StateInfo.TotalRuntime += delta
@@ -202,13 +202,13 @@ local function SimulateCast(cast: ActiveCast, delta: number, expectingShortCall:
 	local point = currentTarget
 	local part: Instance? = nil
 	local material = Enum.Material.Air
-	local normal = Vector3.new()
+	local _normal = Vector3.new()
 
 	if resultOfCast ~= nil then
 		point = resultOfCast.Position
 		part = resultOfCast.Instance
 		material = resultOfCast.Material
-		normal = resultOfCast.Normal
+		_normal = resultOfCast.Normal
 	end
 
 	local rayDisplacement = (point - lastPoint).Magnitude
@@ -225,7 +225,7 @@ local function SimulateCast(cast: ActiveCast, delta: number, expectingShortCall:
 	-- CAST BEHAVIOR 2 IS HANDLED IN THE CODE THAT CALLS THIS FUNCTION.
 
 	if part and part ~= cast.RayInfo.CosmeticBulletObject then
-		local start = tick()
+		local _start = tick()
 		PrintDebug("Hit something, testing now.")
 
 		-- SANITY CHECK: Don't allow the user to yield or run otherwise extensive code that takes longer than one frame/heartbeat to execute.
@@ -275,7 +275,7 @@ local function SimulateCast(cast: ActiveCast, delta: number, expectingShortCall:
 
 				local numSegmentsDecimal = rayDisplacement / cast.StateInfo.HighFidelitySegmentSize -- say rayDisplacement is 5.1, segment size is 0.5 -- 10.2 segments
 				local numSegmentsReal = math.floor(numSegmentsDecimal) -- 10 segments + 0.2 extra segments
-				local realSegmentLength = rayDisplacement / numSegmentsReal -- this spits out 0.51, which isn't exact to the defined 0.5, but it's close
+				local _realSegmentLength = rayDisplacement / numSegmentsReal -- this spits out 0.51, which isn't exact to the defined 0.5, but it's close
 
 				-- Now the real hard part is converting this to time.
 				local timeIncrement = delta / numSegmentsReal
@@ -293,8 +293,8 @@ local function SimulateCast(cast: ActiveCast, delta: number, expectingShortCall:
 					local subDisplacement = (subPosition - (subPosition + subVelocity)).Magnitude
 
 					if subResult ~= nil then
-						local subDisplacement = (subPosition - subResult.Position).Magnitude
-						local dbgSeg = DbgVisualizeSegment(CFrame.new(subPosition, subPosition + subVelocity), subDisplacement)
+						local innerSubDisplacement = (subPosition - subResult.Position).Magnitude
+						local dbgSeg = DbgVisualizeSegment(CFrame.new(subPosition, subPosition + subVelocity), innerSubDisplacement)
 						if dbgSeg ~= nil then dbgSeg.Color3 = Color3.new(0.286275, 0.329412, 0.247059) end
 
 						if
@@ -573,8 +573,8 @@ function ActiveCastStatic.new(caster: Caster, origin: Vector3, direction: Vector
 			local acceleration = latestTrajectory.Acceleration
 
 			local lastPoint = GetPositionAtTime(totalDelta, origin, initialVelocity, acceleration)
-			local lastVelocity = GetVelocityAtTime(totalDelta, initialVelocity, acceleration)
-			local lastDelta = cast.StateInfo.TotalRuntime - latestTrajectory.StartTime
+			local _lastVelocity = GetVelocityAtTime(totalDelta, initialVelocity, acceleration)
+			local _lastDelta = cast.StateInfo.TotalRuntime - latestTrajectory.StartTime
 
 			cast.StateInfo.TotalRuntime += delta
 

@@ -25,19 +25,18 @@ end
 
 local function disconnectUniversal(connection: ConnectionType)
 	if typeof(connection) == "RBXScriptConnection" then
-		local connection = connection :: RBXScriptConnection
-		connection:Disconnect()
+		local rbxConnection = connection :: RBXScriptConnection
+		rbxConnection:Disconnect()
 	elseif typeof(connection) == "thread" and connection ~= coroutine.running() then
-		local connection = connection :: thread
-		task.cancel(connection)
+		local threadConnection = connection :: thread
+		task.cancel(threadConnection)
 	elseif typeof(connection) == "table" then
-		local connection = connection :: SignalConnection.SelfObject
-		connection:disconnect()
+		local signalConnection = connection :: SignalConnection.SelfObject
+		signalConnection:disconnect()
 	end
 end
 
-function ConnectionCleaner:disconnect(connection: ConnectionType)
-	local self = self :: SelfObject
+function ConnectionCleaner.disconnect(self: SelfObject, connection: ConnectionType)
 	local index = table.find(self.connections, connection)
 	if index then
 		disconnectUniversal(self.connections[index])
@@ -45,8 +44,7 @@ function ConnectionCleaner:disconnect(connection: ConnectionType)
 	end
 end
 
-function ConnectionCleaner:disconnectAll()
-	local self = self :: SelfObject
+function ConnectionCleaner.disconnectAll(self: SelfObject)
 	for _, connection in ipairs(self.connections) do
 		disconnectUniversal(connection)
 	end

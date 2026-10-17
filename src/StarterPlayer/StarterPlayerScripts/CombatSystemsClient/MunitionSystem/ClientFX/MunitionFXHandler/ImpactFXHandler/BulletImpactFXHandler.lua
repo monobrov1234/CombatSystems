@@ -36,7 +36,10 @@ MunitionController.RayEnded:connect(function(ray: MunitionController.RayInfo, hi
 	for i, child: ParticleEmitter in pairs(particle:GetChildren()) do
 		if not child:IsA("ParticleEmitter") then continue end
 		child.Color = config.Color
-		child:Emit(child:FindFirstChild("EmitSize") and child.EmitSize.Value)
+		local emitSize = child:FindFirstChild("EmitSize")
+		if emitSize and emitSize:IsA("IntValue") then
+			child:Emit(emitSize.Value)
+		end
 	end
 
 	Debris:AddItem(particle, 10)

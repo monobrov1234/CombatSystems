@@ -51,11 +51,9 @@ end
 
 -- pitchDeg = X, yawDeg = Y, rollDeg = Z (degrees)
 -- lerpTime = seconds to apply full delta (0/nil = instant)
-function CameraRecoil:Kick(pitchDeg: number?, yawDeg: number?, rollDeg: number?, strength: number?, lerpTime: number?)
-	local self = self :: SelfObject
-	strength = strength or 1
-
-	local delta = Vector3.new(math.rad(pitchDeg or 0), math.rad(yawDeg or 0), math.rad(rollDeg or 0)) * strength
+function CameraRecoil.Kick(self: SelfObject, pitchDeg: number?, yawDeg: number?, rollDeg: number?, strength: number?, lerpTime: number?)
+	local finalStrength = strength or 1
+	local delta = Vector3.new(math.rad(pitchDeg or 0), math.rad(yawDeg or 0), math.rad(rollDeg or 0)) * finalStrength
 
 	local elapsed = lerpTime or 0
 	if elapsed <= 0 then
@@ -71,8 +69,7 @@ function CameraRecoil:Kick(pitchDeg: number?, yawDeg: number?, rollDeg: number?,
 	})
 end
 
-function CameraRecoil:_step(dt: number)
-	local self = self :: SelfObject
+function CameraRecoil._step(self: SelfObject, dt: number)
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 
@@ -112,8 +109,7 @@ function CameraRecoil:_step(dt: number)
 	camera.CFrame = cf
 end
 
-function CameraRecoil:Start()
-	local self = self :: SelfObject
+function CameraRecoil.Start(self: SelfObject)
 	if self.running then return end
 	self.running = true
 
@@ -122,21 +118,19 @@ function CameraRecoil:Start()
 	end)
 end
 
-function CameraRecoil:Stop()
-	local self = self :: SelfObject
+function CameraRecoil.Stop(self: SelfObject)
 	if not self.running then return end
 	self.running = false
 	RunService:UnbindFromRenderStep(self.bindName)
 end
 
-function CameraRecoil:Reset()
-	local self = self :: SelfObject
+function CameraRecoil.Reset(self: SelfObject)
 	self.offset = Vector3.new()
 	self.applied = Vector3.new()
 	table.clear(self.kicks)
 end
 
-function CameraRecoil:Destroy()
+function CameraRecoil.Destroy(self: SelfObject)
 	self:Stop()
 end
 

@@ -76,7 +76,7 @@ end
 -- ONLY SUPPORTS ORDINAL TABLES (ARRAYS). Merges tbl0 and tbl1 together.
 Table.join = function(tbl0, tbl1)
 	local nt = table.create(#tbl0 + #tbl1)
-	local t2 = table.move(tbl0, 1, #tbl0, 1, nt)
+	local _t2 = table.move(tbl0, 1, #tbl0, 1, nt)
 	return table.move(tbl1, 1, #tbl1, #tbl0 + 1, nt)
 end
 

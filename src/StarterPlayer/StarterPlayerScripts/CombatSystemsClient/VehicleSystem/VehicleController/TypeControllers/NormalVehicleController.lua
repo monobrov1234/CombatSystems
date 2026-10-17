@@ -12,19 +12,19 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
 
 -- STATE
-local vehicleInfo: VehicleUtil.VehicleInfo
+local vehicleInfo: VehicleUtil.VehicleInfo?
 local wheelMotors: { CylindricalConstraint } = {}
 local leftSteerAttachments: { Attachment } = {}
 local rightSteerAttachments: { Attachment } = {}
 local initialSteerY: number
-local maxAngularVelocity: number
+local maxAngularVelocity: number?
 local throttleForward = 0
 
 function module.handleSeated(info: VehicleUtil.VehicleInfo)
 	vehicleInfo = info
 
 	local wheelDiameter: number
-	for _, descendant: Instance in ipairs(vehicleInfo.VehicleModel:GetDescendants()) do
+	for _, descendant: Instance in ipairs(info.VehicleModel:GetDescendants()) do
 		if descendant:IsA("BasePart") and descendant:HasTag("Wheel") then
 			local motor = descendant:FindFirstChild("WheelMotor") :: CylindricalConstraint?
 			assert(motor and motor:IsA("CylindricalConstraint"), "Wheel has no WheelMotor constraint")
@@ -34,7 +34,7 @@ function module.handleSeated(info: VehicleUtil.VehicleInfo)
 		end
 	end
 
-	local chassis: BasePart? = vehicleInfo.VehicleModel.PrimaryPart
+	local chassis: BasePart? = info.VehicleModel.PrimaryPart
 	assert(chassis, "Vehicle has no primary part (chassis)")
 	for _, child: Instance in ipairs(chassis:GetChildren()) do
 		if child:IsA("Attachment") and child.Name ~= "Attachment" then
@@ -45,7 +45,8 @@ function module.handleSeated(info: VehicleUtil.VehicleInfo)
 	assert(#leftSteerAttachments > 0, "Vehicle has no left steering attachments")
 	assert(#rightSteerAttachments > 0, "Vehicle has no right steering attachments")
 	initialSteerY = leftSteerAttachments[1].Orientation.Y
-	maxAngularVelocity = vehicleInfo.VehicleConfig.MovementConfig.MaxSpeed / (wheelDiameter / 2)
+	assert(wheelDiameter, "Vehicle has no tagged wheels")
+	maxAngularVelocity = info.VehicleConfig.MovementConfig.MaxSpeed / (wheelDiameter / 2)
 end
 
 function module.handleDismount()
@@ -72,6 +73,7 @@ function module.handleDismount()
 end
 
 function module.driveLoop(deltaTime: number)
+	assert(vehicleInfo and maxAngularVelocity, "Vehicle controller is not seated")
 	local vehicleSeat = vehicleInfo.DriverSeat
 	local vehicleConfig = vehicleInfo.VehicleConfig
 	local someAttachment: Attachment = leftSteerAttachments[1]

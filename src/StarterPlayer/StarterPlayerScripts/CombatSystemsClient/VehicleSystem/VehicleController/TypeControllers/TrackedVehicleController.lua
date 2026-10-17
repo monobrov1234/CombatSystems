@@ -11,18 +11,18 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VehicleUtil = require(ReplicatedStorage.CombatSystemsShared.VehicleSystem.Modules.VehicleUtil)
 
 -- STATE
-local vehicleInfo: VehicleUtil.VehicleInfo
+local vehicleInfo: VehicleUtil.VehicleInfo?
 local wheelMotorsRight: { CylindricalConstraint } = {}
 local wheelMotorsLeft: { CylindricalConstraint } = {}
-local maxAngularVelocity: number
+local maxAngularVelocity: number?
 local throttleForward = 0
 
 function module.handleSeated(info: VehicleUtil.VehicleInfo)
 	vehicleInfo = info
 
 	local wheelDiameter: number
-	for _, part: Instance in ipairs(vehicleInfo.VehicleModel:GetDescendants()) do
-		if part:HasTag("Wheel") then
+	for _, part: Instance in ipairs(info.VehicleModel:GetDescendants()) do
+		if part:IsA("BasePart") and part:HasTag("Wheel") then
 			local motor = part:FindFirstChild("WheelMotor")
 			assert(motor, "WheelMotor not found in wheel part")
 			assert(motor:IsA("CylindricalConstraint"), "Found WheelMotor is not CylindricalConstraint")
@@ -39,7 +39,8 @@ function module.handleSeated(info: VehicleUtil.VehicleInfo)
 		end
 	end
 
-	maxAngularVelocity = vehicleInfo.VehicleConfig.MovementConfig.MaxSpeed / (wheelDiameter / 2)
+	assert(wheelDiameter, "Vehicle has no tagged wheels")
+	maxAngularVelocity = info.VehicleConfig.MovementConfig.MaxSpeed / (wheelDiameter / 2)
 end
 
 function module.handleDismount()
@@ -57,6 +58,7 @@ function module.handleDismount()
 end
 
 function module.driveLoop(deltaTime: number)
+	assert(vehicleInfo and maxAngularVelocity, "Vehicle controller is not seated")
 	local vehicleSeat = vehicleInfo.DriverSeat
 	local vehicleConfig = vehicleInfo.VehicleConfig
 

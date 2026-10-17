@@ -35,7 +35,7 @@ local turretHudGui = turretSystemGui:WaitForChild("TurretHud")
 local cursorHudGui = turretSystemGui:WaitForChild("TurretCursorHud")
 
 -- FINALS
-local log: Logger.SelfObject = Logger.new("TurretGuiController")
+local _log: Logger.SelfObject = Logger.new("TurretGuiController")
 
 local reloadBarYOffset = 40
 local cleaner = ConnectionCleaner.new()
@@ -164,17 +164,17 @@ function funcs.rebuildHotbar()
 		assert(config, "Munition doesn't have config (should not happen)")
 
 		item.Name = name
-		local item = item :: any
-		item.Title.Text = config.DisplayName or name
+		local itemGui = item :: any
+		itemGui.Title.Text = config.DisplayName or name
 
 		if icon then
-			item.Icon.Image = "rbxassetid://" .. tostring(icon)
+			itemGui.Icon.Image = "rbxassetid://" .. tostring(icon)
 		else
 			--item.Icon.Image = "rbxassetid://110521765631413"
 		end
 
-		item.Visible = true
-		item.Parent = hotbar
+		itemGui.Visible = true
+		itemGui.Parent = hotbar
 	end
 
 	if turretState.UsingMainGun then
@@ -211,16 +211,16 @@ function funcs.updateHotbar()
 			
 			if not found then continue end
 
-			local item = item :: any
-			item.Count.Text = tostring(turretState.MunitionStorage[item.Name])
-			item.Icon.SelectedOutline.Transparency = (turretState.SelectedMunition == item.Name) and 0 or 1
+			local itemGui = item :: any
+			itemGui.Count.Text = tostring(turretState.MunitionStorage[itemGui.Name])
+			itemGui.Icon.SelectedOutline.Transparency = (turretState.SelectedMunition == itemGui.Name) and 0 or 1
 		end
 	else 
 		for _, item: Instance in ipairs(hotbar:GetChildren()) do
 			if item.Name == turretInfo.TurretConfig.GunConfig.CoaxConfig.AmmoType then
-				local item = item :: any
-				item.Count.Text = tostring(turretState.CoaxAmmoSize)
-				item.Icon.SelectedOutline.Transparency = 0
+				local itemGui = item :: any
+				itemGui.Count.Text = tostring(turretState.CoaxAmmoSize)
+				itemGui.Icon.SelectedOutline.Transparency = 0
 			end
 		end
 	end
