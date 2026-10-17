@@ -17,7 +17,7 @@ wally install
 From the repository root, build the test place:
 
 ```powershell
-rojo build tests/default.project.json -o tests/build.rbxlx
+rojo build tests/CombatSystemsTests.project.json -o tests/build.rbxlx
 ```
 
 Open `tests/build.rbxlx` in Roblox Studio. Open **Script → Output**, and run:
