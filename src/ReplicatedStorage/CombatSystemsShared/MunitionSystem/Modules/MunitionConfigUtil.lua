@@ -16,7 +16,7 @@ for _, config: Instance in ipairs(munitionConfigs:GetDescendants()) do
 	if not config:IsA("ModuleScript") then continue end
 	if config:FindFirstAncestorOfClass("ModuleScript") then continue end -- if its script that is parented to a module script, we ignore it
 	if config == munitionConfigs.Default.DefaultConfig then continue end
-	assert(not inheritConfigs[config.Name])
+	assert(not inheritConfigs[config.Name], "Duplicate config: " .. config.Name)
 	inheritConfigs[config.Name] = TableInheritUtil.inheritConfig({ require(config), defaultConfig })
 	inheritConfigs[config.Name].MunitionName = config.Name
 end

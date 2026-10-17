@@ -1,5 +1,8 @@
 .cursor/
+*.lock
 globalTypes.d.luau
 globalTypes
-assets.rbxl.lock
 sourcemap.json
+
+tests/Packages/
+tests/build.rbxlx

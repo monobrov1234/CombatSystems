@@ -1,0 +1,13 @@
+[package]
+name = "monobrov/combat-systems-tests"
+description = "Test dependencies for CombatSystems"
+version = "0.1.0"
+license = "MIT"
+authors = ["Monobrov1234"]
+realm = "shared"
+registry = "https://github.com/UpliftGames/wally-index"
+private = true
+
+[dev-dependencies]
+Jest = "roblox/jest@=3.20.1"
+JestGlobals = "roblox/jest-globals@=3.20.1"

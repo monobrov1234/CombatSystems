@@ -1,0 +1,46 @@
+
+{
+  "name": "CombatSystemsTests",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$ignoreUnknownInstances": true,
+      "$path": "../src/ReplicatedStorage",
+      "Packages": {
+        "$className": "Folder",
+        "$path": "Packages",
+        "Project": {
+          "$path": "src"
+        }
+      },
+      "runner": {
+        "$path": "runner/runner.lua"
+      }
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      "$path": "../src/ServerScriptService"
+    },
+    "ServerStorage": {
+      "$className": "ServerStorage",
+      "$ignoreUnknownInstances": true,
+      "$path": "../src/ServerStorage"
+    },
+    "StarterGui": {
+      "$className": "StarterGui",
+      "$ignoreUnknownInstances": true,
+      "$path": "../src/StarterGui"
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "$ignoreUnknownInstances": true,
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$ignoreUnknownInstances": true,
+        "$path": "../src/StarterPlayer/StarterPlayerScripts"
+      }
+    }
+  }
+}
